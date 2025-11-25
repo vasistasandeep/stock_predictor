@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Stock Predictor</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center">Nifty 200 Stock Analysis</h1>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Prediction
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Signal: <span id="signal" class="badge bg-secondary">-</span></h5>
+                        <p class="card-text">Entry Price: <span id="entryPrice">-</span></p>
+                        <p class="card-text">Exit Price: <span id="exitPrice">-</span></p>
+                        <p class="card-text">Stop-Loss: <span id="stopLoss">-</span></p>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Attributes
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">50-Day Simple Moving Average: <span id="sma50">-</span></p>
+                        <p class="card-text">200-Day Simple Moving Average: <span id="sma200">-</span></p>
+                        <p class="card-text">Relative Strength Index (RSI): <span id="rsi">-</span></p>
+                        <p class="card-text">Average True Range (ATR): <span id="atr">-</span></p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Top 20 Stocks
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group" id="top20list">
+                            <!-- Stocks will be loaded here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        Stock Data
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <input type="text" id="tickerInput" class="form-control" placeholder="Enter stock ticker (e.g., RELIANCE.NS)">
+                            <div id="riskAppetite" class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="risk" id="lowRisk" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="lowRisk">Low</label>
+
+                                <input type="radio" class="btn-check" name="risk" id="mediumRisk" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary" for="mediumRisk">Medium</label>
+
+                                <input type="radio" class="btn-check" name="risk" id="highRisk" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="highRisk">High</label>
+                            </div>
+                            <button class="btn btn-primary" type="button" id="fetchBtn">Fetch Data</button>
+                        </div>
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
