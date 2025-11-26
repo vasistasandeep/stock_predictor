@@ -594,7 +594,13 @@ def get_stock_data(ticker, risk_appetite):
         # Get data source from query parameter
         source = request.args.get('source', DEFAULT_DATA_SOURCE)
         
+        # Get custom parameters if risk_appetite is Custom
+        custom_stop_loss = request.args.get('customStopLoss', type=float)
+        custom_exit_target = request.args.get('customExitTarget', type=float)
+        
         print(f"🔄 Multi-source: Analyzing {ticker} with {risk_appetite} risk from {source}...")
+        if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
+            print(f"🎯 Custom parameters: Stop-Loss={custom_stop_loss}%, Exit Target={custom_exit_target}%")
         
         # Check cache first
         cache_key = f"stock_{ticker}_{risk_appetite}_{source}"
@@ -665,6 +671,7 @@ def get_stock_data(ticker, risk_appetite):
                 atr = current_price * 0.02
             
             # Generate analysis summary
+            print(f"📊 RSI Calculation Result: {rsi:.2f}")
             if rsi > 70:
                 signal = "SELL"
                 reason = f"RSI ({rsi:.1f}) indicates overbought conditions"
@@ -675,8 +682,22 @@ def get_stock_data(ticker, risk_appetite):
                 signal = "HOLD"
                 reason = f"RSI ({rsi:.1f}) is in neutral zone"
             
-            risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10}
-            stop_loss = current_price * (1 - risk_multipliers.get(risk_appetite, 0.05))
+            print(f"🎯 Signal Generated: {signal} - {reason}")
+            
+            # Calculate risk multipliers - handle custom parameters
+            if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
+                stop_loss_multiplier = custom_stop_loss / 100
+                exit_multiplier = custom_exit_target / 100
+                print(f"🎯 Using custom multipliers: Stop-Loss={stop_loss_multiplier:.3f}, Exit={exit_multiplier:.3f}")
+            else:
+                risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10, 'medium': 0.05}
+                stop_loss_multiplier = risk_multipliers.get(risk_appetite.lower(), 0.05)
+                exit_multiplier = stop_loss_multiplier * 3  # 3:1 risk-reward ratio for non-custom
+            
+            stop_loss = current_price * (1 - stop_loss_multiplier)
+            
+            print(f"💰 Price Calculations: Current={current_price:.2f}, StopLoss={stop_loss:.2f}, Exit={current_price * (1 + exit_multiplier):.2f}")
+            print(f"📈 Risk Multipliers: StopLoss={stop_loss_multiplier:.3f}, Exit={exit_multiplier:.3f}")
             
             analysis_summary = f"Technical indicators suggest {signal}. {reason}. Consider stop-loss at ₹{stop_loss:.2f} for {risk_appetite} risk."
             
@@ -709,11 +730,11 @@ def get_stock_data(ticker, risk_appetite):
                 # Trading prediction fields with 2 decimal places
                 'signal': signal,
                 'entry_price': round(current_price, 2),
-                'exit_price': round(current_price * (1 + risk_multipliers.get(risk_appetite, 0.05)), 2),
+                'exit_price': round(current_price * (1 + exit_multiplier), 2),
                 'stop_loss': round(stop_loss, 2),
                 'confidence': 75 if signal == 'HOLD' else 85,
-                'target_profit': round((current_price * (1 + risk_multipliers.get(risk_appetite, 0.05))) - current_price, 2),
-                'risk_reward_ratio': 2.0,
+                'target_profit': round((current_price * (1 + exit_multiplier)) - current_price, 2),
+                'risk_reward_ratio': round(exit_multiplier / stop_loss_multiplier, 2) if stop_loss_multiplier > 0 else 2.0,
                 'time_horizon': '1-2 weeks',
                 'chart_data': {
                     'dates': [],
