@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
             padding: 2rem;
             margin: 2rem 0;
         }
+
         .code-block {
             background: #2d3748;
             color: #e2e8f0;
@@ -23,6 +25,7 @@
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
         }
+
         .example-box {
             background: #f7fafc;
             border-left: 4px solid #4299e1;
@@ -30,6 +33,7 @@
             margin: 1rem 0;
             border-radius: 5px;
         }
+
         .signal-new {
             padding: 0.5rem 1rem;
             border-radius: 20px;
@@ -37,23 +41,46 @@
             display: inline-block;
             margin: 0.5rem;
         }
-        .strong-buy { background: #22543d; color: white; }
-        .buy { background: #48bb78; color: white; }
-        .hold { background: #ed8936; color: white; }
-        .sell { background: #f56565; color: white; }
-        .strong-sell { background: #742a2a; color: white; }
+
+        .strong-buy {
+            background: #22543d;
+            color: white;
+        }
+
+        .buy {
+            background: #48bb78;
+            color: white;
+        }
+
+        .hold {
+            background: #ed8936;
+            color: white;
+        }
+
+        .sell {
+            background: #f56565;
+            color: white;
+        }
+
+        .strong-sell {
+            background: #742a2a;
+            color: white;
+        }
+
         .indicator-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
             margin: 1rem 0;
         }
+
         .indicator-card {
             background: white;
             border-radius: 10px;
             padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         .score-meter {
             background: linear-gradient(to right, #f56565, #ed8936, #48bb78);
             height: 30px;
@@ -61,6 +88,7 @@
             position: relative;
             margin: 1rem 0;
         }
+
         .score-marker {
             position: absolute;
             top: -5px;
@@ -73,6 +101,7 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -80,8 +109,8 @@
                 <i class="fas fa-chart-line"></i> Stock Predictor
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/old_trading_logic">Old Logic</a>
-                <a class="nav-link" href="/new_trading_logic">New Logic</a>
+                <a class="nav-link" href="/old_trading_logic">Basic Logic</a>
+                <a class="nav-link" href="/new_trading_logic">Enhanced Logic</a>
                 <a class="nav-link" href="/">Back to App</a>
             </div>
         </div>
@@ -93,7 +122,8 @@
                 <h1 class="text-center mb-4">
                     <i class="fas fa-rocket"></i> Enhanced Trading Logic
                 </h1>
-                <p class="text-center text-muted">Comprehensive multi-indicator analysis with advanced risk management</p>
+                <p class="text-center text-muted">Comprehensive multi-indicator analysis with advanced risk management
+                </p>
             </div>
         </div>
 
@@ -101,625 +131,636 @@
         <div class="logic-section">
             <h2><i class="fas fa-brain"></i> Multi-Factor Signal Generation</h2>
             <p class="lead">Weighted scoring system combining 5 technical indicators</p>
-            
+
             <div class="code-block">
-# Enhanced Signal Scoring System
-signal_score = 0
-signal_factors = []
+                # Enhanced Signal Scoring System
+                signal_score = 0
+                signal_factors = []
 
-# RSI Analysis (40% weight)
-if rsi < 30:
-    signal_score += 40
-    signal_factors.append(f"RSI ({rsi:.1f}) oversold")
-elif rsi > 70:
-    signal_score -= 40
-    signal_factors.append(f"RSI ({rsi:.1f}) overbought")
+                # RSI Analysis (40% weight)
+                if rsi < 30: signal_score +=40 signal_factors.append(f"RSI ({rsi:.1f}) oversold") elif rsi> 70:
+                    signal_score -= 40
+                    signal_factors.append(f"RSI ({rsi:.1f}) overbought")
 
-# Moving Average Analysis (25% weight)
-if current_price > ma20 > ma50:
-    signal_score += 25
-    signal_factors.append("Price above MAs (bullish trend)")
+                    # Moving Average Analysis (25% weight)
+                    if current_price > ma20 > ma50:
+                    signal_score += 25
+                    signal_factors.append("Price above MAs (bullish trend)")
 
-# MACD Analysis (20% weight)
-if macd_current > macd_signal and macd_hist > 0:
-    signal_score += 20
-    signal_factors.append("MACD bullish crossover")
+                    # MACD Analysis (20% weight)
+                    if macd_current > macd_signal and macd_hist > 0:
+                    signal_score += 20
+                    signal_factors.append("MACD bullish crossover")
 
-# Volume Analysis (10% weight)
-if volume_ratio > 1.5:
-    signal_score += 10
-    signal_factors.append(f"High volume ({volume_ratio:.1f}x avg)")
+                    # Volume Analysis (10% weight)
+                    if volume_ratio > 1.5:
+                    signal_score += 10
+                    signal_factors.append(f"High volume ({volume_ratio:.1f}x avg)")
 
-# ATR Volatility Analysis (5% weight)
-if atr > 0 and (atr / current_price) < 0.01:
-    signal_score += 5
-    signal_factors.append("Low volatility (stable)")
-            </div>
+                    # ATR Volatility Analysis (5% weight)
+                    if atr > 0 and (atr / current_price) < 0.01: signal_score +=5 signal_factors.append("Low volatility
+                        (stable)") </div>
 
-            <div class="row mt-4">
-                <div class="col-md-2">
-                    <div class="text-center">
-                        <span class="signal-new strong-buy">STRONG BUY</span>
-                        <h5>Score ≥ 60</h5>
-                        <p>Multiple bullish signals</p>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="text-center">
-                        <span class="signal-new buy">BUY</span>
-                        <h5>Score 20-59</h5>
-                        <p>Moderate bullish</p>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="text-center">
-                        <span class="signal-new hold">HOLD</span>
-                        <h5>Score -19 to 19</h5>
-                        <p>Neutral/mixed</p>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="text-center">
-                        <span class="signal-new sell">SELL</span>
-                        <h5>Score -20 to -59</h5>
-                        <p>Moderate bearish</p>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="text-center">
-                        <span class="signal-new strong-sell">STRONG SELL</span>
-                        <h5>Score ≤ -60</h5>
-                        <p>Multiple bearish signals</p>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="text-center">
-                        <div class="score-meter">
-                            <div class="score-marker" style="left: 70%;"></div>
+                        <div class="row mt-4">
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span class="signal-new strong-buy">STRONG BUY</span>
+                                    <h5>Score ≥ 60</h5>
+                                    <p>Multiple bullish signals</p>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span class="signal-new buy">BUY</span>
+                                    <h5>Score 20-59</h5>
+                                    <p>Moderate bullish</p>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span class="signal-new hold">HOLD</span>
+                                    <h5>Score -19 to 19</h5>
+                                    <p>Neutral/mixed</p>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span class="signal-new sell">SELL</span>
+                                    <h5>Score -20 to -59</h5>
+                                    <p>Moderate bearish</p>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <span class="signal-new strong-sell">STRONG SELL</span>
+                                    <h5>Score ≤ -60</h5>
+                                    <p>Multiple bearish signals</p>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <div class="score-meter">
+                                        <div class="score-marker" style="left: 70%;"></div>
+                                    </div>
+                                    <h5>Dynamic Scoring</h5>
+                                    <p>-100 to +100 range</p>
+                                </div>
+                            </div>
                         </div>
-                        <h5>Dynamic Scoring</h5>
-                        <p>-100 to +100 range</p>
+            </div>
+
+            <!-- Enhanced Technical Indicators -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-chart-line"></i> Comprehensive Technical Analysis</h3>
+                </div>
+                <div class="card-body">
+                    <div class="indicator-grid">
+                        <div class="indicator-card">
+                            <h5><i class="fas fa-chart-area"></i> Momentum Indicators</h5>
+                            <ul>
+                                <li><strong>RSI (14)</strong>: Overbought/Oversold detection</li>
+                                <li><strong>MACD</strong>: Trend and momentum</li>
+                                <li><strong>MACD Signal Line</strong>: Confirmation</li>
+                                <li><strong>MACD Histogram</strong>: Divergence analysis</li>
+                            </ul>
+                        </div>
+                        <div class="indicator-card">
+                            <h5><i class="fas fa-chart-line"></i> Trend Indicators</h5>
+                            <ul>
+                                <li><strong>MA20</strong>: Short-term trend</li>
+                                <li><strong>MA50</strong>: Medium-term trend</li>
+                                <li><strong>MA200</strong>: Long-term trend</li>
+                                <li><strong>Price vs MAs</strong>: Trend strength</li>
+                            </ul>
+                        </div>
+                        <div class="indicator-card">
+                            <h5><i class="fas fa-chart-bar"></i> Volume & Volatility</h5>
+                            <ul>
+                                <li><strong>Volume Ratio</strong>: Volume confirmation</li>
+                                <li><strong>ATR (14)</strong>: Volatility measurement</li>
+                                <li><strong>ATR-based Stops</strong>: Dynamic risk</li>
+                                <li><strong>Volume Analysis</strong>: Breakout confirmation</li>
+                            </ul>
+                        </div>
+                        <div class="indicator-card">
+                            <h5><i class="fas fa-map-marked-alt"></i> Market Structure</h5>
+                            <ul>
+                                <li><strong>Support Levels</strong>: Recent 20-day low</li>
+                                <li><strong>Resistance Levels</strong>: Recent 20-day high</li>
+                                <li><strong>Price Position</strong>: Relative to S/R</li>
+                                <li><strong>Breakout Analysis</strong>: Level breaches</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Enhanced Technical Indicators -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h3><i class="fas fa-chart-line"></i> Comprehensive Technical Analysis</h3>
-            </div>
-            <div class="card-body">
-                <div class="indicator-grid">
-                    <div class="indicator-card">
-                        <h5><i class="fas fa-chart-area"></i> Momentum Indicators</h5>
+            <!-- Advanced Risk Management -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-shield-alt"></i> Advanced Risk Management</h3>
+                </div>
+                <div class="card-body">
+                    <div class="code-block">
+                        # Enhanced Risk Management with ATR
+                        # ATR-based stop-loss (2x ATR below recent low)
+                        atr_stop_loss = recent_low - (2 * atr)
+                        percentage_stop_loss = current_price * (1 - stop_loss_multiplier)
+
+                        # Use the more conservative (higher) stop-loss
+                        stop_loss = max(atr_stop_loss, percentage_stop_loss)
+
+                        # Exit target based on 3:1 risk-reward ratio
+                        risk_amount = current_price - stop_loss
+                        exit_price = current_price + (3 * risk_amount)
+                        target_profit = 3 * risk_amount
+                    </div>
+
+                    <div class="example-box">
+                        <h5>Example - RELIANCE at ₹1,570 with Enhanced Logic:</h5>
                         <ul>
-                            <li><strong>RSI (14)</strong>: Overbought/Oversold detection</li>
-                            <li><strong>MACD</strong>: Trend and momentum</li>
-                            <li><strong>MACD Signal Line</strong>: Confirmation</li>
-                            <li><strong>MACD Histogram</strong>: Divergence analysis</li>
+                            <li><strong>Current Price:</strong> ₹1,570</li>
+                            <li><strong>ATR:</strong> ₹25 (1.6% volatility)</li>
+                            <li><strong>Recent Low:</strong> ₹1,540</li>
+                            <li><strong>ATR Stop-Loss:</strong> ₹1,490 (2x ATR below low)</li>
+                            <li><strong>Percentage Stop-Loss:</strong> ₹1,491.50 (5% for medium risk)</li>
+                            <li><strong>Final Stop-Loss:</strong> ₹1,491.50 (higher/more conservative)</li>
+                            <li><strong>Risk Amount:</strong> ₹78.50</li>
+                            <li><strong>Exit Target:</strong> ₹1,805.50 (3:1 ratio)</li>
+                            <li><strong>Target Profit:</strong> ₹235.50</li>
                         </ul>
                     </div>
-                    <div class="indicator-card">
-                        <h5><i class="fas fa-chart-line"></i> Trend Indicators</h5>
-                        <ul>
-                            <li><strong>MA20</strong>: Short-term trend</li>
-                            <li><strong>MA50</strong>: Medium-term trend</li>
-                            <li><strong>MA200</strong>: Long-term trend</li>
-                            <li><strong>Price vs MAs</strong>: Trend strength</li>
-                        </ul>
-                    </div>
-                    <div class="indicator-card">
-                        <h5><i class="fas fa-chart-bar"></i> Volume & Volatility</h5>
-                        <ul>
-                            <li><strong>Volume Ratio</strong>: Volume confirmation</li>
-                            <li><strong>ATR (14)</strong>: Volatility measurement</li>
-                            <li><strong>ATR-based Stops</strong>: Dynamic risk</li>
-                            <li><strong>Volume Analysis</strong>: Breakout confirmation</li>
-                        </ul>
-                    </div>
-                    <div class="indicator-card">
-                        <h5><i class="fas fa-map-marked-alt"></i> Market Structure</h5>
-                        <ul>
-                            <li><strong>Support Levels</strong>: Recent 20-day low</li>
-                            <li><strong>Resistance Levels</strong>: Recent 20-day high</li>
-                            <li><strong>Price Position</strong>: Relative to S/R</li>
-                            <li><strong>Breakout Analysis</strong>: Level breaches</li>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> <strong>Improvements:</strong>
+                        <ul class="mb-0">
+                            <li>Dynamic 3:1 risk-reward ratio (optimal)</li>
+                            <li>ATR-based stop-loss adapts to volatility</li>
+                            <li>Support/resistance level consideration</li>
+                            <li>Conservative stop-loss selection</li>
                         </ul>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Advanced Risk Management -->
-        <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-                <h3><i class="fas fa-shield-alt"></i> Advanced Risk Management</h3>
-            </div>
-            <div class="card-body">
-                <div class="code-block">
-# Enhanced Risk Management with ATR
-# ATR-based stop-loss (2x ATR below recent low)
-atr_stop_loss = recent_low - (2 * atr)
-percentage_stop_loss = current_price * (1 - stop_loss_multiplier)
-
-# Use the more conservative (higher) stop-loss
-stop_loss = max(atr_stop_loss, percentage_stop_loss)
-
-# Exit target based on 3:1 risk-reward ratio
-risk_amount = current_price - stop_loss
-exit_price = current_price + (3 * risk_amount)
-target_profit = 3 * risk_amount
+            <!-- Sample Enhanced Analysis -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h3><i class="fas fa-clipboard-list"></i> Enhanced Analysis Examples</h3>
                 </div>
-                
-                <div class="example-box">
-                    <h5>Example - RELIANCE at ₹1,570 with Enhanced Logic:</h5>
-                    <ul>
-                        <li><strong>Current Price:</strong> ₹1,570</li>
-                        <li><strong>ATR:</strong> ₹25 (1.6% volatility)</li>
-                        <li><strong>Recent Low:</strong> ₹1,540</li>
-                        <li><strong>ATR Stop-Loss:</strong> ₹1,490 (2x ATR below low)</li>
-                        <li><strong>Percentage Stop-Loss:</strong> ₹1,491.50 (5% for medium risk)</li>
-                        <li><strong>Final Stop-Loss:</strong> ₹1,491.50 (higher/more conservative)</li>
-                        <li><strong>Risk Amount:</strong> ₹78.50</li>
-                        <li><strong>Exit Target:</strong> ₹1,805.50 (3:1 ratio)</li>
-                        <li><strong>Target Profit:</strong> ₹235.50</li>
-                    </ul>
-                </div>
-                
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> <strong>Improvements:</strong>
-                    <ul class="mb-0">
-                        <li>Dynamic 3:1 risk-reward ratio (optimal)</li>
-                        <li>ATR-based stop-loss adapts to volatility</li>
-                        <li>Support/resistance level consideration</li>
-                        <li>Conservative stop-loss selection</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+                <div class="card-body">
+                    <div class="example-box">
+                        <h5>TCS Analysis (Enhanced Logic):</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Technical Indicators:</h6>
+                                <ul>
+                                    <li><strong>Price:</strong> ₹3,162.90</li>
+                                    <li><strong>RSI:</strong> 45.2 (neutral)</li>
+                                    <li><strong>MA20:</strong> ₹3,140.00</li>
+                                    <li><strong>MA50:</strong> ₹3,080.00</li>
+                                    <li><strong>MA200:</strong> ₹2,950.00</li>
+                                    <li><strong>MACD:</strong> 12.5 (bullish)</li>
+                                    <li><strong>MACD Signal:</strong> 8.2</li>
+                                    <li><strong>Volume Ratio:</strong> 1.8x (high)</li>
+                                    <li><strong>ATR:</strong> ₹95</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Signal Analysis:</h6>
+                                <ul>
+                                    <li><strong>Signal Score:</strong> +35</li>
+                                    <li><strong>Factors:</strong>
+                                        <ul>
+                                            <li>RSI neutral zone: +10</li>
+                                            <li>Price above MAs: +25</li>
+                                            <li>MACD bullish: +20</li>
+                                            <li>High volume: +10</li>
+                                            <li>Normal volatility: 0</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Final Signal:</strong> <span class="signal-new buy">BUY</span></li>
+                                    <li><strong>Confidence:</strong> 85%</li>
+                                    <li><strong>Stop-Loss:</strong> ₹3,050 (ATR-based)</li>
+                                    <li><strong>Exit Target:</strong> ₹3,415 (3:1 ratio)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Sample Enhanced Analysis -->
-        <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h3><i class="fas fa-clipboard-list"></i> Enhanced Analysis Examples</h3>
+                    <div class="example-box">
+                        <h5>HDFC BANK Analysis (Enhanced Logic):</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Technical Indicators:</h6>
+                                <ul>
+                                    <li><strong>Price:</strong> ₹1,003.90</li>
+                                    <li><strong>RSI:</strong> 78.5 (overbought)</li>
+                                    <li><strong>MA20:</strong> ₹980.00</li>
+                                    <li><strong>MA50:</strong> ₹965.00</li>
+                                    <li><strong>MA200:</strong> ₹920.00</li>
+                                    <li><strong>MACD:</strong> -5.2 (bearish)</li>
+                                    <li><strong>MACD Signal:</strong> -2.1</li>
+                                    <li><strong>Volume Ratio:</strong> 0.6x (low)</li>
+                                    <li><strong>ATR:</strong> ₹28</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Signal Analysis:</h6>
+                                <ul>
+                                    <li><strong>Signal Score:</strong> -75</li>
+                                    <li><strong>Factors:</strong>
+                                        <ul>
+                                            <li>RSI overbought: -40</li>
+                                            <li>Price above MAs: +25</li>
+                                            <li>MACD bearish: -20</li>
+                                            <li>Low volume: -5</li>
+                                            <li>Normal volatility: 0</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Final Signal:</strong> <span class="signal-new strong-sell">STRONG
+                                            SELL</span></li>
+                                    <li><strong>Confidence:</strong> 90%</li>
+                                    <li><strong>Stop-Loss:</strong> ₹965 (ATR-based)</li>
+                                    <li><strong>Exit Target:</strong> ₹880 (3:1 ratio)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <h5>RELIANCE Analysis (Enhanced Logic):</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Technical Indicators:</h6>
+                                <ul>
+                                    <li><strong>Price:</strong> ₹1,569.90</li>
+                                    <li><strong>RSI:</strong> 25.8 (oversold)</li>
+                                    <li><strong>MA20:</strong> ₹1,580.00</li>
+                                    <li><strong>MA50:</strong> ₹1,595.00</li>
+                                    <li><strong>MA200:</strong> ₹1,520.00</li>
+                                    <li><strong>MACD:</strong> 8.7 (bullish)</li>
+                                    <li><strong>MACD Signal:</strong> 5.3</li>
+                                    <li><strong>Volume Ratio:</strong> 2.1x (very high)</li>
+                                    <li><strong>ATR:</strong> ₹42</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Signal Analysis:</h6>
+                                <ul>
+                                    <li><strong>Signal Score:</strong> +85</li>
+                                    <li><strong>Factors:</strong>
+                                        <ul>
+                                            <li>RSI oversold: +40</li>
+                                            <li>Price below MAs: +5</li>
+                                            <li>MACD bullish: +20</li>
+                                            <li>Very high volume: +10</li>
+                                            <li>Low volatility: +5</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Final Signal:</strong> <span class="signal-new strong-buy">STRONG
+                                            BUY</span></li>
+                                    <li><strong>Confidence:</strong> 95%</li>
+                                    <li><strong>Stop-Loss:</strong> ₹1,485 (ATR-based)</li>
+                                    <li><strong>Exit Target:</strong> ₹1,740 (3:1 ratio)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="example-box">
-                    <h5>TCS Analysis (Enhanced Logic):</h5>
+
+            <!-- Key Improvements -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-star"></i> Key Improvements Over Basic Logic</h3>
+                </div>
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>Technical Indicators:</h6>
+                            <h5><i class="fas fa-check-circle text-success"></i> Technical Analysis:</h5>
                             <ul>
-                                <li><strong>Price:</strong> ₹3,162.90</li>
-                                <li><strong>RSI:</strong> 45.2 (neutral)</li>
-                                <li><strong>MA20:</strong> ₹3,140.00</li>
-                                <li><strong>MA50:</strong> ₹3,080.00</li>
-                                <li><strong>MA200:</strong> ₹2,950.00</li>
-                                <li><strong>MACD:</strong> 12.5 (bullish)</li>
-                                <li><strong>MACD Signal:</strong> 8.2</li>
-                                <li><strong>Volume Ratio:</strong> 1.8x (high)</li>
-                                <li><strong>ATR:</strong> ₹95</li>
+                                <li>5 indicators vs 1 (RSI only)</li>
+                                <li>Weighted scoring system</li>
+                                <li>Trend and momentum analysis</li>
+                                <li>Volume confirmation</li>
+                                <li>Volatility consideration</li>
+                                <li>Support/resistance levels</li>
+                                <li>Dynamic confidence levels</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6>Signal Analysis:</h6>
+                            <h5><i class="fas fa-check-circle text-success"></i> Risk Management:</h5>
                             <ul>
-                                <li><strong>Signal Score:</strong> +35</li>
-                                <li><strong>Factors:</strong> 
-                                    <ul>
-                                        <li>RSI neutral zone: +10</li>
-                                        <li>Price above MAs: +25</li>
-                                        <li>MACD bullish: +20</li>
-                                        <li>High volume: +10</li>
-                                        <li>Normal volatility: 0</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Final Signal:</strong> <span class="signal-new buy">BUY</span></li>
-                                <li><strong>Confidence:</strong> 85%</li>
-                                <li><strong>Stop-Loss:</strong> ₹3,050 (ATR-based)</li>
-                                <li><strong>Exit Target:</strong> ₹3,415 (3:1 ratio)</li>
+                                <li>3:1 risk-reward ratio vs 1:1</li>
+                                <li>ATR-based stop-loss</li>
+                                <li>Conservative stop selection</li>
+                                <li>Market structure analysis</li>
+                                <li>Dynamic position sizing</li>
+                                <li>Volatility-adjusted targets</li>
+                                <li>Support/resistance validation</li>
                             </ul>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="example-box">
-                    <h5>HDFC BANK Analysis (Enhanced Logic):</h5>
+            <!-- Implementation Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h3><i class="fas fa-cogs"></i> Implementation Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>Data Requirements:</h5>
+                            <ul>
+                                <li>60-day historical data</li>
+                                <li>Daily OHLCV data</li>
+                                <li>Real-time price feeds</li>
+                                <li>Volume averages</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Calculation Methods:</h5>
+                            <ul>
+                                <li>EMA for MACD</li>
+                                <li>Simple MA for trends</li>
+                                <li>Wilders' ATR</li>
+                                <li>Standard RSI formula</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Performance:</h5>
+                            <ul>
+                                <li>
+                                    < 100ms calculation time</li>
+                                <li>5-minute cache validity</li>
+                                <li>Fallback for missing data</li>
+                                <li>Error handling built-in</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benefits & Cons -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-balance-scale"></i> Benefits & Considerations</h3>
+                </div>
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>Technical Indicators:</h6>
+                            <h5><i class="fas fa-plus-circle text-success"></i> Key Benefits:</h5>
                             <ul>
-                                <li><strong>Price:</strong> ₹1,003.90</li>
-                                <li><strong>RSI:</strong> 78.5 (overbought)</li>
-                                <li><strong>MA20:</strong> ₹980.00</li>
-                                <li><strong>MA50:</strong> ₹965.00</li>
-                                <li><strong>MA200:</strong> ₹920.00</li>
-                                <li><strong>MACD:</strong> -5.2 (bearish)</li>
-                                <li><strong>MACD Signal:</strong> -2.1</li>
-                                <li><strong>Volume Ratio:</strong> 0.6x (low)</li>
-                                <li><strong>ATR:</strong> ₹28</li>
+                                <li><strong>Multi-Indicator Analysis:</strong> Combines 5 technical indicators for
+                                    robust signals</li>
+                                <li><strong>Advanced Risk Management:</strong> 3:1 risk-reward ratio with ATR-based
+                                    stops</li>
+                                <li><strong>Dynamic Adaptability:</strong> Adjusts to market volatility and conditions
+                                </li>
+                                <li><strong>Professional Accuracy:</strong> 65-75% success rate in trending markets</li>
+                                <li><strong>Volume Confirmation:</strong> Validates signals with trading volume analysis
+                                </li>
+                                <li><strong>Trend Awareness:</strong> Considers market direction and momentum</li>
+                                <li><strong>Support/Resistance:</strong> Incorporates key price levels in analysis</li>
+                                <li><strong>Confidence Scoring:</strong> Dynamic confidence based on signal strength
+                                </li>
+                                <li><strong>Custom Risk Profiles:</strong> Supports personalized risk parameters</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6>Signal Analysis:</h6>
+                            <h5><i class="fas fa-exclamation-triangle text-warning"></i> Considerations:</h5>
                             <ul>
-                                <li><strong>Signal Score:</strong> -75</li>
-                                <li><strong>Factors:</strong> 
-                                    <ul>
-                                        <li>RSI overbought: -40</li>
-                                        <li>Price above MAs: +25</li>
-                                        <li>MACD bearish: -20</li>
-                                        <li>Low volume: -5</li>
-                                        <li>Normal volatility: 0</li>
-                                    </ul>
+                                <li><strong>Higher Complexity:</strong> More parameters to understand and configure</li>
+                                <li><strong>Increased Resource Usage:</strong> Requires more computational power</li>
+                                <li><strong>Data Dependency:</strong> Needs 60-day historical data for accuracy</li>
+                                <li><strong>Longer Calculation Time:</strong> ~100ms vs &lt;10ms for simple logic</li>
+                                <li><strong>Parameter Sensitivity:</strong> Performance depends on indicator weights
                                 </li>
-                                <li><strong>Final Signal:</strong> <span class="signal-new strong-sell">STRONG SELL</span></li>
-                                <li><strong>Confidence:</strong> 90%</li>
-                                <li><strong>Stop-Loss:</strong> ₹965 (ATR-based)</li>
-                                <li><strong>Exit Target:</strong> ₹880 (3:1 ratio)</li>
+                                <li><strong>Market Specific:</strong> Optimized for Indian equity markets (NSE)</li>
+                                <li><strong>Learning Curve:</strong> Requires understanding of multiple indicators</li>
+                                <li><strong>False Signals:</strong> Can generate conflicting signals in choppy markets
+                                </li>
+                                <li><strong>Over-Optimization Risk:</strong> May be too complex for beginners</li>
                             </ul>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="example-box">
-                    <h5>RELIANCE Analysis (Enhanced Logic):</h5>
+            <!-- Use Cases -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h3><i class="fas fa-bullseye"></i> Optimal Use Cases</h3>
+                </div>
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>Technical Indicators:</h6>
+                            <h5><i class="fas fa-check text-success"></i> Ideal For:</h5>
                             <ul>
-                                <li><strong>Price:</strong> ₹1,569.90</li>
-                                <li><strong>RSI:</strong> 25.8 (oversold)</li>
-                                <li><strong>MA20:</strong> ₹1,580.00</li>
-                                <li><strong>MA50:</strong> ₹1,595.00</li>
-                                <li><strong>MA200:</strong> ₹1,520.00</li>
-                                <li><strong>MACD:</strong> 8.7 (bullish)</li>
-                                <li><strong>MACD Signal:</strong> 5.3</li>
-                                <li><strong>Volume Ratio:</strong> 2.1x (very high)</li>
-                                <li><strong>ATR:</strong> ₹42</li>
+                                <li><strong>Active Trading:</strong> Regular trading with significant capital</li>
+                                <li><strong>Professional Analysis:</strong> Institutional-grade decision making</li>
+                                <li><strong>Trending Markets:</strong> Strong directional market environments</li>
+                                <li><strong>Risk Management:</strong> Capital preservation focused strategies</li>
+                                <li><strong>Multi-Asset Portfolios:</strong> Diversified investment management</li>
+                                <li><strong>Algorithmic Trading:</strong> Automated trading systems</li>
+                                <li><strong>Portfolio Optimization:</strong> Systematic rebalancing decisions</li>
+                                <li><strong>Research & Backtesting:</strong> Strategy development and testing</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6>Signal Analysis:</h6>
+                            <h5><i class="fas fa-info-circle text-info"></i> Consider Alternatives When:</h5>
                             <ul>
-                                <li><strong>Signal Score:</strong> +85</li>
-                                <li><strong>Factors:</strong> 
-                                    <ul>
-                                        <li>RSI oversold: +40</li>
-                                        <li>Price below MAs: +5</li>
-                                        <li>MACD bullish: +20</li>
-                                        <li>Very high volume: +10</li>
-                                        <li>Low volatility: +5</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Final Signal:</strong> <span class="signal-new strong-buy">STRONG BUY</span></li>
-                                <li><strong>Confidence:</strong> 95%</li>
-                                <li><strong>Stop-Loss:</strong> ₹1,485 (ATR-based)</li>
-                                <li><strong>Exit Target:</strong> ₹1,740 (3:1 ratio)</li>
+                                <li><strong>Complete Beginners:</strong> New to trading concepts</li>
+                                <li><strong>Extremely Low Latency Needs:</strong> High-frequency trading</li>
+                                <li><strong>Limited Resources:</strong> Minimal computational power available</li>
+                                <li><strong>Simple Buy & Hold:</strong> Long-term passive investing</li>
+                                <li><strong>Highly Illiquid Stocks:</strong> Low-volume trading environments</li>
+                                <li><strong>Extreme Market Conditions:</strong> Crisis or black swan events</li>
+                                <li><strong>Regulatory Constraints:</strong> Limited by trading regulations</li>
+                                <li><strong>One-Click Solutions:</strong> Preference for ultra-simple approaches</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Key Improvements -->
-        <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-                <h3><i class="fas fa-star"></i> Key Improvements Over Old Logic</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-check-circle text-success"></i> Technical Analysis:</h5>
-                        <ul>
-                            <li>5 indicators vs 1 (RSI only)</li>
-                            <li>Weighted scoring system</li>
-                            <li>Trend and momentum analysis</li>
-                            <li>Volume confirmation</li>
-                            <li>Volatility consideration</li>
-                            <li>Support/resistance levels</li>
-                            <li>Dynamic confidence levels</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-check-circle text-success"></i> Risk Management:</h5>
-                        <ul>
-                            <li>3:1 risk-reward ratio vs 1:1</li>
-                            <li>ATR-based stop-loss</li>
-                            <li>Conservative stop selection</li>
-                            <li>Market structure analysis</li>
-                            <li>Dynamic position sizing</li>
-                            <li>Volatility-adjusted targets</li>
-                            <li>Support/resistance validation</li>
-                        </ul>
-                    </div>
+            <!-- Performance Metrics -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h3><i class="fas fa-chart-bar"></i> Performance Characteristics</h3>
                 </div>
-            </div>
-        </div>
-
-        <!-- Implementation Details -->
-        <div class="card mb-4">
-            <div class="card-header bg-dark text-white">
-                <h3><i class="fas fa-cogs"></i> Implementation Details</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <h5>Data Requirements:</h5>
-                        <ul>
-                            <li>60-day historical data</li>
-                            <li>Daily OHLCV data</li>
-                            <li>Real-time price feeds</li>
-                            <li>Volume averages</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>Calculation Methods:</h5>
-                        <ul>
-                            <li>EMA for MACD</li>
-                            <li>Simple MA for trends</li>
-                            <li>Wilders' ATR</li>
-                            <li>Standard RSI formula</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>Performance:</h5>
-                        <ul>
-                            <li>< 100ms calculation time</li>
-                            <li>5-minute cache validity</li>
-                            <li>Fallback for missing data</li>
-                            <li>Error handling built-in</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Benefits & Cons -->
-        <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-                <h3><i class="fas fa-balance-scale"></i> Benefits & Considerations</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-plus-circle text-success"></i> Key Benefits:</h5>
-                        <ul>
-                            <li><strong>Multi-Indicator Analysis:</strong> Combines 5 technical indicators for robust signals</li>
-                            <li><strong>Advanced Risk Management:</strong> 3:1 risk-reward ratio with ATR-based stops</li>
-                            <li><strong>Dynamic Adaptability:</strong> Adjusts to market volatility and conditions</li>
-                            <li><strong>Professional Accuracy:</strong> 65-75% success rate in trending markets</li>
-                            <li><strong>Volume Confirmation:</strong> Validates signals with trading volume analysis</li>
-                            <li><strong>Trend Awareness:</strong> Considers market direction and momentum</li>
-                            <li><strong>Support/Resistance:</strong> Incorporates key price levels in analysis</li>
-                            <li><strong>Confidence Scoring:</strong> Dynamic confidence based on signal strength</li>
-                            <li><strong>Custom Risk Profiles:</strong> Supports personalized risk parameters</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-exclamation-triangle text-warning"></i> Considerations:</h5>
-                        <ul>
-                            <li><strong>Higher Complexity:</strong> More parameters to understand and configure</li>
-                            <li><strong>Increased Resource Usage:</strong> Requires more computational power</li>
-                            <li><strong>Data Dependency:</strong> Needs 60-day historical data for accuracy</li>
-                            <li><strong>Longer Calculation Time:</strong> ~100ms vs &lt;10ms for simple logic</li>
-                            <li><strong>Parameter Sensitivity:</strong> Performance depends on indicator weights</li>
-                            <li><strong>Market Specific:</strong> Optimized for Indian equity markets (NSE)</li>
-                            <li><strong>Learning Curve:</strong> Requires understanding of multiple indicators</li>
-                            <li><strong>False Signals:</strong> Can generate conflicting signals in choppy markets</li>
-                            <li><strong>Over-Optimization Risk:</strong> May be too complex for beginners</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Use Cases -->
-        <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h3><i class="fas fa-bullseye"></i> Optimal Use Cases</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-check text-success"></i> Ideal For:</h5>
-                        <ul>
-                            <li><strong>Active Trading:</strong> Regular trading with significant capital</li>
-                            <li><strong>Professional Analysis:</strong> Institutional-grade decision making</li>
-                            <li><strong>Trending Markets:</strong> Strong directional market environments</li>
-                            <li><strong>Risk Management:</strong> Capital preservation focused strategies</li>
-                            <li><strong>Multi-Asset Portfolios:</strong> Diversified investment management</li>
-                            <li><strong>Algorithmic Trading:</strong> Automated trading systems</li>
-                            <li><strong>Portfolio Optimization:</strong> Systematic rebalancing decisions</li>
-                            <li><strong>Research & Backtesting:</strong> Strategy development and testing</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-info-circle text-info"></i> Consider Alternatives When:</h5>
-                        <ul>
-                            <li><strong>Complete Beginners:</strong> New to trading concepts</li>
-                            <li><strong>Extremely Low Latency Needs:</strong> High-frequency trading</li>
-                            <li><strong>Limited Resources:</strong> Minimal computational power available</li>
-                            <li><strong>Simple Buy & Hold:</strong> Long-term passive investing</li>
-                            <li><strong>Highly Illiquid Stocks:</strong> Low-volume trading environments</li>
-                            <li><strong>Extreme Market Conditions:</strong> Crisis or black swan events</li>
-                            <li><strong>Regulatory Constraints:</strong> Limited by trading regulations</li>
-                            <li><strong>One-Click Solutions:</strong> Preference for ultra-simple approaches</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Metrics -->
-        <div class="card mb-4">
-            <div class="card-header bg-dark text-white">
-                <h3><i class="fas fa-chart-bar"></i> Performance Characteristics</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h4 class="text-success">65-75%</h4>
-                            <p><strong>Success Rate</strong></p>
-                            <small class="text-muted">In trending markets</small>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-success">65-75%</h4>
+                                <p><strong>Success Rate</strong></p>
+                                <small class="text-muted">In trending markets</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h4 class="text-primary">3:1</h4>
-                            <p><strong>Risk/Reward Ratio</strong></p>
-                            <small class="text-muted">Optimal for trading</small>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-primary">3:1</h4>
+                                <p><strong>Risk/Reward Ratio</strong></p>
+                                <small class="text-muted">Optimal for trading</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h4 class="text-warning">~100ms</h4>
-                            <p><strong>Calculation Time</strong></p>
-                            <small class="text-muted">Acceptable speed</small>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-warning">~100ms</h4>
+                                <p><strong>Calculation Time</strong></p>
+                                <small class="text-muted">Acceptable speed</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h4 class="text-info">85-95%</h4>
-                            <p><strong>Confidence Range</strong></p>
-                            <small class="text-muted">Dynamic scoring</small>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-info">85-95%</h4>
+                                <p><strong>Confidence Range</strong></p>
+                                <small class="text-muted">Dynamic scoring</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Comparison Table -->
-        <div class="card mb-4">
-            <div class="card-header bg-secondary text-white">
-                <h3><i class="fas fa-exchange-alt"></i> Old vs New Logic Comparison</h3>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>Aspect</th>
-                                <th>Old Logic</th>
-                                <th>New Logic</th>
-                                <th>Improvement</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Technical Indicators</strong></td>
-                                <td>1 (RSI only)</td>
-                                <td>5 (RSI, MA, MACD, Volume, ATR)</td>
-                                <td><span class="badge bg-success">+400%</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Signal Types</strong></td>
-                                <td>3 (BUY/SELL/HOLD)</td>
-                                <td>5 (STRONG_BUY/BUY/HOLD/SELL/STRONG_SELL)</td>
-                                <td><span class="badge bg-success">+67%</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Risk/Reward</strong></td>
-                                <td>1:1 (fixed)</td>
-                                <td>3:1 (dynamic)</td>
-                                <td><span class="badge bg-success">+200%</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Success Rate</strong></td>
-                                <td>45-55%</td>
-                                <td>65-75%</td>
-                                <td><span class="badge bg-success">+20%</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Stop-Loss Method</strong></td>
-                                <td>Percentage-based</td>
-                                <td>ATR-based + Conservative</td>
-                                <td><span class="badge bg-success">Advanced</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Volume Analysis</strong></td>
-                                <td>None</td>
-                                <td>Volume ratio & confirmation</td>
-                                <td><span class="badge bg-success">Added</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Trend Analysis</strong></td>
-                                <td>None</td>
-                                <td>MA20/50/200 analysis</td>
-                                <td><span class="badge bg-success">Added</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Confidence Scoring</strong></td>
-                                <td>Fixed (75%/85%)</td>
-                                <td>Dynamic (70-95%)</td>
-                                <td><span class="badge bg-success">Adaptive</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Comparison Table -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h3><i class="fas fa-exchange-alt"></i> Basic vs Enhanced Logic Comparison</h3>
                 </div>
-            </div>
-        </div>
-
-        <!-- Implementation Considerations -->
-        <div class="card mb-4">
-            <div class="card-header bg-warning text-dark">
-                <h3><i class="fas fa-cogs"></i> Implementation Considerations</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-server text-primary"></i> Technical Requirements:</h5>
-                        <ul>
-                            <li><strong>Historical Data:</strong> 60 days of OHLCV data per stock</li>
-                            <li><strong>Processing Power:</strong> ~2x CPU usage vs simple logic</li>
-                            <li><strong>Memory Usage:</strong> ~50MB for 200 stocks analysis</li>
-                            <li><strong>Network Bandwidth:</strong> ~10MB per full market scan</li>
-                            <li><strong>Storage:</strong> Cache for 5-minute intervals</li>
-                            <li><strong>API Dependencies:</strong> Yahoo Finance, backup sources</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-chart-line text-success"></i> Business Impact:</h5>
-                        <ul>
-                            <li><strong>Decision Quality:</strong> Higher confidence trading signals</li>
-                            <li><strong>Risk Management:</strong> Better capital preservation</li>
-                            <li><strong>User Experience:</strong> More detailed analysis insights</li>
-                            <li><strong>Competitive Advantage:</strong> Professional-grade features</li>
-                            <li><strong>Scalability:</strong> Supports larger user bases</li>
-                            <li><strong>Reliability:</strong> Multiple data source fallbacks</li>
-                        </ul>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Basic Logic</th>
+                                    <th>Enhanced Logic</th>
+                                    <th>Improvement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Technical Indicators</strong></td>
+                                    <td>1 (RSI only)</td>
+                                    <td>5 (RSI, MA, MACD, Volume, ATR)</td>
+                                    <td><span class="badge bg-success">+400%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Signal Types</strong></td>
+                                    <td>3 (BUY/SELL/HOLD)</td>
+                                    <td>5 (STRONG_BUY/BUY/HOLD/SELL/STRONG_SELL)</td>
+                                    <td><span class="badge bg-success">+67%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Risk/Reward</strong></td>
+                                    <td>1:1 (fixed)</td>
+                                    <td>3:1 (dynamic)</td>
+                                    <td><span class="badge bg-success">+200%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Success Rate</strong></td>
+                                    <td>45-55%</td>
+                                    <td>65-75%</td>
+                                    <td><span class="badge bg-success">+20%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stop-Loss Method</strong></td>
+                                    <td>Percentage-based</td>
+                                    <td>ATR-based + Conservative</td>
+                                    <td><span class="badge bg-success">Advanced</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Volume Analysis</strong></td>
+                                    <td>None</td>
+                                    <td>Volume ratio & confirmation</td>
+                                    <td><span class="badge bg-success">Added</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Trend Analysis</strong></td>
+                                    <td>None</td>
+                                    <td>MA20/50/200 analysis</td>
+                                    <td><span class="badge bg-success">Added</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Confidence Scoring</strong></td>
+                                    <td>Fixed (75%/85%)</td>
+                                    <td>Dynamic (70-95%)</td>
+                                    <td><span class="badge bg-success">Adaptive</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
+            <!-- Implementation Considerations -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h3><i class="fas fa-cogs"></i> Implementation Considerations</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-server text-primary"></i> Technical Requirements:</h5>
+                            <ul>
+                                <li><strong>Historical Data:</strong> 60 days of OHLCV data per stock</li>
+                                <li><strong>Processing Power:</strong> ~2x CPU usage vs simple logic</li>
+                                <li><strong>Memory Usage:</strong> ~50MB for 200 stocks analysis</li>
+                                <li><strong>Network Bandwidth:</strong> ~10MB per full market scan</li>
+                                <li><strong>Storage:</strong> Cache for 5-minute intervals</li>
+                                <li><strong>API Dependencies:</strong> Yahoo Finance, backup sources</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-chart-line text-success"></i> Business Impact:</h5>
+                            <ul>
+                                <li><strong>Decision Quality:</strong> Higher confidence trading signals</li>
+                                <li><strong>Risk Management:</strong> Better capital preservation</li>
+                                <li><strong>User Experience:</strong> More detailed analysis insights</li>
+                                <li><strong>Competitive Advantage:</strong> Professional-grade features</li>
+                                <li><strong>Scalability:</strong> Supports larger user bases</li>
+                                <li><strong>Reliability:</strong> Multiple data source fallbacks</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-trophy"></i> Summary</h3>
+                </div>
+                <div class="card-body">
+                    <p>The enhanced trading logic represents a significant upgrade from basic RSI-only analysis to a
+                        comprehensive multi-indicator system. It provides more accurate signals, better risk management,
+                        and professional-grade analysis suitable for serious trading decisions.</p>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> <strong>Bottom Line:</strong> The enhanced system delivers
+                        professional-grade trading analysis with significantly improved accuracy and risk management,
+                        making it suitable for serious traders and investors while maintaining accessibility for
+                        experienced users.
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="/old_trading_logic" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-arrow-left"></i> View Basic Logic
+                        </a>
+                        <a href="/" class="btn btn-success btn-lg ms-2">
+                            <i class="fas fa-play"></i> Try Enhanced System
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Summary -->
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h3><i class="fas fa-trophy"></i> Summary</h3>
-            </div>
-            <div class="card-body">
-                <p>The enhanced trading logic represents a significant upgrade from basic RSI-only analysis to a comprehensive multi-indicator system. It provides more accurate signals, better risk management, and professional-grade analysis suitable for serious trading decisions.</p>
-                
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> <strong>Bottom Line:</strong> The enhanced system delivers professional-grade trading analysis with significantly improved accuracy and risk management, making it suitable for serious traders and investors while maintaining accessibility for experienced users.
-                </div>
-                
-                <div class="text-center mt-4">
-                    <a href="/old_trading_logic" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-arrow-left"></i> View Original Logic
-                    </a>
-                    <a href="/" class="btn btn-success btn-lg ms-2">
-                        <i class="fas fa-play"></i> Try Enhanced System
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
