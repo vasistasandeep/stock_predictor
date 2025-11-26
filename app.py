@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 from market_data import get_market_news, get_analyst_recommendations, get_market_sentiment
 from multi_source_data import get_stock_data_multi_source, get_nifty_200_list
+from technical_analysis import analyze_stock
 
 def calculate_atr(high, low, close, period=14):
     """Calculate Average True Range (ATR) using Pandas"""
@@ -346,24 +347,53 @@ def get_stock_data(ticker, risk_appetite):
             # Generate analysis summary
             current_price = data.get('current_price', 0)
             
-            # Simple RSI calculation for fallback
-            rsi = 50.0  # Default neutral
+            # --- ENHANCED ANALYSIS START ---
+            # Perform technical analysis using the new module
+            tech_analysis = analyze_stock(ticker)
             
-            # Generate analysis summary
-            if rsi > 70:
-                signal = "SELL"
-                reason = f"RSI ({rsi:.1f}) indicates overbought conditions"
-            elif rsi < 30:
-                signal = "BUY"
-                reason = f"RSI ({rsi:.1f}) indicates oversold conditions"
+            if tech_analysis:
+                print(f"✅ Enhanced analysis successful for {ticker}")
+                rsi = tech_analysis['rsi']
+                signal = tech_analysis['signal']
+                confidence = tech_analysis['confidence']
+                signal_score = tech_analysis['signal_score']
+                factors = tech_analysis['signal_factors']
+                
+                # Use real indicators
+                ma20 = tech_analysis['ma20']
+                ma50 = tech_analysis['ma50']
+                ma200 = tech_analysis['ma200']
+                atr = tech_analysis['atr']
+                macd = tech_analysis['macd']
+                macd_signal = tech_analysis['macd_signal']
+                volume_ratio = tech_analysis['volume_ratio']
+                
+                # Construct reason from factors
+                reason = ". ".join(factors[:2]) # Top 2 factors
             else:
+                print(f"⚠️ Enhanced analysis failed for {ticker}, using fallback")
+                # Fallback logic
+                rsi = 50.0
                 signal = "HOLD"
-                reason = f"RSI ({rsi:.1f}) is in neutral zone"
+                confidence = 50
+                signal_score = 0
+                ma20 = ma50 = ma200 = atr = macd = macd_signal = volume_ratio = None
+                reason = "Insufficient historical data"
+            # --- ENHANCED ANALYSIS END ---
             
             risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10}
-            stop_loss = current_price * (1 - risk_multipliers.get(risk_appetite, 0.05))
+            stop_loss_pct = risk_multipliers.get(risk_appetite, 0.05)
             
-            analysis_summary = f"Technical indicators suggest {signal}. {reason}. Consider stop-loss at ₹{stop_loss:.2f} for {risk_appetite} risk."
+            # Use ATR for stop loss if available (Enhanced Risk Management)
+            if atr and current_price > 0:
+                atr_stop = current_price - (2 * atr)
+                pct_stop = current_price * (1 - stop_loss_pct)
+                # Use the more conservative (higher) stop loss
+                stop_loss = max(atr_stop, pct_stop)
+            else:
+                stop_loss = current_price * (1 - stop_loss_pct)
+            
+            analysis_summary = f"Technical indicators suggest {signal} (Score: {signal_score}). {reason}. Consider stop-loss at ₹{stop_loss:.2f}."
             
             # Get market data with timeout protection
             try:
@@ -380,8 +410,9 @@ def get_stock_data(ticker, risk_appetite):
                 'ticker': ticker,
                 'current_price': current_price,
                 'rsi': rsi,
-                'ma20': None,
-                'ma50': None,
+                'ma20': ma20,
+                'ma50': ma50,
+                'ma200': ma200,
                 'risk_level': risk_appetite,
                 'analysis_summary': analysis_summary,
                 'market_news': news,
@@ -390,15 +421,20 @@ def get_stock_data(ticker, risk_appetite):
                 'data_source': f"multi-source-{actual_source}",
                 'requested_source': source,
                 'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                # Trading prediction fields - ADDED THESE
+                # Trading prediction fields
                 'signal': signal,
+                'signal_score': signal_score,
                 'entry_price': current_price,
-                'exit_price': current_price * (1 + risk_multipliers.get(risk_appetite, 0.05)),
+                'exit_price': current_price + (3 * (current_price - stop_loss)), # 3:1 Risk Reward
                 'stop_loss': stop_loss,
-                'confidence': 75 if signal == 'HOLD' else 85,
-                'target_profit': (current_price * (1 + risk_multipliers.get(risk_appetite, 0.05))) - current_price,
-                'risk_reward_ratio': 2.0,
+                'confidence': confidence,
+                'target_profit': (current_price + (3 * (current_price - stop_loss))) - current_price,
+                'risk_reward_ratio': 3.0,
                 'time_horizon': '1-2 weeks',
+                'macd': macd,
+                'macd_signal': macd_signal,
+                'atr': atr,
+                'volume_ratio': volume_ratio,
                 'chart_data': {
                     'dates': [],
                     'prices': [],

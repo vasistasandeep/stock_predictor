@@ -244,7 +244,7 @@ function applyFilters() {
         // Signal filter
         if (signalFilter !== 'all') {
             const signal = allSignals.find(s => s.symbol === stock);
-            if (!signal || signal.signal !== signalFilter) return false;
+            if (!signal || !signal.signal || signal.signal.toLowerCase() !== signalFilter.toLowerCase()) return false;
         }
         
         // Sector filter
@@ -641,7 +641,7 @@ function updatePredictionDisplay(response) {
     updateElementText('rsi', response.rsi);
     updateElementText('atr', response.atr);
     
-    // Update enhanced indicators if elements exist (check if they exist in HTML)
+    // Update enhanced indicators
     const sma20Element = document.getElementById('sma20');
     if (sma20Element) updateElementText('sma20', response.ma20);
     
@@ -651,9 +651,32 @@ function updatePredictionDisplay(response) {
     const sma200Element = document.getElementById('sma200');
     if (sma200Element) updateElementText('sma200', response.ma200);
     
-    // Note: confidence, targetProfit, riskRewardRatio, timeHorizon, macd, macdSignal, 
-    // volumeRatio, supportLevel, resistanceLevel elements don't exist in current HTML
-    // They will be added when the UI is enhanced
+    // Enhanced fields
+    updateElementText('signalScore', response.signal_score);
+    updateElementText('confidenceValue', response.confidence);
+    
+    const confidenceBar = document.getElementById('confidenceBar');
+    if (confidenceBar && response.confidence) {
+        confidenceBar.style.width = `${response.confidence}%`;
+        // Color code confidence
+        if (response.confidence >= 80) confidenceBar.className = 'progress-bar bg-success';
+        else if (response.confidence >= 60) confidenceBar.className = 'progress-bar bg-info';
+        else confidenceBar.className = 'progress-bar bg-warning';
+    }
+    
+    // MACD and Volume
+    if (response.macd !== undefined && response.macd !== null) {
+        const macdText = `${response.macd} / ${response.macd_signal}`;
+        updateElementText('macd', macdText);
+    } else {
+        updateElementText('macd', 'N/A');
+    }
+    
+    if (response.volume_ratio !== undefined && response.volume_ratio !== null) {
+        updateElementText('volumeRatio', `${response.volume_ratio}x`);
+    } else {
+        updateElementText('volumeRatio', 'N/A');
+    }
     
     console.log('✅ Technical indicators updated');
     

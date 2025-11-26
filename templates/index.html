@@ -407,6 +407,13 @@
                                            title="Signal: Buy = Good time to purchase, Sell = Good time to sell, Hold = Wait for better opportunity. Based on price patterns and indicators."></i>
                                     </h6>
                                     <h3 id="signal" class="badge bg-secondary fs-5">-</h3>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Score: <span id="signalScore">-</span></small>
+                                        <div class="progress" style="height: 5px;">
+                                            <div id="confidenceBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small class="text-muted">Conf: <span id="confidenceValue">-</span>%</small>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -472,6 +479,7 @@
                                     <span id="sma200" class="indicator-value">-</span>
                                 </div>
                             </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="indicator-item">
                                     <span class="indicator-label">
@@ -488,6 +496,28 @@
                                            title="Average True Range (ATR): Measures how much price typically moves up/down each day. High ATR = volatile stock (big price swings). Low ATR = stable stock. Used to set appropriate stop-loss distances based on stock's normal volatility."></i>
                                     </span>
                                     <span id="atr" class="indicator-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="indicator-item">
+                                    <span class="indicator-label">
+                                        📊 <span class="expanded-term">MACD</span>:
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Moving Average Convergence Divergence (MACD): Trend-following momentum indicator. MACD line crossing above Signal line is bullish (buy). Crossing below is bearish (sell)."></i>
+                                    </span>
+                                    <span id="macd" class="indicator-value">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="indicator-item">
+                                    <span class="indicator-label">
+                                        🔊 <span class="expanded-term">Volume Ratio</span>:
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Volume Ratio: Current volume vs Average volume. Ratio > 1.5 means high trading activity, confirming the trend strength."></i>
+                                    </span>
+                                    <span id="volumeRatio" class="indicator-value">-</span>
                                 </div>
                             </div>
                         </div>
