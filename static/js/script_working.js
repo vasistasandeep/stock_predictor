@@ -184,6 +184,7 @@ function fetchStockData() {
             filteredStocks = [...allStocks];
             updateStockDisplay(data);
             updateDataSourceStatus(dataSource, data.data_source, data.cache_status);
+            populateFilterDropdowns(); // Populate filters after getting stock data
             showNotification(`✅ Loaded ${allStocks.length} stocks from ${dataSource}`, 'success');
         })
         .catch(error => {
@@ -285,10 +286,57 @@ function fetchAllSignals() {
             console.log('📊 Signals received:', data);
             allSignals = data.signals || [];
             updateSignalFilters();
+            populateFilterDropdowns(); // Populate filters after getting signals
         })
         .catch(error => {
             console.error('❌ Error fetching signals:', error);
         });
+}
+
+function populateFilterDropdowns() {
+    console.log('🔧 Populating filter dropdowns...');
+
+    if (!allStockDetails || allStockDetails.length === 0) {
+        console.warn('⚠️ No stock details available to populate filters');
+        return;
+    }
+
+    // Populate Sector Filter
+    const sectorFilter = document.getElementById('top20SectorFilter');
+    if (sectorFilter) {
+        // Get unique sectors from stock details
+        const sectors = [...new Set(allStockDetails.map(stock => stock.sector).filter(s => s && s !== 'Unknown'))];
+        sectors.sort();
+
+        // Clear and repopulate
+        sectorFilter.innerHTML = '<option value="all">All Sectors</option>';
+        sectors.forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector;
+            option.textContent = sector;
+            sectorFilter.appendChild(option);
+        });
+
+        console.log(`✅ Populated sector filter with ${sectors.length} sectors:`, sectors);
+    }
+
+    // Populate Signal Filter (Top 20)
+    const signalFilter = document.getElementById('top20SignalFilter');
+    if (signalFilter && allSignals && allSignals.length > 0) {
+        const signals = [...new Set(allSignals.map(s => s.signal).filter(s => s))];
+        signals.sort();
+
+        // Clear and repopulate
+        signalFilter.innerHTML = '<option value="all">All Signals</option>';
+        signals.forEach(signal => {
+            const option = document.createElement('option');
+            option.value = signal;
+            option.textContent = signal;
+            signalFilter.appendChild(option);
+        });
+
+        console.log(`✅ Populated signal filter with ${signals.length} signals:`, signals);
+    }
 }
 
 function setupFilters() {
