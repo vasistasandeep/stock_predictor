@@ -128,37 +128,7 @@
                                     <option value="hold">Hold Only</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <label for="riskFilter" class="form-label">
-                                    Risk Level
-                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Risk Level: Low (safe investments, 2% stop-loss), Medium (balanced, 5% stop-loss), High (aggressive, 10% stop-loss). Higher risk = higher potential returns."></i>
-                                </label>
-                                <select class="form-select" id="riskFilter">
-                                    <option value="all">All Risks</option>
-                                    <option value="low">🟢 Low Risk</option>
-                                    <option value="medium">🟡 Medium Risk</option>
-                                    <option value="high">🔴 High Risk</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="dataSource" class="form-label">
-                                    Data Source
-                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="Data Source: Choose where to get real-time market data. Yahoo Finance (free, comprehensive), Google Finance (alternative free source), Alpha Vantage (professional, requires API key), FMP (institutional-grade, requires API key)."></i>
-                                </label>
-                                <select class="form-select" id="dataSource">
-                                    <option value="yahoo">🌐 Yahoo Finance</option>
-                                    <option value="google">🔍 Google Finance</option>
-                                    <option value="alpha_vantage">📊 Alpha Vantage</option>
-                                    <option value="fmp">🏦 Financial Modeling Prep</option>
-                                </select>
-                                <div class="mt-1">
-                                    <small class="text-muted" id="dataSourceStatus">
-                                        <i class="fas fa-circle text-success"></i> Yahoo Finance Available
-                                    </small>
-                                </div>
-                            </div>
+
                             <div class="col-md-2">
                                 <label for="sectorFilter" class="form-label">
                                     Sector
@@ -237,10 +207,11 @@
         <!-- Investment Style Selection - Moved to Top -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card bg-light border-primary mb-4">
+                <div class="card bg-light border-primary mb-4 enhanced-only">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
-                            💰 Choose Your Investment Style
+                            💰 Choose Your Investment Style <span class="badge bg-warning text-dark ms-2"><i
+                                    class="fas fa-lock"></i> Premium</span>
                             <i class="info-icon text-white" data-bs-toggle="tooltip" data-bs-placement="top"
                                 title="Investment Style: Conservative = Safe investments with small losses, Balanced = Mix of safety and growth, Aggressive = Higher risk for higher returns."></i>
                         </h5>

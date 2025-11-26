@@ -308,41 +308,53 @@ function populateFilterDropdowns() {
         return;
     }
 
-    // Populate Sector Filter
-    const sectorFilter = document.getElementById('top20SectorFilter');
-    if (sectorFilter) {
-        // Get unique sectors from stock details
-        const sectors = [...new Set(allStockDetails.map(stock => stock.sector).filter(s => s && s !== 'Unknown'))];
-        sectors.sort();
+    // Populate Sector Filters (Both Top 20 and Main)
+    const sectorFilters = [
+        document.getElementById('top20SectorFilter'),
+        document.getElementById('sectorFilter')
+    ];
 
-        // Clear and repopulate
-        sectorFilter.innerHTML = '<option value="all">All Sectors</option>';
-        sectors.forEach(sector => {
-            const option = document.createElement('option');
-            option.value = sector;
-            option.textContent = sector;
-            sectorFilter.appendChild(option);
-        });
+    // Get unique sectors from stock details
+    const sectors = [...new Set(allStockDetails.map(stock => stock.sector).filter(s => s && s !== 'Unknown'))];
+    sectors.sort();
 
-        console.log(`✅ Populated sector filter with ${sectors.length} sectors:`, sectors);
-    }
+    sectorFilters.forEach(filter => {
+        if (filter) {
+            // Clear and repopulate
+            filter.innerHTML = '<option value="all">All Sectors</option>';
+            sectors.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector;
+                option.textContent = sector;
+                filter.appendChild(option);
+            });
+        }
+    });
+    console.log(`✅ Populated sector filters with ${sectors.length} sectors`);
 
-    // Populate Signal Filter (Top 20)
-    const signalFilter = document.getElementById('top20SignalFilter');
-    if (signalFilter && allSignals && allSignals.length > 0) {
+    // Populate Signal Filters (Both Top 20 and Main)
+    const signalFilters = [
+        document.getElementById('top20SignalFilter'),
+        document.getElementById('signalFilter')
+    ];
+
+    if (allSignals && allSignals.length > 0) {
         const signals = [...new Set(allSignals.map(s => s.signal).filter(s => s))];
         signals.sort();
 
-        // Clear and repopulate
-        signalFilter.innerHTML = '<option value="all">All Signals</option>';
-        signals.forEach(signal => {
-            const option = document.createElement('option');
-            option.value = signal;
-            option.textContent = signal;
-            signalFilter.appendChild(option);
+        signalFilters.forEach(filter => {
+            if (filter) {
+                // Clear and repopulate
+                filter.innerHTML = '<option value="all">All Signals</option>';
+                signals.forEach(signal => {
+                    const option = document.createElement('option');
+                    option.value = signal;
+                    option.textContent = signal;
+                    filter.appendChild(option);
+                });
+            }
         });
-
-        console.log(`✅ Populated signal filter with ${signals.length} signals:`, signals);
+        console.log(`✅ Populated signal filters with ${signals.length} signals`);
     }
 }
 
