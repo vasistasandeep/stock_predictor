@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -162,6 +162,19 @@ def get_top_20_stocks():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# Vercel-specific static file handling
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files with proper headers for Vercel"""
+    try:
+        response = send_from_directory('static', filename)
+        # Add caching headers for better performance
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+        return response
+    except Exception as e:
+        print(f"Error serving static file {filename}: {e}")
+        return f"File not found: {filename}", 404
 
 @app.route('/privacy')
 def privacy():
@@ -615,6 +628,30 @@ def create_fallback_response():
         'analyst_recommendations': get_default_recommendations(),
         'market_sentiment': {'sentiment': 'UNKNOWN', 'score': 0.5, 'summary': 'Unable to determine sentiment'},
         'analysis_summary': 'Analysis unavailable due to data issues.'
+    })
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'Stock Predictor API',
+        'version': '2.0',
+        'static_files': 'ok'
+    })
+
+@app.route('/api/health')
+def api_health():
+    """API health check for Vercel"""
+    return jsonify({
+        'status': 'ok',
+        'timestamp': datetime.now().isoformat(),
+        'endpoints': {
+            'static': '/static/*',
+            'api': '/api/*',
+            'main': '/'
+        }
     })
 
 # Production deployment

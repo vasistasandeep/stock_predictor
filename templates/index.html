@@ -170,7 +170,7 @@
                                         📊 Analyze All
                                     </button>
                                     <button class="btn btn-sm btn-outline-primary" id="exportBtn" title="Export current view">
-                                        📥 Export
+                                        📥 Export Analysis
                                     </button>
                                 </div>
                             </div>
@@ -284,9 +284,6 @@
                                title="Top 20: Largest 20 companies from Nifty 200 index. These are market leaders with highest trading volumes and stability."></i>
                         </h5>
                         <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-sm btn-success" id="analyzeAllBtn">
-                                <i class="fas fa-chart-line me-1"></i>Analyze All
-                            </button>
                             <span class="badge bg-info" id="stockCount">0 stocks</span>
                         </div>
                     </div>
@@ -976,6 +973,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/script_working.js') }}"></script>
+    <script>
+        // Fallback script loading for Vercel
+        if (typeof fetchStockDataForTicker === 'undefined') {
+            console.warn('Main script not loaded, trying fallback...');
+            const script = document.createElement('script');
+            script.src = '/static/js/script_working.js';
+            script.onload = function() {
+                console.log('✅ Fallback script loaded successfully');
+                // Re-initialize event listeners
+                if (typeof setupFilters === 'function') {
+                    setupFilters();
+                }
+            };
+            script.onerror = function() {
+                console.error('❌ Failed to load fallback script');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     <script>
         // Initialize all tooltips
         document.addEventListener('DOMContentLoaded', function() {
