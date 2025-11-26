@@ -14,7 +14,10 @@ window.addEventListener('DOMContentLoaded', function() {
 function fetchStockData() {
     console.log('🔄 Fetching stock data...');
     
-    fetch('/get_top_20_stocks')
+    // Get selected data source
+    const dataSource = document.getElementById('dataSource')?.value || 'yahoo';
+    
+    fetch(`/get_top_20_stocks?source=${dataSource}`)
         .then(response => response.json())
         .then(data => {
             console.log('📊 Stock data received:', data);
@@ -22,12 +25,97 @@ function fetchStockData() {
             allStockDetails = data.stock_details || [];
             filteredStocks = [...allStocks];
             updateStockDisplay(data);
-            showNotification(`✅ Loaded ${allStocks.length} stocks`, 'success');
+            updateDataSourceStatus(dataSource, data.data_source, data.cache_status);
+            showNotification(`✅ Loaded ${allStocks.length} stocks from ${dataSource}`, 'success');
         })
         .catch(error => {
             console.error('❌ Error fetching stocks:', error);
-            showNotification('❌ Failed to load stocks', 'danger');
+            showNotification(`❌ Failed to load stocks from ${dataSource}`, 'danger');
         });
+}
+
+function updateDataSourceStatus(selectedSource, actualSource, cacheStatus) {
+    const statusElement = document.getElementById('dataSourceStatus');
+    if (!statusElement) return;
+    
+    let statusIcon = '';
+    let statusText = '';
+    let statusClass = '';
+    
+    if (actualSource === 'emergency-fallback' || actualSource === 'error-fallback') {
+        statusIcon = '🔴';
+        statusText = `${selectedSource} failed - using fallback`;
+        statusClass = 'text-danger';
+    } else if (cacheStatus === 'fresh') {
+        statusIcon = '🟢';
+        statusText = `${actualSource} - Fresh data`;
+        statusClass = 'text-success';
+    } else {
+        statusIcon = '🟡';
+        statusText = `${actualSource} - Cached data`;
+        statusClass = 'text-warning';
+    }
+    
+    statusElement.innerHTML = `<i class="fas fa-circle ${statusClass}"></i> ${statusText}`;
+}
+
+function checkDataSources() {
+    console.log('🔍 Checking data source availability...');
+    
+    fetch('/get_data_sources')
+        .then(response => response.json())
+        .then(data => {
+            console.log('📊 Data source status:', data);
+            updateDataSourceDropdown(data.sources);
+            showNotification('✅ Data source status updated', 'success');
+        })
+        .catch(error => {
+            console.error('❌ Error checking data sources:', error);
+            showNotification('❌ Failed to check data sources', 'danger');
+        });
+}
+
+function updateDataSourceDropdown(sources) {
+    const dataSourceSelect = document.getElementById('dataSource');
+    if (!dataSourceSelect) return;
+    
+    // Clear existing options
+    dataSourceSelect.innerHTML = '';
+    
+    // Add options with status indicators
+    Object.keys(sources).forEach(sourceKey => {
+        const source = sources[sourceKey];
+        const option = document.createElement('option');
+        option.value = sourceKey;
+        
+        let icon = '';
+        let label = '';
+        
+        if (sourceKey === 'yahoo') {
+            icon = '🌐';
+            label = 'Yahoo Finance';
+        } else if (sourceKey === 'google') {
+            icon = '🔍';
+            label = 'Google Finance';
+        } else if (sourceKey === 'alpha_vantage') {
+            icon = '📊';
+            label = 'Alpha Vantage';
+        } else if (sourceKey === 'fmp') {
+            icon = '🏦';
+            label = 'Financial Modeling Prep';
+        }
+        
+        option.textContent = `${icon} ${label}`;
+        
+        if (source.available) {
+            option.classList.add('text-success');
+        } else {
+            option.classList.add('text-muted');
+            option.disabled = true;
+        }
+        
+        dataSourceSelect.appendChild(option);
+    });
 }
 
 function fetchAllSignals() {
@@ -56,6 +144,26 @@ function setupFilters() {
     // Search filter
     document.getElementById('stockSearch')?.addEventListener('input', applyFilters);
     
+    // Data source filter
+    document.getElementById('dataSource')?.addEventListener('change', function(e) {
+        console.log('🔄 Data source changed to:', e.target.value);
+        fetchStockData(); // Refresh data with new source
+    });
+    
+    // Apply Filters button
+    document.getElementById('applyFilters')?.addEventListener('click', function() {
+        console.log('🔍 Applying filters...');
+        applyFilters();
+        showNotification('✅ Filters applied', 'success');
+    });
+    
+    // Reset Filters button
+    document.getElementById('resetFilters')?.addEventListener('click', function() {
+        console.log('🔄 Resetting filters...');
+        resetFilters();
+        showNotification('🔄 Filters reset', 'info');
+    });
+    
     // Analyze All button
     const analyzeAllBtn = document.getElementById('analyzeAllBtn');
     if (analyzeAllBtn) {
@@ -63,6 +171,31 @@ function setupFilters() {
         console.log('✅ Analyze All button listener added');
     } else {
         console.log('❌ Analyze All button not found');
+    }
+    
+    // Refresh Data button
+    const refreshDataBtn = document.getElementById('refreshDataBtn');
+    if (refreshDataBtn) {
+        refreshDataBtn.addEventListener('click', function() {
+            console.log('🔄 Refreshing data...');
+            fetchStockData();
+            showNotification('🔄 Data refreshed', 'success');
+        });
+        console.log('✅ Refresh Data button listener added');
+    } else {
+        console.log('❌ Refresh Data button not found');
+    }
+    
+    // Check Sources button
+    const checkSourcesBtn = document.getElementById('checkSourcesBtn');
+    if (checkSourcesBtn) {
+        checkSourcesBtn.addEventListener('click', function() {
+            console.log('🔍 Checking data sources...');
+            checkDataSources();
+        });
+        console.log('✅ Check Sources button listener added');
+    } else {
+        console.log('❌ Check Sources button not found');
     }
     
     // Stock analysis fetch button
@@ -73,6 +206,21 @@ function setupFilters() {
     } else {
         console.log('❌ Get Recommendation button not found');
     }
+    
+    // Check data sources on page load
+    setTimeout(checkDataSources, 2000);
+}
+
+function resetFilters() {
+    document.getElementById('signalFilter').value = 'all';
+    document.getElementById('riskFilter').value = 'all';
+    document.getElementById('sectorFilter').value = 'all';
+    document.getElementById('marketCapFilter').value = 'all';
+    document.getElementById('sortBy').value = 'marketcap';
+    document.getElementById('stockSearch').value = '';
+    
+    filteredStocks = [...allStocks];
+    updateStockDisplay({stock_details: allStockDetails});
 }
 
 function applyFilters() {
@@ -400,11 +548,15 @@ function fetchStockDataForTicker() {
         fetchBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing...';
         fetchBtn.disabled = true;
         
-        // Build URL safely
+        // Build URL safely with data source
         let url = '/get_stock_data/' + encodeURIComponent(ticker) + '/' + encodeURIComponent(riskAppetite);
         let params = new URLSearchParams();
         params.append('period', chartPeriod);
         params.append('frequency', chartFrequency);
+        
+        // Add data source parameter
+        const dataSource = document.getElementById('dataSource')?.value || 'yahoo';
+        params.append('source', dataSource);
         
         // Add custom parameters if custom risk is selected
         if (riskAppetite === 'Custom' && customStopLoss !== null && customExitTarget !== null) {

@@ -85,9 +85,9 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            Stock Filters
+                            Stock Filters & Data Sources
                             <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
-                               title="Use filters to narrow down stocks based on your trading preferences and risk appetite."></i>
+                               title="Use filters to narrow down stocks and select your preferred data source for real-time market data."></i>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -117,6 +117,24 @@
                                     <option value="medium">🟡 Medium Risk</option>
                                     <option value="high">🔴 High Risk</option>
                                 </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="dataSource" class="form-label">
+                                    Data Source
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Data Source: Choose where to get real-time market data. Yahoo Finance (free, comprehensive), Google Finance (alternative free source), Alpha Vantage (professional, requires API key), FMP (institutional-grade, requires API key)."></i>
+                                </label>
+                                <select class="form-select" id="dataSource">
+                                    <option value="yahoo">🌐 Yahoo Finance</option>
+                                    <option value="google">🔍 Google Finance</option>
+                                    <option value="alpha_vantage">📊 Alpha Vantage</option>
+                                    <option value="fmp">🏦 Financial Modeling Prep</option>
+                                </select>
+                                <div class="mt-1">
+                                    <small class="text-muted" id="dataSourceStatus">
+                                        <i class="fas fa-circle text-success"></i> Yahoo Finance Available
+                                    </small>
+                                </div>
                             </div>
                             <div class="col-md-2">
                                 <label for="sectorFilter" class="form-label">
@@ -159,18 +177,21 @@
                                     <option value="name">Company Name</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <label for="quickAction" class="form-label">
-                                    Quick Action
-                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Quick Actions: Analyze All = get signals for all visible stocks, Export = download current analysis as Excel file."></i>
-                                </label>
-                                <div class="btn-group w-100" role="group">
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="btn-group" role="group">
                                     <button class="btn btn-sm btn-outline-success" id="analyzeAllBtn" title="Analyze all stocks with current risk level">
                                         📊 Analyze All
                                     </button>
                                     <button class="btn btn-sm btn-outline-primary" id="exportBtn" title="Export current view">
                                         📥 Export Analysis
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" id="refreshDataBtn" title="Refresh data from selected source">
+                                        🔄 Refresh Data
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" id="checkSourcesBtn" title="Check data source availability">
+                                        🔍 Check Sources
                                     </button>
                                 </div>
                             </div>
