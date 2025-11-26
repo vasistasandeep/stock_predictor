@@ -271,6 +271,7 @@ def get_stock_data(ticker, risk_appetite):
 
     return jsonify(response)
 
+# Production deployment
 if __name__ == '__main__':
     # Fetch the list on startup
     print("Initializing Stock Predictor Application...")
@@ -281,5 +282,6 @@ if __name__ == '__main__':
     refresh_thread.start()
     print("Background data refresh thread started (refresh interval: 1 hour)")
     
-    print("Starting Flask development server...")
-    app.run(debug=True)
+    print("Starting Flask server...")
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)

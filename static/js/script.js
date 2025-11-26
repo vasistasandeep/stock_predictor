@@ -250,22 +250,69 @@ function updateRiskSelectionDisplay() {
 
 
 function fetchStockData() {
+    console.log('🔄 Fetching stock data...');
+    
+    // Show loading state
+    let list = document.getElementById('top20list');
+    if (list) {
+        list.innerHTML = '<li class="list-group-item text-center"><div class="spinner-border spinner-border-sm me-2"></div> Loading stocks...</li>';
+    }
+    
     fetch('/get_top_20_stocks')
-        .then(response => response.json())
+        .then(response => {
+            console.log('📡 API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('📊 Stock data received:', data);
+            console.log('📈 Number of stocks:', data.stocks ? data.stocks.length : 0);
+            
             allStocks = data.stocks || [];
             filteredStocks = [...allStocks];
+            
+            // Update display
             updateStockDisplay(data);
             updateStockCount();
+            
+            // Show success message
+            if (allStocks.length > 0) {
+                showNotification(`✅ Loaded ${allStocks.length} stocks successfully`, 'success');
+            } else {
+                showNotification('⚠️ No stocks loaded', 'warning');
+            }
         })
         .catch(error => {
-            console.error('Error fetching stocks:', error);
-            showError('Failed to load stock data');
+            console.error('❌ Error fetching stocks:', error);
+            showError('Failed to load stock data: ' + error.message);
+            
+            // Show error in list
+            if (list) {
+                list.innerHTML = `
+                    <li class="list-group-item list-group-item-danger">
+                        <div class="text-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Error loading stocks</strong><br>
+                            <small>${error.message}</small><br>
+                            <button class="btn btn-sm btn-outline-danger mt-2" onclick="fetchStockData()">
+                                🔄 Retry
+                            </button>
+                        </div>
+                    </li>
+                `;
+            }
         });
 }
 
 function updateStockDisplay(data) {
     let list = document.getElementById('top20list');
+    if (!list) {
+        console.error('❌ Stock list element not found');
+        return;
+    }
+    
     list.innerHTML = ''; // Clear existing items
     
     // Add timestamp information
@@ -288,6 +335,8 @@ function updateStockDisplay(data) {
         `;
         list.appendChild(timestampLi);
     }
+    
+    console.log('🎯 Displaying stocks:', filteredStocks.length);
     
     // Add stocks with enhanced display
     filteredStocks.forEach((stock, index) => {
@@ -324,6 +373,24 @@ function updateStockDisplay(data) {
         
         list.appendChild(li);
     });
+    
+    // If no stocks are displayed, show a fallback
+    if (filteredStocks.length === 0) {
+        console.log('⚠️ No stocks to display, showing fallback');
+        let fallbackLi = document.createElement('li');
+        fallbackLi.className = 'list-group-item list-group-item-warning';
+        fallbackLi.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>No stocks available</strong><br>
+                <small>Trying to load stock data...</small><br>
+                <button class="btn btn-sm btn-outline-warning mt-2" onclick="fetchStockData()">
+                    🔄 Reload Stocks
+                </button>
+            </div>
+        `;
+        list.appendChild(fallbackLi);
+    }
 }
 
 function selectStock(stock, element) {
@@ -645,17 +712,6 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         if (notification.parentNode) {
             notification.remove();
-        }
-    }, timeout);
-}
-
-function updateStockCount() {
-    document.getElementById('stockCount').textContent = `${filteredStocks.length} stocks`;
-}
-
-function showError(message) {
-    // Create error alert
-    let alertDiv = document.createElement('div');
     alertDiv.className = 'alert alert-danger alert-dismissible fade show';
     alertDiv.innerHTML = `
         ${message}
@@ -1161,3 +1217,50 @@ function toggleChart() {
 document.addEventListener('DOMContentLoaded', function() {
     setupChartFilters();
 });
+
+// Additional utility functions for stock display
+function refreshStockData() {
+    console.log('🔄 Manual refresh triggered');
+    showNotification('🔄 Refreshing stock data...', 'info');
+    fetchStockData();
+}
+
+function showError(message) {
+    console.error('❌ Error:', message);
+    showNotification(message, 'danger');
+}
+
+function showNotification(message, type = 'info') {
+    // Create or update notification container
+    let notificationContainer = document.getElementById('notificationContainer');
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = 'notificationContainer';
+        notificationContainer.className = 'position-fixed top-0 end-0 p-3';
+        notificationContainer.style.zIndex = '1050';
+        document.body.appendChild(notificationContainer);
+    }
+    
+    // Create notification element
+    const notificationId = 'notification-' + Date.now();
+    const notification = document.createElement('div');
+    notification.id = notificationId;
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Add to container
+    notificationContainer.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        const element = document.getElementById(notificationId);
+        if (element) {
+            element.remove();
+        }
+    }, 5000);
+    
+    console.log(`🔔 Notification shown: ${message}`);
+}

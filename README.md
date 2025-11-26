@@ -304,6 +304,78 @@ Fallback CSV → Market Cap → SMA/RSI/ATR → Risk Adjustment → Educational 
 ### ⚖️ **License**
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🌐 Open Source Portal
+
+This project is available as a **free, open-source portal** accessible on both mobile and web devices:
+
+### 📱 Mobile Access
+- **Progressive Web App (PWA)** ready
+- **Responsive design** for all screen sizes
+- **Touch-friendly** interface
+- **Offline capabilities** with service workers
+
+### 🖥️ Web Access
+- **Desktop optimized** interface
+- **Cross-browser compatible**
+- **Keyboard accessible**
+- **Screen reader friendly**
+
+### 🔧 Deployment Options
+1. **GitHub Pages** (Free static hosting)
+2. **Vercel/Netlify** (Free hosting with serverless functions)
+3. **Heroku** (Free tier for Flask apps)
+4. **Railway/Render** (Modern hosting platforms)
+5. **Self-hosted** (VPS/Dedicated server)
+
+### 🌍 Global Accessibility
+- **Multi-language support** ready
+- **WCAG 2.1 AA compliant**
+- **High contrast mode**
+- **Reduced motion support**
+- **Keyboard navigation**
+- **Screen reader optimized**
+
+## 🤝 Contributing
+
+We welcome contributions from the community! This is a **free, open-source project** designed to be accessible to everyone.
+
+### 🎯 How to Contribute
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Test** on mobile and web
+5. **Submit** a Pull Request
+
+### 🌟 Contribution Areas
+- **Accessibility improvements**
+- **Mobile responsiveness**
+- **New features**
+- **Bug fixes**
+- **Documentation**
+- **Translations**
+
+### 📧 Contact
+- **Issues**: Use GitHub Issues
+- **Discussions**: Use GitHub Discussions
+- **Email**: [Your email for community support]
+
+## 🎉 Free & Open Source
+
+This project is **100% free** and **open source**:
+- ✅ **No cost** to use or modify
+- ✅ **No restrictions** on commercial use
+- ✅ **Community driven** development
+- ✅ **Accessible** to everyone
+- ✅ **Mobile and web** compatible
+
+---
+
+**🚀 Let's make stock market predictions accessible to everyone, everywhere!**
+
+### ⚖️ **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ### ⚠️ **Important Disclaimer**
 - **Educational Purpose Only**: This tool is for learning and education
 - **Not Financial Advice**: Information provided should not be considered investment advice
