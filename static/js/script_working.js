@@ -899,17 +899,6 @@ function showNotification(message, type = 'info') {
     console.log(`🔔 ${message}`);
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 DOM loaded, initializing Stock Predictor...');
-    setupFilters();
-    fetchTopStocks();
-    setupFilters();
-    fetchTopStocks();
-});
-
-// Chart Global Variable
-let stockChartInstance = null;
 
 function toggleChart() {
     const chartContainer = document.getElementById('chartContainer');
@@ -1002,4 +991,22 @@ function updateStockChart(chartData, ticker) {
         }
     });
     console.log('📈 Chart updated for', ticker);
+}
+
+function showOnboarding() {
+    const modalEl = document.getElementById('onboardingModal');
+    if (modalEl) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    } else {
+        console.error('❌ Onboarding modal not found');
+    }
+}
+
+function finishOnboarding() {
+    const dontShow = document.getElementById('dontShowAgain');
+    if (dontShow && dontShow.checked) {
+        localStorage.setItem('onboardingShown', 'true');
+    }
+    console.log('✅ Onboarding completed');
 }
