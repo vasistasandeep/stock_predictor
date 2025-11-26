@@ -61,16 +61,25 @@ function checkAuthStatus() {
 function updateAuthUI() {
     const loginItem = document.getElementById('loginNavItem');
     const logoutItem = document.getElementById('logoutNavItem');
-    const enhancedTab = document.getElementById('enhancedTab');
+    const enhancedElements = document.querySelectorAll('.enhanced-only');
+    const loginPlaceholder = document.getElementById('loginPlaceholder');
 
     if (isLoggedIn) {
+        // Show logout, hide login
         loginItem?.classList.add('d-none');
         logoutItem?.classList.remove('d-none');
-        if (enhancedTab) enhancedTab.innerHTML = 'Enhanced Analysis 👑';
+
+        // Show all enhanced content
+        enhancedElements.forEach(el => el.classList.remove('d-none'));
+        if (loginPlaceholder) loginPlaceholder.classList.add('d-none');
     } else {
+        // Show login, hide logout
         loginItem?.classList.remove('d-none');
         logoutItem?.classList.add('d-none');
-        if (enhancedTab) enhancedTab.innerHTML = 'Enhanced Analysis 🔒';
+
+        // Hide all enhanced content
+        enhancedElements.forEach(el => el.classList.add('d-none'));
+        if (loginPlaceholder) loginPlaceholder.classList.remove('d-none');
     }
 }
 

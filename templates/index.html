@@ -62,20 +62,16 @@
                             <i class="fas fa-home me-1" aria-hidden="true"></i>Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="basicTab">Basic Analysis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="enhancedTab">Enhanced Analysis 🔒</a>
-                    </li>
-                    <li class="nav-item" id="loginNavItem">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
-                    </li>
-                    <li class="nav-item d-none" id="logoutNavItem">
-                        <a class="nav-link" href="#" onclick="logout()">Logout</a>
                     </li>
                 </ul>
                 <div class="navbar-nav ms-auto">
+                    <button class="btn btn-outline-light btn-sm me-2" id="loginNavItem" data-bs-toggle="modal"
+                        data-bs-target="#loginModal">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </button>
+                    <button class="btn btn-outline-light btn-sm me-2 d-none" id="logoutNavItem" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
                     <a class="nav-link text-white" href="/chatbot" title="AI Trading Assistant">
                         <i class="fas fa-robot me-1" aria-hidden="true"></i>AI Assistant
                     </a>
@@ -647,13 +643,10 @@
             </div>
         </div>
 
-        <!-- Market Insights -->
-        <div class="row mt-4">
-            <!-- Market Insights & Analysis (Enhanced Only) -->
-            <div class="card mb-4 enhanced-only">
-                <div class="card-header bg-secondary text-white">
-                    <h5><i class="fas fa-newspaper"></i> Market Insights & Analysis</h5>
-                </div>
+        <!-- Market Insights & Analysis (Enhanced Only) -->
+        <div class="card mb-4 enhanced-only">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-newspaper"></i> Market Insights & Analysis</h5>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -676,7 +669,6 @@
                     </div>
                 </div>
             </div>
-        </div>
         </div>
         </div>
 
