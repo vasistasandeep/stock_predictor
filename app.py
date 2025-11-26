@@ -253,18 +253,35 @@ def get_all_signals():
                 price_change = stock_data.get('price_change', 0.0)
                 
                 # Simple signal logic
-                if price_change > 2:
-                    signal = "BUY"
-                    signal_color = "success"
-                    confidence = min(85, 60 + abs(price_change) * 5)
-                elif price_change < -2:
-                    signal = "SELL"
-                    signal_color = "danger"
-                    confidence = min(85, 60 + abs(price_change) * 5)
+                # Use consistent technical analysis
+                tech_analysis = analyze_stock(symbol)
+                
+                if tech_analysis:
+                    signal = tech_analysis['signal']
+                    confidence = tech_analysis['confidence']
+                    signal_score = tech_analysis['signal_score']
+                    
+                    # Map signal to color
+                    if signal in ['STRONG_BUY', 'BUY']:
+                        signal_color = "success"
+                    elif signal in ['STRONG_SELL', 'SELL']:
+                        signal_color = "danger"
+                    else:
+                        signal_color = "warning"
                 else:
-                    signal = "HOLD"
-                    signal_color = "warning"
-                    confidence = 50
+                    # Fallback to simple logic if analysis fails
+                    if price_change > 2:
+                        signal = "BUY"
+                        signal_color = "success"
+                        confidence = min(85, 60 + abs(price_change) * 5)
+                    elif price_change < -2:
+                        signal = "SELL"
+                        signal_color = "danger"
+                        confidence = min(85, 60 + abs(price_change) * 5)
+                    else:
+                        signal = "HOLD"
+                        signal_color = "warning"
+                        confidence = 50
                 
                 signal_data = {
                     'success': True,
