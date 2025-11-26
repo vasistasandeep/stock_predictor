@@ -399,6 +399,16 @@ def get_multi_source_fallback(ticker, risk_appetite, source):
 def index():
     return render_template('index.html')
 
+@app.route('/old_trading_logic')
+def old_trading_logic():
+    """Documentation page for original trading logic"""
+    return render_template('old_trading_logic.html')
+
+@app.route('/new_trading_logic')
+def new_trading_logic():
+    """Documentation page for enhanced trading logic"""
+    return render_template('new_trading_logic.html')
+
 # Vercel-specific static file handling
 @app.route('/static/<path:filename>')
 def serve_static(filename):
@@ -627,18 +637,19 @@ def get_stock_data(ticker, risk_appetite):
             # Generate analysis summary
             current_price = data.get('current_price', 0)
             
-            # Calculate technical indicators
+            # Calculate comprehensive technical indicators
             try:
                 # Get historical data for technical indicators
                 stock = yf.Ticker(ticker)
                 hist = stock.history(period="60d", interval="1d")
                 
-                if not hist.empty and len(hist) >= 20:
+                if not hist.empty and len(hist) >= 50:
                     # Calculate moving averages
                     hist['MA20'] = hist['Close'].rolling(window=20).mean()
                     hist['MA50'] = hist['Close'].rolling(window=50).mean()
+                    hist['MA200'] = hist['Close'].rolling(window=200).mean()
                     
-                    # Calculate RSI
+                    # Calculate RSI (14-period)
                     delta = hist['Close'].diff()
                     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
                     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
@@ -646,43 +657,161 @@ def get_stock_data(ticker, risk_appetite):
                     rsi = 100 - (100 / (1 + rs))
                     rsi = rsi.iloc[-1] if not rsi.empty else 50.0
                     
-                    # Calculate ATR
+                    # Calculate ATR (14-period)
                     high_low = hist['High'] - hist['Low']
                     high_close = abs(hist['High'] - hist['Close'].shift())
                     low_close = abs(hist['Low'] - hist['Close'].shift())
                     true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
                     atr = true_range.rolling(window=14).mean().iloc[-1] if not true_range.empty else 0.0
                     
+                    # Calculate MACD
+                    exp12 = hist['Close'].ewm(span=12, adjust=False).mean()
+                    exp26 = hist['Close'].ewm(span=26, adjust=False).mean()
+                    macd = exp12 - exp26
+                    signal_line = macd.ewm(span=9, adjust=False).mean()
+                    macd_histogram = macd - signal_line
+                    
+                    # Volume analysis
+                    avg_volume = hist['Volume'].rolling(window=20).mean().iloc[-1]
+                    current_volume = hist['Volume'].iloc[-1]
+                    volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
+                    
+                    # Get current values
+                    current_price = hist['Close'].iloc[-1]
                     ma20 = hist['MA20'].iloc[-1] if not hist['MA20'].empty else None
                     ma50 = hist['MA50'].iloc[-1] if not hist['MA50'].empty else None
+                    ma200 = hist['MA200'].iloc[-1] if len(hist) >= 200 and not hist['MA200'].empty else None
+                    
+                    # Recent high/low for support/resistance
+                    recent_high = hist['High'][-20:].max()
+                    recent_low = hist['Low'][-20:].min()
+                    
+                    # MACD values
+                    macd_current = macd.iloc[-1] if not macd.empty else 0
+                    macd_signal = signal_line.iloc[-1] if not signal_line.empty else 0
+                    macd_hist = macd_histogram.iloc[-1] if not macd_histogram.empty else 0
+                    
+                    print(f"📊 Enhanced Technical Analysis:")
+                    print(f"   RSI: {rsi:.2f}, MACD: {macd_current:.4f}, Signal: {macd_signal:.4f}")
+                    print(f"   MA20: {ma20:.2f}, MA50: {ma50:.2f}, MA200: {ma200:.2f if ma200 else 'N/A'}")
+                    print(f"   Volume Ratio: {volume_ratio:.2f}, ATR: {atr:.2f}")
+                    
                 else:
                     # Fallback values
+                    print("⚠️ Insufficient historical data, using fallback values")
                     rsi = 50.0
-                    ma20 = current_price * 0.98  # Slightly below current price
-                    ma50 = current_price * 0.95  # More below current price
-                    atr = current_price * 0.02  # 2% of price
+                    ma20 = current_price * 0.98
+                    ma50 = current_price * 0.95
+                    ma200 = None
+                    atr = current_price * 0.02
+                    volume_ratio = 1.0
+                    macd_current = 0
+                    macd_signal = 0
+                    macd_hist = 0
+                    recent_high = current_price * 1.05
+                    recent_low = current_price * 0.95
                     
             except Exception as e:
-                print(f"⚠️ Technical indicators calculation failed: {e}")
+                print(f"⚠️ Enhanced technical indicators calculation failed: {e}")
                 # Fallback values
                 rsi = 50.0
                 ma20 = current_price * 0.98
                 ma50 = current_price * 0.95
+                ma200 = None
                 atr = current_price * 0.02
+                volume_ratio = 1.0
+                macd_current = 0
+                macd_signal = 0
+                macd_hist = 0
+                recent_high = current_price * 1.05
+                recent_low = current_price * 0.95
             
-            # Generate analysis summary
+            # Enhanced signal generation based on comprehensive analysis
             print(f"📊 RSI Calculation Result: {rsi:.2f}")
-            if rsi > 70:
-                signal = "SELL"
-                reason = f"RSI ({rsi:.1f}) indicates overbought conditions"
-            elif rsi < 30:
+            
+            # Initialize signal score
+            signal_score = 0
+            signal_factors = []
+            
+            # RSI Analysis (40% weight)
+            if rsi < 30:
+                signal_score += 40
+                signal_factors.append(f"RSI ({rsi:.1f}) oversold")
+            elif rsi > 70:
+                signal_score -= 40
+                signal_factors.append(f"RSI ({rsi:.1f}) overbought")
+            elif 30 <= rsi <= 50:
+                signal_score += 10
+                signal_factors.append(f"RSI ({rsi:.1f}) bullish zone")
+            elif 50 < rsi <= 70:
+                signal_score -= 10
+                signal_factors.append(f"RSI ({rsi:.1f}) bearish zone")
+            
+            # Moving Average Analysis (25% weight)
+            if ma20 and ma50:
+                if current_price > ma20 > ma50:
+                    signal_score += 25
+                    signal_factors.append("Price above MAs (bullish trend)")
+                elif current_price < ma20 < ma50:
+                    signal_score -= 25
+                    signal_factors.append("Price below MAs (bearish trend)")
+                elif ma20 < current_price < ma50:
+                    signal_score += 5
+                    signal_factors.append("Price between MAs (consolidating)")
+            
+            # MACD Analysis (20% weight)
+            if macd_current > macd_signal and macd_hist > 0:
+                signal_score += 20
+                signal_factors.append("MACD bullish crossover")
+            elif macd_current < macd_signal and macd_hist < 0:
+                signal_score -= 20
+                signal_factors.append("MACD bearish crossover")
+            
+            # Volume Analysis (10% weight)
+            if volume_ratio > 1.5:
+                signal_score += 10
+                signal_factors.append(f"High volume ({volume_ratio:.1f}x avg)")
+            elif volume_ratio < 0.7:
+                signal_score -= 5
+                signal_factors.append(f"Low volume ({volume_ratio:.1f}x avg)")
+            
+            # ATR Volatility Analysis (5% weight)
+            if atr > 0 and (atr / current_price) > 0.03:  # High volatility > 3%
+                signal_score -= 5
+                signal_factors.append("High volatility (risk)")
+            elif atr > 0 and (atr / current_price) < 0.01:  # Low volatility < 1%
+                signal_score += 5
+                signal_factors.append("Low volatility (stable)")
+            
+            # Generate final signal based on score
+            if signal_score >= 60:
+                signal = "STRONG_BUY"
+                signal_color = "success"
+                confidence = min(95, 70 + signal_score // 10)
+                reason = f"Strong bullish signal: {', '.join(signal_factors[:3])}"
+            elif signal_score >= 20:
                 signal = "BUY"
-                reason = f"RSI ({rsi:.1f}) indicates oversold conditions"
+                signal_color = "success"
+                confidence = min(85, 60 + signal_score // 10)
+                reason = f"Bullish signal: {', '.join(signal_factors[:2])}"
+            elif signal_score <= -60:
+                signal = "STRONG_SELL"
+                signal_color = "danger"
+                confidence = min(95, 70 + abs(signal_score) // 10)
+                reason = f"Strong bearish signal: {', '.join(signal_factors[:3])}"
+            elif signal_score <= -20:
+                signal = "SELL"
+                signal_color = "danger"
+                confidence = min(85, 60 + abs(signal_score) // 10)
+                reason = f"Bearish signal: {', '.join(signal_factors[:2])}"
             else:
                 signal = "HOLD"
-                reason = f"RSI ({rsi:.1f}) is in neutral zone"
+                signal_color = "warning"
+                confidence = 50
+                reason = f"Neutral signal: {', '.join(signal_factors[:2])}"
             
-            print(f"🎯 Signal Generated: {signal} - {reason}")
+            print(f"🎯 Enhanced Signal Generated: {signal} (Score: {signal_score}, Confidence: {confidence}%)")
+            print(f"📋 Signal Factors: {', '.join(signal_factors)}")
             
             # Calculate risk multipliers - handle custom parameters
             if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
@@ -694,12 +823,42 @@ def get_stock_data(ticker, risk_appetite):
                 stop_loss_multiplier = risk_multipliers.get(risk_appetite.lower(), 0.05)
                 exit_multiplier = stop_loss_multiplier * 3  # 3:1 risk-reward ratio for non-custom
             
-            stop_loss = current_price * (1 - stop_loss_multiplier)
+            # Enhanced risk management with ATR-based stop-loss
+            if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
+                # Custom parameters
+                stop_loss = current_price * (1 - stop_loss_multiplier)
+                exit_price = current_price * (1 + exit_multiplier)
+                target_profit = exit_price - current_price
+            else:
+                # ATR-based stop-loss (2x ATR below recent low for better risk management)
+                atr_stop_loss = recent_low - (2 * atr)
+                percentage_stop_loss = current_price * (1 - stop_loss_multiplier)
+                
+                # Use the more conservative (higher) stop-loss
+                stop_loss = max(atr_stop_loss, percentage_stop_loss)
+                
+                # Exit target based on 3:1 risk-reward ratio
+                risk_amount = current_price - stop_loss
+                exit_price = current_price + (3 * risk_amount)
+                target_profit = 3 * risk_amount
             
-            print(f"💰 Price Calculations: Current={current_price:.2f}, StopLoss={stop_loss:.2f}, Exit={current_price * (1 + exit_multiplier):.2f}")
-            print(f"📈 Risk Multipliers: StopLoss={stop_loss_multiplier:.3f}, Exit={exit_multiplier:.3f}")
+            # Support/Resistance levels
+            support_level = recent_low
+            resistance_level = recent_high
             
-            analysis_summary = f"Technical indicators suggest {signal}. {reason}. Consider stop-loss at ₹{stop_loss:.2f} for {risk_appetite} risk."
+            print(f"💰 Enhanced Risk Management:")
+            print(f"   Current Price: ₹{current_price:.2f}")
+            print(f"   Stop-Loss: ₹{stop_loss:.2f} (ATR-based: ₹{atr_stop_loss:.2f if atr_stop_loss else 'N/A'})")
+            print(f"   Exit Target: ₹{exit_price:.2f}")
+            print(f"   Target Profit: ₹{target_profit:.2f}")
+            print(f"   Support Level: ₹{support_level:.2f}")
+            print(f"   Resistance Level: ₹{resistance_level:.2f}")
+            print(f"   Risk Multipliers: StopLoss={stop_loss_multiplier:.3f}, Exit={exit_multiplier:.3f}")
+            
+            # Enhanced analysis summary
+            analysis_summary = f"Enhanced technical analysis: {signal}. {reason}. "
+            analysis_summary += f"ATR-based stop-loss at ₹{stop_loss:.2f}, exit target ₹{exit_price:.2f}. "
+            analysis_summary += f"Support at ₹{support_level:.2f}, resistance at ₹{resistance_level:.2f}."
             
             # Get market data with timeout protection
             try:
@@ -715,10 +874,22 @@ def get_stock_data(ticker, risk_appetite):
             response_data = {
                 'ticker': ticker,
                 'current_price': round(current_price, 2),
+                # Enhanced technical indicators
                 'rsi': round(rsi, 2) if rsi else 50.0,
                 'ma20': round(ma20, 2) if ma20 else None,
                 'ma50': round(ma50, 2) if ma50 else None,
+                'ma200': round(ma200, 2) if ma200 else None,
                 'atr': round(atr, 2) if atr else 0.0,
+                'macd': round(macd_current, 4) if macd_current else 0.0,
+                'macd_signal': round(macd_signal, 4) if macd_signal else 0.0,
+                'macd_histogram': round(macd_hist, 4) if macd_hist else 0.0,
+                'volume_ratio': round(volume_ratio, 2) if volume_ratio else 1.0,
+                # Support and resistance levels
+                'support_level': round(support_level, 2) if support_level else None,
+                'resistance_level': round(resistance_level, 2) if resistance_level else None,
+                # Signal analysis
+                'signal_score': signal_score,
+                'signal_factors': signal_factors,
                 'risk_level': risk_appetite,
                 'analysis_summary': analysis_summary,
                 'market_news': news,
@@ -727,15 +898,17 @@ def get_stock_data(ticker, risk_appetite):
                 'data_source': f"multi-source-{actual_source}",
                 'requested_source': source,
                 'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                # Trading prediction fields with 2 decimal places
+                # Enhanced trading prediction fields
                 'signal': signal,
+                'signal_color': signal_color,
                 'entry_price': round(current_price, 2),
-                'exit_price': round(current_price * (1 + exit_multiplier), 2),
+                'exit_price': round(exit_price, 2),
                 'stop_loss': round(stop_loss, 2),
-                'confidence': 75 if signal == 'HOLD' else 85,
-                'target_profit': round((current_price * (1 + exit_multiplier)) - current_price, 2),
-                'risk_reward_ratio': round(exit_multiplier / stop_loss_multiplier, 2) if stop_loss_multiplier > 0 else 2.0,
+                'confidence': confidence,
+                'target_profit': round(target_profit, 2),
+                'risk_reward_ratio': round(target_profit / (current_price - stop_loss), 2) if current_price > stop_loss else 2.0,
                 'time_horizon': '1-2 weeks',
+                'atr_stop_loss': round(atr_stop_loss, 2) if 'atr_stop_loss' in locals() else None,
                 'chart_data': {
                     'dates': [],
                     'prices': [],
