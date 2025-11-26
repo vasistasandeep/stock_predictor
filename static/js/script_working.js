@@ -292,24 +292,24 @@ function updateFilteredDisplay() {
     // Add filtered stocks
     filteredStocks.forEach((stock, index) => {
         const originalIndex = allStocks.indexOf(stock);
-        const stockDetail = allStockDetails[originalIndex];
+        const stockDetail = allStockDetails[originalIndex] || {};
         const signal = allSignals.find(s => s.symbol === stock);
         
         let li = document.createElement('li');
         li.className = 'list-group-item list-group-item-action';
         
         let signalBadge = '';
-        if (signal) {
-            signalBadge = `<span class="badge bg-${signal.signal_color} me-2">${signal.signal}</span>`;
+        if (signal && signal.signal) {
+            signalBadge = `<span class="badge bg-${signal.signal_color || 'secondary'} me-2">${signal.signal}</span>`;
         }
         
         let sectorBadge = '';
-        if (stockDetail && stockDetail.sector !== 'Unknown') {
+        if (stockDetail && stockDetail.sector && stockDetail.sector !== 'Unknown') {
             sectorBadge = `<span class="badge bg-info me-2">${stockDetail.sector}</span>`;
         }
         
         let marketCapBadge = '';
-        if (stockDetail && stockDetail.market_cap_category !== 'Unknown') {
+        if (stockDetail && stockDetail.market_cap_category && stockDetail.market_cap_category !== 'Unknown') {
             marketCapBadge = `<span class="badge bg-secondary me-2">${stockDetail.market_cap_category}</span>`;
         }
         
@@ -319,7 +319,7 @@ function updateFilteredDisplay() {
                     <strong>${stock.replace('.NS', '')}</strong>
                     <small class="text-muted d-block">
                         ${signalBadge}${sectorBadge}${marketCapBadge}NSE
-                        ${stockDetail ? `• ₹${stockDetail.market_cap_inr_cr.toLocaleString()} cr` : ''}
+                        ${stockDetail && stockDetail.market_cap_inr_cr ? `• ₹${stockDetail.market_cap_inr_cr.toLocaleString()} cr` : ''}
                     </small>
                 </div>
                 <div class="text-end">
