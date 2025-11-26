@@ -610,19 +610,24 @@ function fetchStockDataForTicker() {
 function updatePredictionDisplay(response) {
     console.log('📊 Updating prediction display with:', response);
     
-    // Update signal
+    // Update signal with proper handling of new signal types
     let signalElement = document.getElementById('signal');
     if (signalElement) {
-        signalElement.textContent = response.signal || 'N/A';
+        const signal = response.signal || 'N/A';
+        signalElement.textContent = signal;
         signalElement.className = 'badge';
-        if (response.signal === 'Buy') {
+        
+        // Handle all signal types from enhanced logic
+        if (signal === 'STRONG_BUY' || signal === 'BUY') {
             signalElement.classList.add('bg-success');
-        } else if (response.signal === 'Sell') {
+        } else if (signal === 'STRONG_SELL' || signal === 'SELL') {
             signalElement.classList.add('bg-danger');
-        } else {
+        } else if (signal === 'HOLD') {
             signalElement.classList.add('bg-warning');
+        } else {
+            signalElement.classList.add('bg-secondary');
         }
-        console.log('✅ Signal updated:', response.signal);
+        console.log('✅ Signal updated:', signal);
     } else {
         console.error('❌ Signal element not found');
     }
@@ -632,16 +637,25 @@ function updatePredictionDisplay(response) {
     updateElementText('exitPrice', response.exit_price);
     updateElementText('stopLoss', response.stop_loss);
     
-    // Update technical indicators with safe checks
-    if (response.attributes) {
-        updateElementText('sma50', response.attributes.SMA50);
-        updateElementText('sma200', response.attributes.SMA200);
-        updateElementText('rsi', response.attributes.RSI);
-        updateElementText('atr', response.attributes.ATR);
-        console.log('✅ Technical indicators updated');
-    } else {
-        console.error('❌ No attributes in response');
-    }
+    // Update technical indicators with correct field names from backend
+    updateElementText('rsi', response.rsi);
+    updateElementText('atr', response.atr);
+    
+    // Update enhanced indicators if elements exist (check if they exist in HTML)
+    const sma20Element = document.getElementById('sma20');
+    if (sma20Element) updateElementText('sma20', response.ma20);
+    
+    const sma50Element = document.getElementById('sma50');
+    if (sma50Element) updateElementText('sma50', response.ma50);
+    
+    const sma200Element = document.getElementById('sma200');
+    if (sma200Element) updateElementText('sma200', response.ma200);
+    
+    // Note: confidence, targetProfit, riskRewardRatio, timeHorizon, macd, macdSignal, 
+    // volumeRatio, supportLevel, resistanceLevel elements don't exist in current HTML
+    // They will be added when the UI is enhanced
+    
+    console.log('✅ Technical indicators updated');
     
     // Update market news and analyst data
     updateMarketInsights(response);
