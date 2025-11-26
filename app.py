@@ -6,12 +6,20 @@ import signal
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import yfinance as yf
-import talib
 import numpy as np
 import pandas as pd
 import requests
 from market_data import get_market_news, get_analyst_recommendations, get_market_sentiment
 from multi_source_data import get_stock_data_multi_source, get_nifty_200_list
+
+def calculate_atr(high, low, close, period=14):
+    """Calculate Average True Range (ATR) using Pandas"""
+    high_low = high - low
+    high_close = np.abs(high - close.shift())
+    low_close = np.abs(low - close.shift())
+    ranges = pd.concat([high_low, high_close, low_close], axis=1)
+    true_range = np.max(ranges, axis=1)
+    return true_range.rolling(window=period).mean()
 
 app = Flask(__name__)
 

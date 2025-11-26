@@ -3,5 +3,4 @@ yfinance
 pandas
 numpy
 openpyxl
-TA-Lib
 requests
