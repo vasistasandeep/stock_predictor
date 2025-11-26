@@ -492,7 +492,7 @@ def refresh_data():
             'status': 'success',
             'message': 'Data refreshed successfully',
             'last_updated': last_data_update.strftime('%Y-%m-%d %H:%M:%S') if last_data_update else None,
-            'stocks_count': len(top_20_stocks)
+            'stocks_count': len(get_nifty_200_list())
         })
     except Exception as e:
         return jsonify({
@@ -502,22 +502,77 @@ def refresh_data():
 
 @app.route('/get_all_signals')
 def get_all_signals():
-    """Get buy/sell/hold signals for all top stocks using UNIFIED function."""
+    """Get buy/sell/hold signals for all top stocks using multi-source data."""
     try:
-        print("🔄 Starting UNIFIED bulk signal analysis...")
+        print("🔄 Starting multi-source bulk signal analysis...")
+        
+        # Get stock data from multi-source system
+        stocks = get_nifty_200_list()
         signals = []
         
-        for symbol in top_20_stocks:
-            # Use the UNIFIED signal function for 100% consistency
-            signal_data = calculate_unified_signal(symbol, period="2y", interval="1d")
-            
-            if signal_data['success']:
-                signals.append(signal_data)
-            else:
-                print(f"⚠️ Failed to get signal for {symbol}, using fallback")
-                signals.append(signal_data)
+        if not stocks:
+            print("❌ No stocks available for analysis")
+            return jsonify({
+                'status': 'error',
+                'message': 'No stock data available'
+            }), 500
         
-        print(f"✅ UNIFIED bulk analysis complete: {len(signals)} signals")
+        # Analyze top 20 stocks
+        for stock_data in stocks[:20]:
+            symbol = stock_data['symbol']
+            
+            try:
+                # Create simple signal based on current price and change
+                current_price = stock_data.get('current_price', 1000.0)
+                price_change = stock_data.get('price_change', 0.0)
+                
+                # Simple signal logic
+                if price_change > 2:
+                    signal = "BUY"
+                    signal_color = "success"
+                    confidence = min(85, 60 + abs(price_change) * 5)
+                elif price_change < -2:
+                    signal = "SELL"
+                    signal_color = "danger"
+                    confidence = min(85, 60 + abs(price_change) * 5)
+                else:
+                    signal = "HOLD"
+                    signal_color = "warning"
+                    confidence = 50
+                
+                signal_data = {
+                    'success': True,
+                    'symbol': symbol,
+                    'signal': signal,
+                    'signal_color': signal_color,
+                    'confidence': confidence,
+                    'current_price': current_price,
+                    'price_change': price_change,
+                    'name': stock_data.get('name', symbol),
+                    'sector': stock_data.get('sector', 'Unknown'),
+                    'data_source': stock_data.get('data_source', 'unknown')
+                }
+                
+                signals.append(signal_data)
+                
+            except Exception as e:
+                print(f"⚠️ Failed to analyze {symbol}: {e}")
+                # Add fallback signal
+                signals.append({
+                    'success': False,
+                    'symbol': symbol,
+                    'signal': 'HOLD',
+                    'signal_color': 'warning',
+                    'confidence': 50,
+                    'current_price': 1000.0,
+                    'price_change': 0.0,
+                    'name': symbol,
+                    'sector': 'Unknown',
+                    'data_source': 'fallback',
+                    'error': str(e)
+                })
+        
+        print(f"✅ Multi-source bulk analysis complete: {len(signals)} signals")
         
         return jsonify({
             'status': 'success',
