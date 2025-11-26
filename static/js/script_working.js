@@ -144,7 +144,13 @@ function fetchAllSignals() {
 function setupFilters() {
     console.log('🔧 Setting up event listeners...');
 
-    // Signal filter
+    // Top 20 Filters
+    document.getElementById('top20SignalFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('top20SectorFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('top20MarketCapFilter')?.addEventListener('change', applyFilters);
+
+    // Main Filters (if they should also affect the list, otherwise they might be for something else)
+    // For now, let's make them also trigger applyFilters if they exist
     document.getElementById('signalFilter')?.addEventListener('change', applyFilters);
     document.getElementById('sectorFilter')?.addEventListener('change', applyFilters);
     document.getElementById('marketCapFilter')?.addEventListener('change', applyFilters);
@@ -206,6 +212,15 @@ function setupFilters() {
         console.log('❌ Check Sources button not found');
     }
 
+    // Export button
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportAnalysis);
+        console.log('✅ Export button listener added');
+    } else {
+        console.log('❌ Export button not found');
+    }
+
     // Stock analysis fetch button
     const fetchBtn = document.getElementById('fetchBtn');
     if (fetchBtn) {
@@ -253,9 +268,10 @@ function resetFilters() {
 }
 
 function applyFilters() {
-    const signalFilter = document.getElementById('signalFilter')?.value || 'all';
-    const sectorFilter = document.getElementById('sectorFilter')?.value || 'all';
-    const marketCapFilter = document.getElementById('marketCapFilter')?.value || 'all';
+    // Try to get values from Top 20 filters first, then fallback to main filters
+    const signalFilter = document.getElementById('top20SignalFilter')?.value || document.getElementById('signalFilter')?.value || 'all';
+    const sectorFilter = document.getElementById('top20SectorFilter')?.value || document.getElementById('sectorFilter')?.value || 'all';
+    const marketCapFilter = document.getElementById('top20MarketCapFilter')?.value || document.getElementById('marketCapFilter')?.value || 'all';
     const searchTerm = document.getElementById('stockSearch')?.value || '';
 
     filteredStocks = allStocks.filter((stock, index) => {
@@ -1009,4 +1025,43 @@ function finishOnboarding() {
         localStorage.setItem('onboardingShown', 'true');
     }
     console.log('✅ Onboarding completed');
+}
+
+function exportAnalysis() {
+    console.log('📥 Exporting analysis...');
+
+    if (!allSignals || allSignals.length === 0) {
+        showNotification('⚠️ No analysis data to export', 'warning');
+        return;
+    }
+
+    // Prepare CSV content
+    const headers = ['Symbol', 'Name', 'Signal', 'Confidence', 'Current Price', 'Entry Price', 'Exit Price', 'Stop Loss', 'Sector'];
+    const rows = allSignals.map(s => [
+        s.symbol,
+        s.name || s.symbol,
+        s.signal,
+        s.confidence + '%',
+        s.current_price,
+        s.entry_price || 'N/A',
+        s.exit_price || 'N/A',
+        s.stop_loss || 'N/A',
+        s.sector || 'Unknown'
+    ]);
+
+    let csvContent = "data:text/csv;charset=utf-8,"
+        + headers.join(",") + "\n"
+        + rows.map(e => e.join(",")).join("\n");
+
+    // Create download link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "stock_analysis_export.csv");
+    document.body.appendChild(link);
+
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification('✅ Analysis exported to CSV', 'success');
 }
