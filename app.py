@@ -539,6 +539,30 @@ def get_multi_source_fallback(ticker, risk_appetite, source):
             }
         })
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/blogs')
+def blogs():
+    return render_template('blogs.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@app.route('/new_trading_logic')
+def new_trading_logic():
+    return render_template('new_trading_logic.html')
+
+@app.route('/old_trading_logic')
+def old_trading_logic():
+    return render_template('old_trading_logic.html')
+
+@app.route('/chatbot')
+def chatbot():
+    return render_template('chatbot_interface.html')
+
 @app.route('/')
 def index():
     return render_template('index.html')
