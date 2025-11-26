@@ -334,73 +334,40 @@ def get_data_source_status():
 def get_major_nifty_stocks():
     """Comprehensive list of major NIFTY stocks"""
     return [
-        # TOP 20 NIFTY STOCKS BY MARKET CAP
-        'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
-        'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
-        'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
-        'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS',
+        # TOP 30 NIFTY STOCKS (Updated for 2024-25)
+        'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'BHARTIARTL.NS',
+        'SBIN.NS', 'INFY.NS', 'LICI.NS', 'ITC.NS', 'HINDUNILVR.NS',
+        'LT.NS', 'BAJFINANCE.NS', 'HCLTECH.NS', 'MARUTI.NS', 'SUNPHARMA.NS',
+        'ADANIENT.NS', 'KOTAKBANK.NS', 'TITAN.NS', 'ONGC.NS', 'TATAMOTORS.NS',
+        'NTPC.NS', 'AXISBANK.NS', 'ADANIPORTS.NS', 'ULTRACEMCO.NS', 'ASIANPAINT.NS',
+        'COALINDIA.NS', 'POWERGRID.NS', 'BAJAJFINSV.NS', 'BAJAJ-AUTO.NS', 'M&M.NS',
         
-        # ADDITIONAL MAJOR STOCKS
-        'LT.NS', 'SUNPHARMA.NS', 'TITAN.NS', 'M&M.NS', 'POWERGRID.NS',
-        'NTPC.NS', 'COALINDIA.NS', 'BPCL.NS', 'GAIL.NS', 'ONGC.NS',
-        'HDFCLIFE.NS', 'SBILIFE.NS', 'GRASIM.NS', 'ADANIPORTS.NS', 'TECHM.NS',
-        'DIVISLAB.NS', 'BRITANNIA.NS', 'DLF.NS', 'BAJAJFINSV.NS', 'DABUR.NS',
-        'PIDILITEIND.NS', 'HEROMOTOCO.NS', 'TATASTEEL.NS', 'EICHERMOT.NS', 'BALKRISIND.NS',
-        'APOLLOHOSP.NS', 'SHREECEM.NS', 'TATACONSUM.NS', 'GODREJCP.NS', 'UBL.NS',
-        
-        # MORE STOCKS TO REACH 175
-        'SIEMENS.NS', 'TATAMOTORS.NS', 'INDUSINDBK.NS', 'JSWSTEEL.NS', 'UPL.NS',
-        'MUTHOOTFIN.NS', 'CHOLAHLDNG.NS', 'CUB.NS', 'NAUKRI.NS', 'GICRE.NS',
-        'IBULHSGFIN.NS', 'BANDHANBNK.NS', 'RBLBANK.NS', 'FEDERALBNK.NS', 'IDFCFIRSTB.NS',
-        'PNB.NS', 'BANKBARODA.NS', 'CANBK.NS', 'INDIANB.NS', 'J&KBANK.NS',
-        'IOB.NS', 'UCOBANK.NS', 'CENTRALBK.NS', 'SOUTHBNK.NS', 'J&K.NS',
-        'PUNJABNAT.NS', 'VIJAYABANK.NS', 'DENABANK.NS', 'KARURVYSYA.NS', 'TAMILNADBNK.NS',
-        'ORIENTBANK.NS', 'ANDHRABANK.NS', 'CORPBANK.NS', 'ALLABADBNK.NS', 'VYSYABANK.NS',
-        'LAXMIVILAS.NS', 'SIB.NS', 'JHAGREFIN.NS', 'MANAPPURAM.NS', 'MUTHOOTFIN.NS',
-        'CHOLAHLDNG.NS', 'SRTRANSFIN.NS', 'BAJAJHLDNG.NS', 'TATAINVEST.NS', 'HDFCAMC.NS',
-        'ICICIPRULI.NS', 'SBILIFE.NS', 'KOTAKLIFE.NS', 'MAXLIFE.NS', 'PNBLIFE.NS',
-        'AVANTIFEED.NS', 'ANANTRAJ.NS', 'ARVIND.NS', 'ASHOKLEY.NS', 'BATAINDIA.NS',
-        'BERGEPAINT.NS', 'BLUESTARCO.NS', 'BOSCHLTD.NS', 'CADILAHC.NS', 'CASTROLIND.NS',
-        'CEATLTD.NS', 'CROMPTON.NS', 'CUMMINSIND.NS', 'DABUR.NS', 'DELTACORP.NS',
-        'DISHTV.NS', 'EICHERMOT.NS', 'ESCORTS.NS', 'EXIDEIND.NS', 'FEDERALBNK.NS',
-        'GAIL.NS', 'GESHIP.NS', 'GMRINFRA.NS', 'GODREJIND.NS', 'GODREJPROP.NS',
-        'GRASIM.NS', 'GUJALKALI.NS', 'HAVELLS.NS', 'HCC.NS', 'HDFC.NS',
-        'HEG.NS', 'HEROHONDA.NS', 'HINDALCO.NS', 'HINDPETRO.NS', 'HINDZINC.NS',
-        'IBREALEST.NS', 'ICICIBANK.NS', 'ICICIGI.NS', 'ICICIPRULI.NS', 'IDFC.NS',
-        'IDFCFIRSTB.NS', 'IFCI.NS', 'IGARASHI.NS', 'INDIACEM.NS', 'INDIGO.NS',
-        'INDUSINDBK.NS', 'INFRATEL.NS', 'INFY.NS', 'IOC.NS', 'IRCON.NS',
-        'ITC.NS', 'JETAIRWAYS.NS', 'JINDALSTEL.NS', 'JINDALSAW.NS', 'JKCEMENT.NS',
-        'JKPAPER.NS', 'JKTYRE.NS', 'JMFINANCIAL.NS', 'JPPOWER.NS', 'JSWENERGY.NS',
-        'JSWSTEEL.NS', 'JUBLFOOD.NS', 'JUBLPHARMA.NS', 'JUSTDIAL.NS', 'KARURVYSYA.NS',
-        'KEC.NS', 'KOTAKBANK.NS', 'L&TFH.NS', 'LAURUSLABS.NS', 'LICHSGFIN.NS',
-        'LINDEINDIA.NS', 'LUPIN.NS', 'M&MFIN.NS', 'MCDOWELL-N.NS', 'MFSL.NS',
-        'MGL.NS', 'MINDTREE.NS', 'MOTILALOFS.NS', 'MPHASIS.NS', 'MRPL.NS',
-        'MUTHOOTFIN.NS', 'NAM-INDIA.NS', 'NBCC.NS', 'NCC.NS', 'NHPC.NS',
-        'NIACL.NS', 'NLCINDIA.NS', 'NMDC.NS', 'NTPC.NS', 'OFSS.NS',
-        'OIL.NS', 'ONGC.NS', 'ORIENTBANK.NS', 'PAGEIND.NS', 'PCJEWELLER.NS',
-        'PFC.NS', 'PGHL.NS', 'PHOENIXLTD.NS', 'PIDILITEIND.NS', 'PNB.NS',
-        'POLYPLEX.NS', 'POWERGRID.NS', 'PRSMJOHNSN.NS', 'PVR.NS', 'RAIN.NS',
-        'RAYMOND.NS', 'RBLBANK.NS', 'RCF.NS', 'RECLTD.NS', 'RELAXO.NS',
-        'RELIANCE.NS', 'RITES.NS', 'RVNL.NS', 'SAIL.NS', 'SANOFI.NS',
-        'SBILIFE.NS', 'SBIN.NS', 'SCI.NS', 'SELAN.NS', 'SHOPERSTOP.NS',
-        'SIEMENS.NS', 'SOUTHBANK.NS', 'SRF.NS', 'SRTRANSFIN.NS', 'STARHEALTH.NS',
-        'STEEL.NS', 'SUNPHARMA.NS', 'SUNTV.NS', 'SUPRAJIT.NS', 'SUZLON.NS',
-        'SYNGENE.NS', 'TANLA.NS', 'TATACHEM.NS', 'TATACOFFEE.NS', 'TATACOMM.NS',
-        'TATACONSUM.NS', 'TATAMOTORS.NS', 'TATAMTRDVR.NS', 'TATASTEEL.NS', 'TCS.NS',
-        'TECHM.NS', 'TITAN.NS', 'TORNTPHARM.NS', 'TORNTPOWER.NS', 'TVSMOTOR.NS',
-        'UBL.NS', 'UCOBANK.NS', 'UJJIVAN.NS', 'ULTRACEMCO.NS', 'UNIONBANK.NS',
-        'UPL.NS', 'VAKRANGEE.NS', 'VARROC.NS', 'VEDL.NS', 'VOLTAS.NS',
-        'WELCORP.NS', 'WELSPUNLTD.NS', 'WHIRLPOOL.NS', 'WIPRO.NS', 'YESBANK.NS',
-        'ZEEL.NS', 'ZENSARTECH.NS', 'ZODIACLOTH.NS', 'ZYDUSWELL.NS'
+        # Next 20 Major Stocks
+        'WIPRO.NS', 'NESTLEIND.NS', 'JSWSTEEL.NS', 'TATASTEEL.NS', 'LTIM.NS',
+        'GRASIM.NS', 'SBILIFE.NS', 'TECHM.NS', 'HDFCLIFE.NS', 'BRITANNIA.NS',
+        'INDUSINDBK.NS', 'HINDALCO.NS', 'DIVISLAB.NS', 'EICHERMOT.NS', 'CIPLA.NS',
+        'DRREDDY.NS', 'BPCL.NS', 'TATACONSUM.NS', 'APOLLOHOSP.NS', 'HEROMOTOCO.NS'
     ]
 
 def get_nifty_200_list(source=None):
-    """Get list of NIFTY 200 stocks with data"""
+    """Get list of NIFTY 200 stocks with data, sorted by market cap"""
     stocks = get_major_nifty_stocks()
-    # For performance, maybe just fetch top 20 initially or use a smaller list for testing
-    # But the requirement implies full list. 
-    # Let's fetch top 20 for now to ensure speed, or all if needed.
-    # app.py calls this to get the list.
     
-    # We need to return stock DETAILS, not just symbols.
-    return get_multiple_stocks_multi_source(stocks[:20], source=source)
+    # Fetch data for top 30 candidates to ensure we get the real top 20
+    # This is a balance between speed and accuracy
+    print(f"🔄 Fetching data for {len(stocks)} candidate stocks to find Top 20...")
+    data = get_multiple_stocks_multi_source(stocks, source=source)
+    
+    if not data:
+        print("❌ Failed to fetch stock data")
+        return []
+        
+    # Sort by market cap (descending) to get the ACTUAL top stocks
+    # Use 0 as default if market_cap is missing
+    data.sort(key=lambda x: x.get('market_cap', 0) or 0, reverse=True)
+    
+    # Return top 20
+    top_20 = data[:20]
+    print(f"✅ Identified Top 20 stocks by Market Cap (Top: {top_20[0]['symbol']} - {top_20[0].get('market_cap', 'N/A')})")
+    
+    return top_20
