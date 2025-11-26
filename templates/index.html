@@ -62,26 +62,17 @@
                             <i class="fas fa-home me-1" aria-hidden="true"></i>Dashboard
                         </a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="logicDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-brain me-1" aria-hidden="true"></i>Trading Logic
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="logicDropdown">
-                            <li><a class="dropdown-item" href="/new_trading_logic">
-                                    <i class="fas fa-rocket me-1" aria-hidden="true"></i>Enhanced Logic
-                                </a></li>
-                            <li><a class="dropdown-item" href="/old_trading_logic">
-                                    <i class="fas fa-history me-1" aria-hidden="true"></i>Original Logic
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                    data-bs-target="#comparisonModal">
-                                    <i class="fas fa-exchange-alt me-1" aria-hidden="true"></i>Comparison
-                                </a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="basicTab">Basic Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="enhancedTab">Enhanced Analysis 🔒</a>
+                    </li>
+                    <li class="nav-item" id="loginNavItem">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+                    </li>
+                    <li class="nav-item d-none" id="logoutNavItem">
+                        <a class="nav-link" href="#" onclick="logout()">Logout</a>
                     </li>
                 </ul>
                 <div class="navbar-nav ms-auto">
@@ -344,6 +335,36 @@
                             <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
                                 title="Top 20: Largest 20 companies from Nifty 200 index. These are market leaders with highest trading volumes and stability."></i>
                         </h5>
+                        <!-- Enhanced Logic Section (Hidden by default, shown if logged in) -->
+                        <div id="enhancedLogicSection" class="mt-4 d-none">
+                            <h5 class="card-title text-warning mb-3">
+                                <i class="fas fa-crown me-2"></i>Enhanced Logic Analysis
+                            </h5>
+                            <div class="alert alert-dark border-warning">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Recommendation:</strong> <span
+                                                id="enhancedRecommendation"
+                                                class="badge bg-warning text-dark">LOCKED</span></p>
+                                        <p class="mb-1"><strong>Suggested Entry:</strong> <span id="enhancedEntry"
+                                                class="text-warning">🔒</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Stop Loss:</strong> <span id="enhancedStop"
+                                                class="text-danger">🔒</span></p>
+                                        <p class="mb-1"><strong>Target Exit:</strong> <span id="enhancedExit"
+                                                class="text-success">🔒</span></p>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Enhanced logic uses advanced probabilistic analysis to determine optimal entry
+                                        and exit points.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-info" id="stockCount">0 stocks</span>
                         </div>
@@ -1108,61 +1129,24 @@
             </div>
         </div>
 
-        <!-- Comparison Modal -->
-        <div class="modal fade" id="comparisonModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-exchange-alt me-2"></i>Logic Comparison
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 border-end">
-                                <h5 class="text-secondary text-center mb-3">Original Logic</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>Basic
-                                        Moving Averages</li>
-                                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>Simple RSI
-                                        Check</li>
-                                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>Fixed
-                                        Stop-Loss</li>
-                                    <li class="list-group-item"><i class="fas fa-times text-danger me-2"></i>No
-                                        Volatility Adjustment</li>
-                                    <li class="list-group-item"><i class="fas fa-times text-danger me-2"></i>No
-                                        Multi-Source Data</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="text-primary text-center mb-3">Enhanced Logic (PRO)</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item"><i
-                                            class="fas fa-check-double text-primary me-2"></i>Advanced Technical
-                                        Analysis</li>
-                                    <li class="list-group-item"><i
-                                            class="fas fa-check-double text-primary me-2"></i>Dynamic KL Trading Logic
-                                    </li>
-                                    <li class="list-group-item"><i
-                                            class="fas fa-check-double text-primary me-2"></i>Risk-Based Stop-Loss</li>
-                                    <li class="list-group-item"><i
-                                            class="fas fa-check-double text-primary me-2"></i>Multi-Source Data Fallback
-                                    </li>
-                                    <li class="list-group-item"><i
-                                            class="fas fa-check-double text-primary me-2"></i>Sentiment Analysis
-                                        Integration</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <a href="/new_trading_logic" class="btn btn-primary">Try Enhanced Logic</a>
-                    </div>
-                </div>
-            </div>
+        Analysis</li>
+        <li class="list-group-item"><i class="fas fa-check-double text-primary me-2"></i>Dynamic KL Trading Logic
+        </li>
+        <li class="list-group-item"><i class="fas fa-check-double text-primary me-2"></i>Risk-Based Stop-Loss</li>
+        <li class="list-group-item"><i class="fas fa-check-double text-primary me-2"></i>Multi-Source Data Fallback
+        </li>
+        <li class="list-group-item"><i class="fas fa-check-double text-primary me-2"></i>Sentiment Analysis
+            Integration</li>
+        </ul>
+        </div>
+        </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a href="/new_trading_logic" class="btn btn-primary">Try Enhanced Logic</a>
+        </div>
+        </div>
+        </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

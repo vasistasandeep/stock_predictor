@@ -23,6 +23,7 @@ def calculate_atr(high, low, close, period=14):
     return true_range.rolling(window=period).mean()
 
 app = Flask(__name__)
+app.secret_key = 'super_secret_key_for_demo_only' # Change this in production
 
 # Vercel-compatible: Request-scoped caching
 _vercel_cache = {}
@@ -381,32 +382,6 @@ def get_stock_data(ticker, risk_appetite):
                 ma50 = tech_analysis['ma50']
                 ma200 = tech_analysis['ma200']
                 atr = tech_analysis['atr']
-                macd = tech_analysis['macd']
-                macd_signal = tech_analysis['macd_signal']
-                volume_ratio = tech_analysis['volume_ratio']
-                
-                # Construct reason from factors
-                reason = ". ".join(factors[:2]) # Top 2 factors
-                # Use KL Logic values
-                kl_entry = tech_analysis.get('kl_entry', current_price)
-                kl_stop = tech_analysis.get('kl_stop', current_price * 0.95)
-                kl_exit = tech_analysis.get('kl_exit', current_price * 1.05)
-                
-                # Override with KL values if available
-                entry_price = kl_entry
-                stop_loss = kl_stop
-                exit_price = kl_exit
-                target_profit = exit_price - entry_price
-                
-                # Recalculate risk reward
-                risk = entry_price - stop_loss
-                reward = exit_price - entry_price
-                risk_reward_ratio = reward / risk if risk > 0 else 0
-                
-            else:
-                print(f"⚠️ Enhanced analysis failed for {ticker}, using fallback")
-                # Fallback logic
-                rsi = 50.0
                 signal = "HOLD"
                 confidence = 50
                 signal_score = 0
@@ -634,6 +609,27 @@ def chatbot():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    if username == 'admin' and password == 'password':
+        session['logged_in'] = True
+        return jsonify({'success': True, 'message': 'Login successful'})
+    
+    return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('logged_in', None)
+    return jsonify({'success': True, 'message': 'Logged out'})
+
+@app.route('/check_auth')
+def check_auth():
+    return jsonify({'logged_in': session.get('logged_in', False)})
 
 # Vercel-specific static file handling
 @app.route('/static/<path:filename>')

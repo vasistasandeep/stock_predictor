@@ -57,10 +57,9 @@ def calculate_atr(data, period=14):
     atr = true_range.rolling(window=period).mean()
     return atr
 
-def calculate_kl_metrics(data, current_price, risk_profile='Medium'):
+def calculate_enhanced_metrics(data, current_price, risk_profile='Medium'):
     """
-    Calculate KL Trading Logic Metrics (Probabilistic Analysis).
-    Returns dictionary with entry, stop_loss, exit_target, and recommendation.
+    Calculate Enhanced Logic metrics (formerly KL) based on probability distribution
     """
     try:
         # Calculate daily returns
@@ -88,18 +87,12 @@ def calculate_kl_metrics(data, current_price, risk_profile='Medium'):
         
         for target in targets:
             # P(Target) = 1 - CDF(target) => Probability of reaching target
-            # Assuming normal distribution of returns
-            # We scale target to daily timeframe? No, target is absolute return.
-            # We need probability of reaching target in "typical day"? 
-            # The spreadsheet says "P(Target) ... on a typical day".
-            # This implies P(Daily_Return >= Target).
-            
             p_target = 1 - calculate_normal_cdf(target, mu, sigma)
             
             # P(Loss) = CDF(-allowed_loss) => Probability of falling below loss limit
             p_loss = calculate_normal_cdf(-allowed_loss, mu, sigma)
             
-            # Expected Return formula from spreadsheet
+            # Expected Return formula
             expected_return = (p_target * target) - (p_loss * allowed_loss)
             
             if expected_return > max_expected_return:
@@ -107,16 +100,13 @@ def calculate_kl_metrics(data, current_price, risk_profile='Medium'):
                 best_target = target
                 
         # Recommendation
-        recommendation = "BUY" if max_expected_return > 0 else "HOLD" # Spreadsheet says YES/NO
+        recommendation = "BUY" if max_expected_return > 0 else "HOLD"
         
         # Suggested Entry: current * (1 - entryZ * sigma)
-        # entryZ is 0.5 in example
         entry_z = 0.5
         suggested_entry = current_price * (1 - (entry_z * sigma))
         
         # Stop Loss: 1% below suggested entry (or allowed_loss below?)
-        # Spreadsheet says "1% below suggested entry" AND "your allowed loss".
-        # Let's use the allowed_loss parameter to make it dynamic as requested.
         stop_loss = suggested_entry * (1 - allowed_loss)
         
         # Exit Price: Entry * (1 + best_target)
@@ -135,7 +125,7 @@ def calculate_kl_metrics(data, current_price, risk_profile='Medium'):
         }
         
     except Exception as e:
-        print(f"Error calculating KL metrics: {e}")
+        print(f"Error calculating Enhanced metrics: {e}")
         return None
 
 def analyze_stock(ticker, current_data=None, risk_profile='Medium'):
@@ -234,48 +224,43 @@ def analyze_stock(ticker, current_data=None, risk_profile='Medium'):
         # Calculate Confidence
         confidence = min(95, 50 + abs(signal_score) / 2)
         
-        # --- KL Logic Integration ---
-        kl_metrics = calculate_kl_metrics(hist, current_price, risk_profile)
+        # --- Enhanced Logic Integration ---
+        enhanced_metrics = calculate_enhanced_metrics(hist, current_price, risk_profile)
         
-        # Merge KL logic if available
-        kl_recommendation = "HOLD"
-        kl_entry = current_price
-        kl_stop = current_price * 0.95
-        kl_exit = current_price * 1.05
+        # Merge Enhanced logic if available
+        enhanced_recommendation = "HOLD"
+        enhanced_entry = current_price
+        enhanced_stop = current_price * 0.95
+        enhanced_exit = current_price * 1.05
         
-        if kl_metrics:
-            kl_recommendation = kl_metrics['recommendation']
-            kl_entry = kl_metrics['suggested_entry']
-            kl_stop = kl_metrics['stop_loss']
-            kl_exit = kl_metrics['exit_price']
-            
-            # If KL says BUY, boost the signal score slightly?
-            # Or just return the KL specific values for Entry/Exit
+        if enhanced_metrics:
+            enhanced_recommendation = enhanced_metrics['recommendation']
+            enhanced_entry = enhanced_metrics['suggested_entry']
+            enhanced_stop = enhanced_metrics['stop_loss']
+            enhanced_exit = enhanced_metrics['exit_price']
             
         return {
-            'ticker': ticker,
-            'current_price': current_price,
+            'symbol': ticker,
+            'current_price': round(current_price, 2),
+            'price_change': 0, # Placeholder, updated by app.py
+            'price_change_percent': 0, # Placeholder
             'rsi': round(rsi, 2),
-            'ma20': round(ma20, 2),
-            'ma50': round(ma50, 2),
-            'ma200': round(ma200, 2) if ma200 else None,
             'macd': round(macd_val, 2),
             'macd_signal': round(macd_sig, 2),
-            'macd_hist': round(macd_h, 2),
+            'sma_20': round(ma20, 2),
+            'sma_50': round(ma50, 2),
             'atr': round(atr, 2),
+            'volatility': round(atr/current_price, 4),
             'volume_ratio': round(volume_ratio, 2),
-            'support_level': round(recent_low, 2),
-            'resistance_level': round(recent_high, 2),
             'signal': signal,
             'signal_score': signal_score,
             'signal_factors': factors,
             'confidence': round(confidence, 1),
-            # KL Metrics
-            'kl_recommendation': kl_recommendation,
-            'kl_entry': round(kl_entry, 2),
-            'kl_stop': round(kl_stop, 2),
-            'kl_exit': round(kl_exit, 2),
-            # Chart Data
+            # Enhanced Metrics
+            'enhanced_recommendation': enhanced_recommendation,
+            'enhanced_entry': round(enhanced_entry, 2),
+            'enhanced_stop': round(enhanced_stop, 2),
+            'enhanced_exit': round(enhanced_exit, 2),
             'historical_data': {
                 'dates': hist.index.strftime('%Y-%m-%d').tolist(),
                 'prices': hist['Close'].tolist(),

@@ -1,313 +1,41 @@
-// Enhanced stock list script with filtering
-let allStocks = [];
-let allStockDetails = [];
-let filteredStocks = [];
-let allSignals = [];
+const sectorFilter = document.getElementById('top20SectorFilter')?.value || document.getElementById('sectorFilter')?.value || 'all';
+const marketCapFilter = document.getElementById('top20MarketCapFilter')?.value || document.getElementById('marketCapFilter')?.value || 'all';
+const searchTerm = document.getElementById('stockSearch')?.value || '';
 
-window.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 Stock Predictor initialized');
-    initTooltips();
-    fetchStockData();
-    fetchAllSignals();
-    setupFilters();
-});
-
-function initTooltips() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-}
-
-function fetchStockData() {
-    console.log('🔄 Fetching stock data...');
-
-    // Get selected data source
-    const dataSource = document.getElementById('dataSource')?.value || 'yahoo';
-
-    fetch(`/get_top_20_stocks?source=${dataSource}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log('📊 Stock data received:', data);
-            allStocks = data.stocks || [];
-            allStockDetails = data.stock_details || [];
-            filteredStocks = [...allStocks];
-            updateStockDisplay(data);
-            updateDataSourceStatus(dataSource, data.data_source, data.cache_status);
-            showNotification(`✅ Loaded ${allStocks.length} stocks from ${dataSource}`, 'success');
-        })
-        .catch(error => {
-            console.error('❌ Error fetching stocks:', error);
-            showNotification(`❌ Failed to load stocks from ${dataSource}`, 'danger');
-        });
-}
-
-function updateDataSourceStatus(selectedSource, actualSource, cacheStatus) {
-    const statusElement = document.getElementById('dataSourceStatus');
-    if (!statusElement) return;
-
-    let statusIcon = '';
-    let statusText = '';
-    let statusClass = '';
-
-    if (actualSource === 'emergency-fallback' || actualSource === 'error-fallback') {
-        statusIcon = '🔴';
-        statusText = `${selectedSource} failed - using fallback`;
-        statusClass = 'text-danger';
-    } else if (cacheStatus === 'fresh') {
-        statusIcon = '🟢';
-        statusText = `${actualSource} - Fresh data`;
-        statusClass = 'text-success';
-    } else {
-        statusIcon = '🟡';
-        statusText = `${actualSource} - Cached data`;
-        statusClass = 'text-warning';
-    }
-
-    statusElement.innerHTML = `<i class="fas fa-circle ${statusClass}"></i> ${statusText}`;
-}
-
-function checkDataSources() {
-    console.log('🔍 Checking data source availability...');
-
-    fetch('/get_data_sources')
-        .then(response => response.json())
-        .then(data => {
-            console.log('📊 Data source status:', data);
-            updateDataSourceDropdown(data.sources);
-            showNotification('✅ Data source status updated', 'success');
-        })
-        .catch(error => {
-            console.error('❌ Error checking data sources:', error);
-            showNotification('❌ Failed to check data sources', 'danger');
-        });
-}
-
-function updateDataSourceDropdown(sources) {
-    const dataSourceSelect = document.getElementById('dataSource');
-    if (!dataSourceSelect) return;
-
-    // Clear existing options
-    dataSourceSelect.innerHTML = '';
-
-    // Add options with status indicators
-    Object.keys(sources).forEach(sourceKey => {
-        const source = sources[sourceKey];
-        const option = document.createElement('option');
-        option.value = sourceKey;
-
-        let icon = '';
-        let label = '';
-
-        if (sourceKey === 'yahoo') {
-            icon = '🌐';
-            label = 'Yahoo Finance';
-        } else if (sourceKey === 'google') {
-            icon = '🔍';
-            label = 'Google Finance';
-        } else if (sourceKey === 'alpha_vantage') {
-            icon = '📊';
-            label = 'Alpha Vantage';
-        } else if (sourceKey === 'fmp') {
-            icon = '🏦';
-            label = 'Financial Modeling Prep';
-        }
-
-        option.textContent = `${icon} ${label}`;
-
-        if (source.available) {
-            option.classList.add('text-success');
-        } else {
-            option.classList.add('text-muted');
-            option.disabled = true;
-        }
-
-        dataSourceSelect.appendChild(option);
-    });
-}
-
-function fetchAllSignals() {
-    console.log('🔄 Fetching all signals...');
-
-    fetch('/get_all_signals')
-        .then(response => response.json())
-        .then(data => {
-            console.log('📊 Signals received:', data);
-            allSignals = data.signals || [];
-            updateSignalFilters();
-        })
-        .catch(error => {
-            console.error('❌ Error fetching signals:', error);
-        });
-}
-
-function setupFilters() {
-    console.log('🔧 Setting up event listeners...');
-
-    // Top 20 Filters
-    document.getElementById('top20SignalFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('top20SectorFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('top20MarketCapFilter')?.addEventListener('change', applyFilters);
-
-    // Main Filters (if they should also affect the list, otherwise they might be for something else)
-    // For now, let's make them also trigger applyFilters if they exist
-    document.getElementById('signalFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('sectorFilter')?.addEventListener('change', applyFilters);
-    document.getElementById('marketCapFilter')?.addEventListener('change', applyFilters);
+filteredStocks = allStocks.filter((stock, index) => {
+    const stockDetail = allStockDetails[index];
+    if (!stockDetail) return true;
 
     // Search filter
-    document.getElementById('stockSearch')?.addEventListener('input', applyFilters);
-
-    // Data source filter
-    document.getElementById('dataSource')?.addEventListener('change', function (e) {
-        console.log('🔄 Data source changed to:', e.target.value);
-        fetchStockData(); // Refresh data with new source
-    });
-
-    // Apply Filters button
-    document.getElementById('applyFilters')?.addEventListener('click', function () {
-        console.log('🔍 Applying filters...');
-        applyFilters();
-        showNotification('✅ Filters applied', 'success');
-    });
-
-    // Reset Filters button
-    document.getElementById('resetFilters')?.addEventListener('click', function () {
-        console.log('🔄 Resetting filters...');
-        resetFilters();
-        showNotification('🔄 Filters reset', 'info');
-    });
-
-    // Analyze All button
-    const analyzeAllBtn = document.getElementById('analyzeAllBtn');
-    if (analyzeAllBtn) {
-        analyzeAllBtn.addEventListener('click', analyzeAllStocks);
-        console.log('✅ Analyze All button listener added');
-    } else {
-        console.log('❌ Analyze All button not found');
+    if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        const symbolMatch = stock.toLowerCase().includes(searchLower);
+        const nameMatch = stockDetail.name?.toLowerCase().includes(searchLower);
+        if (!symbolMatch && !nameMatch) return false;
     }
 
-    // Refresh Data button
-    const refreshDataBtn = document.getElementById('refreshDataBtn');
-    if (refreshDataBtn) {
-        refreshDataBtn.addEventListener('click', function () {
-            console.log('🔄 Refreshing data...');
-            fetchStockData();
-            showNotification('🔄 Data refreshed', 'success');
-        });
-        console.log('✅ Refresh Data button listener added');
-    } else {
-        console.log('❌ Refresh Data button not found');
+    // Signal filter
+    if (signalFilter !== 'all') {
+        const signal = allSignals.find(s => s.symbol === stock);
+        if (!signal || !signal.signal || signal.signal.toLowerCase() !== signalFilter.toLowerCase()) return false;
     }
 
-    // Check Sources button
-    const checkSourcesBtn = document.getElementById('checkSourcesBtn');
-    if (checkSourcesBtn) {
-        checkSourcesBtn.addEventListener('click', function () {
-            console.log('🔍 Checking data sources...');
-            checkDataSources();
-        });
-        console.log('✅ Check Sources button listener added');
-    } else {
-        console.log('❌ Check Sources button not found');
+    // Sector filter
+    if (sectorFilter !== 'all' && stockDetail.sector !== sectorFilter) {
+        return false;
     }
 
-    // Export button
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportAnalysis);
-        console.log('✅ Export button listener added');
-    } else {
-        console.log('❌ Export button not found');
+    // Market cap filter
+    if (marketCapFilter !== 'all' && stockDetail.market_cap_category !== marketCapFilter) {
+        return false;
     }
 
-    // Stock analysis fetch button
-    const fetchBtn = document.getElementById('fetchBtn');
-    if (fetchBtn) {
-        fetchBtn.addEventListener('click', fetchStockDataForTicker);
-        console.log('✅ Get Recommendation button listener added');
-    } else {
-        console.log('❌ Get Recommendation button not found');
-    }
+    return true;
+});
 
-    // Risk level change listener
-    document.querySelectorAll('input[name="risk"]').forEach(radio => {
-        radio.addEventListener('change', handleRiskChange);
-    });
-
-    // Check data sources on page load
-    setTimeout(checkDataSources, 2000);
-}
-
-function handleRiskChange(e) {
-    console.log('⚖️ Risk level changed:', e.target.id);
-
-    // Toggle custom input visibility
-    const customInput = document.getElementById('customRiskInput');
-    if (customInput) {
-        customInput.style.display = (e.target.id === 'customRisk') ? 'flex' : 'none';
-    }
-
-    // Re-analyze if a ticker is already selected
-    if (window.lastAnalyzedTicker) {
-        console.log('🔄 Re-analyzing with new risk level...');
-        fetchStockDataForTicker();
-    }
-}
-
-function resetFilters() {
-    document.getElementById('signalFilter').value = 'all';
-    document.getElementById('riskFilter').value = 'all';
-    document.getElementById('sectorFilter').value = 'all';
-    document.getElementById('marketCapFilter').value = 'all';
-    document.getElementById('sortBy').value = 'marketcap';
-    document.getElementById('stockSearch').value = '';
-
-    filteredStocks = [...allStocks];
-    updateStockDisplay({ stock_details: allStockDetails });
-}
-
-function applyFilters() {
-    // Try to get values from Top 20 filters first, then fallback to main filters
-    const signalFilter = document.getElementById('top20SignalFilter')?.value || document.getElementById('signalFilter')?.value || 'all';
-    const sectorFilter = document.getElementById('top20SectorFilter')?.value || document.getElementById('sectorFilter')?.value || 'all';
-    const marketCapFilter = document.getElementById('top20MarketCapFilter')?.value || document.getElementById('marketCapFilter')?.value || 'all';
-    const searchTerm = document.getElementById('stockSearch')?.value || '';
-
-    filteredStocks = allStocks.filter((stock, index) => {
-        const stockDetail = allStockDetails[index];
-        if (!stockDetail) return true;
-
-        // Search filter
-        if (searchTerm) {
-            const searchLower = searchTerm.toLowerCase();
-            const symbolMatch = stock.toLowerCase().includes(searchLower);
-            const nameMatch = stockDetail.name?.toLowerCase().includes(searchLower);
-            if (!symbolMatch && !nameMatch) return false;
-        }
-
-        // Signal filter
-        if (signalFilter !== 'all') {
-            const signal = allSignals.find(s => s.symbol === stock);
-            if (!signal || !signal.signal || signal.signal.toLowerCase() !== signalFilter.toLowerCase()) return false;
-        }
-
-        // Sector filter
-        if (sectorFilter !== 'all' && stockDetail.sector !== sectorFilter) {
-            return false;
-        }
-
-        // Market cap filter
-        if (marketCapFilter !== 'all' && stockDetail.market_cap_category !== marketCapFilter) {
-            return false;
-        }
-
-        return true;
-    });
-
-    // Update display with filtered results
-    updateFilteredDisplay();
-    console.log(`🔍 Filtered to ${filteredStocks.length} stocks`);
+// Update display with filtered results
+updateFilteredDisplay();
+console.log(`🔍 Filtered to ${filteredStocks.length} stocks`);
 }
 
 function updateSignalFilters() {
