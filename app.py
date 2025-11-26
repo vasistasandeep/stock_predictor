@@ -4,7 +4,7 @@
 import os
 import signal
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
 import yfinance as yf
 import numpy as np
 import pandas as pd
