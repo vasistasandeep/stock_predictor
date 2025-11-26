@@ -346,6 +346,7 @@ function setupFilters() {
     document.getElementById('top20SignalFilter')?.addEventListener('change', applyFilters);
     document.getElementById('top20SectorFilter')?.addEventListener('change', applyFilters);
     document.getElementById('top20MarketCapFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('sortByFilter')?.addEventListener('change', applyFilters);
 
     // Main Filters (if they should also affect the list, otherwise they might be for something else)
     // For now, let's make them also trigger applyFilters if they exist
@@ -471,6 +472,7 @@ function applyFilters() {
     const sectorFilter = document.getElementById('top20SectorFilter')?.value || document.getElementById('sectorFilter')?.value || 'all';
     const marketCapFilter = document.getElementById('top20MarketCapFilter')?.value || document.getElementById('marketCapFilter')?.value || 'all';
     const searchTerm = document.getElementById('stockSearch')?.value || '';
+    const sortBy = document.getElementById('sortByFilter')?.value || 'name';
 
     filteredStocks = allStocks.filter((stock, index) => {
         const stockDetail = allStockDetails[index];
@@ -503,9 +505,37 @@ function applyFilters() {
         return true;
     });
 
-    // Update display with filtered results
+    // Apply sorting
+    filteredStocks.sort((a, b) => {
+        const indexA = allStocks.indexOf(a);
+        const indexB = allStocks.indexOf(b);
+        const detailA = allStockDetails[indexA];
+        const detailB = allStockDetails[indexB];
+        const signalA = allSignals.find(s => s.symbol === a);
+        const signalB = allSignals.find(s => s.symbol === b);
+
+        switch (sortBy) {
+            case 'name':
+                return (detailA?.name || a).localeCompare(detailB?.name || b);
+            case 'signal':
+                const signalOrder = { 'BUY': 1, 'HOLD': 2, 'SELL': 3 };
+                return (signalOrder[signalA?.signal] || 99) - (signalOrder[signalB?.signal] || 99);
+            case 'confidence':
+                return (signalB?.confidence || 0) - (signalA?.confidence || 0); // Descending
+            case 'entry':
+                return (signalA?.entry_price || 0) - (signalB?.entry_price || 0);
+            case 'exit':
+                return (signalA?.exit_price || 0) - (signalB?.exit_price || 0);
+            case 'stoploss':
+                return (signalA?.stop_loss || 0) - (signalB?.stop_loss || 0);
+            default:
+                return 0;
+        }
+    });
+
+    // Update display with filtered and sorted results
     updateFilteredDisplay();
-    console.log(`🔍 Filtered to ${filteredStocks.length} stocks`);
+    console.log(`🔍 Filtered to ${filteredStocks.length} stocks, sorted by ${sortBy}`);
 }
 
 function updateSignalFilters() {

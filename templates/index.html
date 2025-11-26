@@ -62,6 +62,11 @@
                             <i class="fas fa-home me-1" aria-hidden="true"></i>Dashboard
                         </a>
                     </li>
+                    <li class="nav-item enhanced-only d-none">
+                        <a class="nav-link" href="#quick-analysis">
+                            <i class="fas fa-chart-line me-1"></i>Enhanced Analysis
+                        </a>
+                    </li>
                     </li>
                 </ul>
                 <div class="navbar-nav ms-auto">
@@ -72,7 +77,7 @@
                     <button class="btn btn-outline-light btn-sm me-2 d-none" id="logoutNavItem" onclick="logout()">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </button>
-                    <a class="nav-link text-white" href="/chatbot" title="AI Trading Assistant">
+                    <a class="nav-link text-white enhanced-only d-none" href="/chatbot" title="AI Trading Assistant">
                         <i class="fas fa-robot me-1" aria-hidden="true"></i>AI Assistant
                     </a>
                     <button class="btn btn-outline-light btn-sm me-2" onclick="showOnboarding()"
@@ -336,28 +341,44 @@
                         </div>
                     </div>
                     <div class="card-body p-0">
-                        <div class="stock-filters-bar bg-light p-2 border-bottom">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control form-control-sm" id="stockSearch"
-                                        placeholder="🔍 Search stocks...">
+                        <div class="stock-filters-bar bg-light p-3 border-bottom">
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-12">
+                                    <input type="text" class="form-control" id="stockSearch"
+                                        placeholder="🔍 Search by stock name or symbol...">
                                 </div>
-                                <div class="col-md-2">
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <label class="form-label small mb-1">Signal</label>
                                     <select class="form-select form-select-sm" id="top20SignalFilter">
                                         <option value="all">All Signals</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
+                                    <label class="form-label small mb-1">Sector</label>
                                     <select class="form-select form-select-sm" id="top20SectorFilter">
                                         <option value="all">All Sectors</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
+                                    <label class="form-label small mb-1">Market Cap</label>
                                     <select class="form-select form-select-sm" id="top20MarketCapFilter">
-                                        <option value="all">All Market Cap</option>
-                                        <option value="Large Cap">Large Cap</option>
-                                        <option value="Mid Cap">Mid Cap</option>
-                                        <option value="Small Cap">Small Cap</option>
+                                        <option value="all">All</option>
+                                        <option value="Large Cap">Large Cap (₹20,000+ Cr)</option>
+                                        <option value="Mid Cap">Mid Cap (₹5,000-20,000 Cr)</option>
+                                        <option value="Small Cap">Small Cap (\u003c₹5,000 Cr)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small mb-1">Sort By</label>
+                                    <select class="form-select form-select-sm" id="sortByFilter">
+                                        <option value="name">Name (A-Z)</option>
+                                        <option value="signal">Signal</option>
+                                        <option value="confidence">Confidence %</option>
+                                        <option value="entry">Entry Price</option>
+                                        <option value="exit">Exit Price</option>
+                                        <option value="stoploss">Stop-Loss</option>
                                     </select>
                                 </div>
                             </div>
@@ -532,7 +553,7 @@
                 </div>
             </div>
 
-            <div class="card mb-4 enhanced-only">
+            <div class="card mb-4 enhanced-only" id="quick-analysis">
                 <div class="card-header bg-primary text-white position-relative">
                     <h5><i class="fas fa-chart-bar"></i> Quick Stock Analysis <span
                             class="badge bg-warning text-dark ms-2"><i class="fas fa-lock"></i> Premium</span>
@@ -1108,9 +1129,16 @@
         </div>
 
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <a href="/new_trading_logic" class="btn btn-primary">Try Enhanced Logic</a>
+
+        <!-- Login CTA Footer -->
+        <div class="bg-primary text-white text-center py-4 mt-5">
+            <div class="container">
+                <h4><i class="fas fa-crown me-2"></i>Login to Enjoy Enhanced Analysis</h4>
+                <p class="mb-3">Unlock advanced features, AI insights, and comprehensive market analysis</p>
+                <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login Now
+                </button>
+            </div>
         </div>
         </div>
         </div>
