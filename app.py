@@ -12,6 +12,7 @@ import requests
 from market_data import get_market_news, get_analyst_recommendations, get_market_sentiment
 from multi_source_data import get_stock_data_multi_source, get_nifty_200_list
 from technical_analysis import analyze_stock
+from chatbot_logic import process_chatbot_query
 
 def calculate_atr(high, low, close, period=14):
     """Calculate Average True Range (ATR) using Pandas"""
@@ -621,6 +622,17 @@ def old_trading_logic():
 @app.route('/chatbot')
 def chatbot():
     return render_template('chatbot_interface.html')
+
+@app.route('/chatbot_query', methods=['POST'])
+def chatbot_query():
+    data = request.json
+    message = data.get('message', '')
+    
+    if not message:
+        return jsonify({'response': 'Please say something!', 'data': None})
+        
+    response_data = process_chatbot_query(message)
+    return jsonify(response_data)
 
 @app.route('/')
 def index():
