@@ -63,6 +63,7 @@ function updateAuthUI() {
     const logoutItem = document.getElementById('logoutNavItem');
     const enhancedElements = document.querySelectorAll('.enhanced-only');
     const loginPlaceholder = document.getElementById('loginPlaceholder');
+    const loginCtaFooter = document.getElementById('loginCtaFooter');
 
     if (isLoggedIn) {
         // Show logout, hide login
@@ -72,6 +73,9 @@ function updateAuthUI() {
         // Show all enhanced content
         enhancedElements.forEach(el => el.classList.remove('d-none'));
         if (loginPlaceholder) loginPlaceholder.classList.add('d-none');
+
+        // Hide login CTA footer
+        if (loginCtaFooter) loginCtaFooter.classList.add('d-none');
     } else {
         // Show login, hide logout
         loginItem?.classList.remove('d-none');
@@ -80,6 +84,9 @@ function updateAuthUI() {
         // Hide all enhanced content
         enhancedElements.forEach(el => el.classList.add('d-none'));
         if (loginPlaceholder) loginPlaceholder.classList.remove('d-none');
+
+        // Show login CTA footer
+        if (loginCtaFooter) loginCtaFooter.classList.remove('d-none');
     }
 }
 
