@@ -755,6 +755,9 @@
                                     class="fas fa-question-circle me-2"></i>Help Center</a>
                             <a href="{{ url_for('contact') }}" class="text-white text-decoration-none"><i
                                     class="fas fa-envelope me-2"></i>Contact Us</a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#comparisonModal"
+                                class="text-white text-decoration-none"><i class="fas fa-brain me-2"></i>Enhanced Logic
+                                Explained</a>
                         </div>
                     </div>
                 </div>
@@ -1109,6 +1112,82 @@
                                 <i class="fas fa-shield-alt"></i> Your session is secure and encrypted
                             </small>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Modal -->
+        <div class="modal fade" id="comparisonModal" tabindex="-1" aria-labelledby="comparisonModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title" id="comparisonModalLabel">
+                            <i class="fas fa-balance-scale me-2"></i>Basic vs. Enhanced Logic
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Basic Logic -->
+                            <div class="col-md-6 border-end">
+                                <div class="text-center mb-3">
+                                    <div class="badge bg-secondary fs-6 mb-2">Basic Logic</div>
+                                    <p class="text-muted small">Standard Technical Analysis</p>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>Simple
+                                        Moving Averages (50/200 SMA)</li>
+                                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>Standard
+                                        RSI Thresholds (30/70)</li>
+                                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>Basic
+                                        Trend Identification</li>
+                                    <li class="list-group-item"><i class="fas fa-times text-danger me-2"></i>No
+                                        Volatility Adjustment</li>
+                                    <li class="list-group-item"><i class="fas fa-times text-danger me-2"></i>Fixed
+                                        Stop-Loss %</li>
+                                </ul>
+                            </div>
+
+                            <!-- Enhanced Logic -->
+                            <div class="col-md-6">
+                                <div class="text-center mb-3">
+                                    <div class="badge bg-warning text-dark fs-6 mb-2"><i class="fas fa-crown"></i>
+                                        Enhanced Logic</div>
+                                    <p class="text-muted small">AI-Powered Probabilistic Analysis</p>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><i class="fas fa-star text-warning me-2"></i><strong>KL
+                                            Divergence:</strong> Probabilistic trend forecasting</li>
+                                    <li class="list-group-item"><i
+                                            class="fas fa-star text-warning me-2"></i><strong>Dynamic Risk:</strong>
+                                        ATR-based volatility adjustment</li>
+                                    <li class="list-group-item"><i
+                                            class="fas fa-star text-warning me-2"></i><strong>Smart Levels:</strong>
+                                        AI-calculated Entry/Exit points</li>
+                                    <li class="list-group-item"><i
+                                            class="fas fa-star text-warning me-2"></i><strong>Multi-Factor:</strong>
+                                        MACD + Bollinger + Volume Analysis</li>
+                                    <li class="list-group-item"><i
+                                            class="fas fa-star text-warning me-2"></i><strong>Sentiment:</strong> Market
+                                        news integration</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-4 mb-0">
+                            <i class="fas fa-info-circle me-2"></i><strong>Why Upgrade?</strong> Enhanced logic adapts
+                            to changing market conditions, reducing false signals and optimizing risk-reward ratios for
+                            professional-grade trading.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#loginModal" data-bs-dismiss="modal">
+                            <i class="fas fa-unlock me-2"></i>Unlock Enhanced Mode
+                        </button>
                     </div>
                 </div>
             </div>
