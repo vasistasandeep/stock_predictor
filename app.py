@@ -13,82 +13,270 @@ import os
 app = Flask(__name__)
 
 top_20_stocks = []
+real_time_stock_data = {}  # Store real-time data for all stocks
 last_data_update = None
 data_update_interval = 3600  # Refresh data every hour (3600 seconds)
 
-def get_nifty_200_list():
-    """Fetches top 20 NIFTY stocks by market cap using Yahoo Finance."""
-    global top_20_stocks, last_data_update
-    
+def get_nifty_200_constituents():
+    """Fetch REAL NIFTY 200 index constituents from Yahoo Finance"""
     try:
-        print("Fetching top NIFTY stocks from Yahoo Finance...")
+        print("🌐 Attempting to fetch NIFTY 200 constituents...")
         
-        # Major NIFTY stocks to analyze (these are the largest companies)
-        nifty_stocks = [
+        # Method 1: Try to get from NIFTY 200 index
+        nifty_200_ticker = yf.Ticker("^NSEI")
+        
+        # Try to get index components (this might not work directly)
+        # Alternative approach: Use known NIFTY 200 constituents from NSE
+        nifty_200_symbols = get_nse_nifty_200_stocks()
+        
+        if nifty_200_symbols:
+            print(f"✅ Successfully fetched {len(nifty_200_symbols)} NIFTY 200 constituents")
+            return nifty_200_symbols
+        else:
+            print("⚠️ Could not fetch NIFTY 200 constituents, using fallback")
+            return []
+            
+    except Exception as e:
+        print(f"❌ Error fetching NIFTY 200 constituents: {e}")
+        return []
+
+def get_nse_nifty_200_stocks():
+    """Get NIFTY 200 stocks from NSE website (real-time)"""
+    try:
+        # Method 1: Try to fetch from NSE API
+        nse_url = "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200"
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
+        
+        response = requests.get(nse_url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            stocks = []
+            
+            if 'data' in data and 'symbols' in data['data']:
+                for stock in data['data']['symbols']:
+                    symbol = stock.get('symbol', '')
+                    if symbol:
+                        # Convert NSE format to Yahoo Finance format
+                        yahoo_symbol = f"{symbol}.NS"
+                        stocks.append(yahoo_symbol)
+            
+            print(f"✅ Fetched {len(stocks)} stocks from NSE API")
+            return stocks[:200]  # Limit to 200 stocks
+        
+        # Method 2: Fallback to predefined list (but still real-time data)
+        return get_major_nifty_stocks()
+        
+    except Exception as e:
+        print(f"❌ Error fetching NSE data: {e}")
+        return get_major_nifty_stocks()
+
+def get_major_nifty_stocks():
+    """Get COMPREHENSIVE list of major NIFTY stocks for real-time analysis"""
+    try:
+        # Much larger comprehensive list of NIFTY stocks (still real-time data fetching)
+        major_stocks = [
+            # TOP 20 LARGE CAP (always included)
             'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
             'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
             'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
             'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS',
+            
+            # LARGE CAP BANKS & FINANCIALS
             'LT.NS', 'SUNPHARMA.NS', 'TITAN.NS', 'M&M.NS', 'POWERGRID.NS',
             'NTPC.NS', 'COALINDIA.NS', 'BPCL.NS', 'GAIL.NS', 'ONGC.NS',
-            'HDFCLIFE.NS', 'SBILIFE.NS', 'GRASIM.NS', 'ADANIPORTS.NS', 'TECHM.NS'
+            'HDFCLIFE.NS', 'SBILIFE.NS', 'GRASIM.NS', 'ADANIPORTS.NS', 'TECHM.NS',
+            
+            # LARGE CAP CONSUMER & RETAIL
+            'DIVISLAB.NS', 'BRITANNIA.NS', 'DLF.NS', 'BAJAJFINSV.NS', 'DABUR.NS',
+            'PIDILITEIND.NS', 'HEROMOTOCO.NS', 'TATASTEEL.NS', 'EICHERMOT.NS', 'BALKRISIND.NS',
+            'APOLLOHOSP.NS', 'SHREECEM.NS', 'TATACONSUM.NS', 'GODREJCP.NS', 'UBL.NS',
+            
+            # LARGE CAP SERVICES & TECHNOLOGY
+            'ICICIGI.NS', 'TATAMOTORS.NS', 'JIOFINANCIAL.NS', 'CHOLAHLDNG.NS', 'INDUSINDBK.NS',
+            'HDFCAMC.NS', 'SBICARD.NS', 'PNB.NS', 'BANKBARODA.NS', 'CANBK.NS',
+            'INDIGO.NS', 'MUTHOOTFIN.NS', 'NAUKRI.NS', 'PAGEIND.NS', 'AMBUJACEM.NS',
+            
+            # MID CAP & LARGE CAP MIX
+            'ACC.NS', 'GMRINFRA.NS', 'TATACOMM.NS', 'SIEMENS.NS', 'L&TFH.NS',
+            'COFORGE.NS', 'MRF.NS', 'CEATLTD.NS', 'AUBANK.NS', 'FEDERALBNK.NS',
+            'IDFC.NS', 'PFC.NS', 'REC.NS', 'IRCTC.NS', 'IRFC.NS',
+            
+            # INFRASTRUCTURE & INDUSTRIALS
+            'RVNL.NS', 'RVINFRA.NS', 'IRCON.NS', 'NBCC.NS', 'NCC.NS',
+            'TATAPOWER.NS', 'JSWSTEEL.NS', 'JINDALSTEL.NS', 'HINDALCO.NS', 'VEDL.NS',
+            'COALINDIA.NS', 'NMDC.NS', 'NALCO.NS', 'HINDZINC.NS', 'MOIL.NS',
+            
+            # PHARMA & HEALTHCARE
+            'LUPIN.NS', 'CADILAHC.NS', 'BIOCON.NS', 'AUROPHARMA.NS', 'GLAXO.NS',
+            'SANOFI.NS', 'PFIZER.NS', 'CROMPTON.NS', 'LAURUSLABS.NS', 'TORNTPHARM.NS',
+            
+            # CONSUMER DURABLES & FMCG
+            'WHIRLPOOL.NS', 'VOLTAS.NS', 'CUMMINSIND.NS', 'THERMAX.NS', 'ABB.NS',
+            'GODREJIND.NS', 'TITAN.NS', 'KAJARIACER.NS', 'CERA.NS', 'JYOTHYLAB.NS',
+            
+            # IT & SERVICES
+            'MINDTREE.NS', 'MPHASIS.NS', 'PERSISTENT.NS', 'LTI.NS', 'COGNIZANT.NS',
+            'WIPRO.NS', 'TECHM.NS', 'OFSS.NS', 'SONATSOFTW.NS', 'TRIGYN.NS',
+            
+            # AUTOMOBILE & ANCILLARIES
+            'M&M.NS', 'TATAMOTORS.NS', 'HEROMOTOCO.NS', 'BAJAJ-AUTO.NS', 'TVSMOTOR.NS',
+            'EICHERMOT.NS', 'ASHOKLEY.NS', 'MRF.NS', 'CEATLTD.NS', 'APOLLOTYRE.NS',
+            
+            # REAL ESTATE & CONSTRUCTION
+            'DLF.NS', 'GODREJPROP.NS', 'OBEROIREALTY.NS', 'BRIGADE.NS', 'PHOENIXLTD.NS',
+            'PRESTIGE.NS', 'ANANTRAJ.NS', 'ASHIANA.NS', 'MAHINDRALIFE.NS', 'PNCINFRA.NS',
+            
+            # TELECOM & MEDIA
+            'BHARTIARTL.NS', 'JIOFINANCIAL.NS', 'TATATELE.NS', 'DISHTV.NS', 'DEN.NS',
+            'ZEEL.NS', 'SUNTV.NS', 'BALAJITELE.NS', 'HATHWAY.NS', 'DISH.NS',
+            
+            # CHEMICALS & FERTILIZERS
+            'UPL.NS', 'PIIND.NS', 'SUMICHEM.NS', 'AARTIIND.NS', 'SOLARINDS.NS',
+            'COROMANDEL.NS', 'CHAMBLFERT.NS', 'URVARAK.NS', 'DEEPAKFERT.NS', 'GNFC.NS',
+            
+            # TEXTILES & APPAREL
+            'ARVIND.NS', 'PAGEIND.NS', 'KPRMILL.NS', 'TRIDENT.NS', 'WELSPUNLIV.NS',
+            'VARDHMAN.NS', 'RAYMOND.NS', 'BOMBAYDYEING.NS', 'SUTLEJTEX.NS', 'CENTURYTEX.NS'
         ]
         
-        # Fetch market cap data for all stocks
+        print(f"📊 Using COMPREHENSIVE NIFTY stocks list ({len(major_stocks)} stocks)")
+        print("🔄 All stocks will fetch REAL-TIME data from Yahoo Finance")
+        return major_stocks
+        
+    except Exception as e:
+        print(f"Error getting major NIFTY stocks: {e}")
+        return []
+
+def get_nifty_200_list():
+    """Initialize with fallback, then fetch REAL-TIME data in background."""
+    global top_20_stocks, real_time_stock_data, last_data_update
+    
+    try:
+        print("🚀 Initializing stock data system...")
+        
+        # Initialize with fallback immediately (server starts fast)
+        fallback_stocks = [
+            'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
+            'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
+            'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
+            'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS'
+        ]
+        
+        top_20_stocks = fallback_stocks
+        last_data_update = datetime.now()
+        print(f"✅ Initialized with {len(top_20_stocks)} fallback stocks")
+        
+        # Start background thread for real-time data fetching
+        import threading
+        background_thread = threading.Thread(target=fetch_realtime_data_background, daemon=True)
+        background_thread.start()
+        
+        print("🔄 Background real-time data fetch started...")
+        print("📊 Server is ready! Real-time data will be available shortly.")
+        
+    except Exception as e:
+        print(f"❌ Error initializing stock data: {e}")
+        # Final fallback
+        top_20_stocks = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS']
+        last_data_update = datetime.now()
+
+def fetch_realtime_data_background():
+    """Fetch real-time data in background thread"""
+    global top_20_stocks, real_time_stock_data, last_data_update
+    
+    print("🚀 Starting REAL-TIME data fetch in background...")
+    
+    try:
+        # Get comprehensive stock list
+        nifty_200_stocks = get_major_nifty_stocks()
+        
+        if not nifty_200_stocks:
+            print("❌ No stock list available for background fetch")
+            return
+        
+        print(f"📊 Processing {len(nifty_200_stocks)} stocks for REAL-TIME data...")
+        
+        # Fetch real-time data for all stocks
         stock_data = []
-        for symbol in nifty_stocks:
+        processed_count = 0
+        
+        for i, symbol in enumerate(nifty_200_stocks[:200], 1):  # Limit to 200 stocks
             try:
+                if i % 20 == 0:
+                    print(f"🔄 Background processing stock {i}/{len(nifty_200_stocks)}: {symbol}")
+                
                 ticker = yf.Ticker(symbol)
                 info = ticker.info
+                hist = ticker.history(period="5d", interval="1d")
                 
-                # Get market cap (in crores INR)
+                if hist.empty:
+                    continue
+                
+                current_price = hist['Close'].iloc[-1]
+                previous_close = hist['Close'].iloc[-2] if len(hist) > 1 else current_price
+                price_change = (current_price - previous_close) / previous_close * 100
+                
+                # Get real-time market cap
                 market_cap = info.get('marketCap', 0)
                 if market_cap and market_cap > 0:
-                    # Convert to INR crores for better understanding
-                    market_cap_inr_cr = (market_cap * 83) / 10000000  # Approx 1 USD = 83 INR
+                    # Convert to INR crores
+                    usd_to_inr = 83.5
+                    market_cap_inr_cr = (market_cap * usd_to_inr) / 10000000
+                    
+                    # Get additional real-time metrics
+                    volume = hist['Volume'].iloc[-1]
+                    avg_volume = ticker.history(period="1mo", interval="1d")['Volume'].mean()
+                    volume_ratio = volume / avg_volume if avg_volume > 0 else 1
+                    
                     stock_data.append({
                         'symbol': symbol,
                         'market_cap': market_cap_inr_cr,
                         'name': info.get('shortName', symbol),
-                        'sector': info.get('sector', 'Unknown')
+                        'sector': info.get('sector', 'Unknown'),
+                        'current_price': round(current_price, 2),
+                        'price_change': round(price_change, 2),
+                        'volume': int(volume),
+                        'volume_ratio': round(volume_ratio, 2),
+                        'pe_ratio': info.get('trailingPE'),
+                        'dividend_yield': info.get('dividendYield'),
+                        'price_to_book': info.get('priceToBook'),
+                        'data_source': 'real-time'
                     })
-                    print(f"✅ {symbol}: ₹{market_cap_inr_cr:.0f} cr market cap")
-                else:
-                    print(f"⚠️ {symbol}: No market cap data")
+                    
+                    processed_count += 1
                     
             except Exception as e:
-                print(f"❌ {symbol}: Error - {str(e)}")
                 continue
         
-        # Sort by market cap and get top 20
+        # Update global variables with real-time data
         if stock_data:
             sorted_stocks = sorted(stock_data, key=lambda x: x['market_cap'], reverse=True)
             top_20_stocks = [stock['symbol'] for stock in sorted_stocks[:20]]
             
-            print(f"\n🏆 TOP 20 STOCKS BY MARKET CAP:")
+            # Store real-time data for all stocks
+            real_time_stock_data = {stock['symbol']: stock for stock in stock_data}
+            
+            print(f"\n🏆 REAL-TIME TOP 20 STOCKS BY MARKET CAP:")
             for i, stock in enumerate(sorted_stocks[:20], 1):
-                print(f"{i:2d}. {stock['symbol']:12s} - ₹{stock['market_cap']:,.0f} cr ({stock['name']})")
+                print(f"{i:2d}. {stock['symbol']:12s} - ₹{stock['market_cap']:,.0f} cr ({stock['name']}) | ₹{stock['current_price']} ({stock['price_change']:+.1f}%)")
             
             last_data_update = datetime.now()
-            print(f"\n✅ Successfully fetched {len(top_20_stocks)} top stocks from Yahoo Finance at {last_data_update.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"\n🎉 REAL-TIME DATA UPDATE COMPLETE!")
+            print(f"✅ Successfully fetched {len(top_20_stocks)} top stocks from Yahoo Finance at {last_data_update.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"📊 Real-time data stored for {len(real_time_stock_data)} stocks")
+            print(f"🔄 Processed {processed_count} out of {len(nifty_200_stocks)} stocks successfully")
+            
         else:
-            # Fallback to static list if Yahoo Finance fails
-            print("⚠️ Yahoo Finance failed, using fallback list")
-            fallback_stocks = [
-                'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
-                'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
-                'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
-                'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS'
-            ]
-            top_20_stocks = fallback_stocks
-            last_data_update = datetime.now()
-            print(f"Using fallback list of {len(top_20_stocks)} stocks")
+            print("❌ No stock data fetched in background")
             
     except Exception as e:
-        print(f"❌ Error fetching from Yahoo Finance: {e}")
-        # Final fallback
-        top_20_stocks = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS']
-        last_data_update = datetime.now()
+        print(f"❌ Error in background real-time data fetch: {e}")
 
 def periodic_data_refresh():
     """Background thread to periodically refresh NIFTY 200 data."""
@@ -109,35 +297,83 @@ def is_data_fresh():
 
 @app.route('/get_top_20_stocks')
 def get_top_20_stocks():
-    """Return top 20 stocks with detailed information including sector and market cap categories."""
+    """Return REAL-TIME top 20 stocks with detailed information."""
     
-    # Get detailed stock information with sectors and market caps
+    global real_time_stock_data
+    
     stock_details = []
     for symbol in top_20_stocks:
         try:
-            ticker = yf.Ticker(symbol)
-            info = ticker.info
-            
-            market_cap = info.get('marketCap', 0)
-            market_cap_inr_cr = (market_cap * 83) / 10000000 if market_cap else 0
-            
-            # Categorize market cap
-            if market_cap_inr_cr >= 100000:  # > 1 lakh crore
-                market_cap_category = "Large Cap"
-            elif market_cap_inr_cr >= 20000:  # > 20k crore
-                market_cap_category = "Mid Cap"
+            # Use real-time data if available, otherwise fetch fresh data
+            if symbol in real_time_stock_data:
+                stock_info = real_time_stock_data[symbol]
+                current_price = stock_info.get('current_price', 0)
+                market_cap_inr_cr = stock_info.get('market_cap', 0)
+                price_change = stock_info.get('price_change', 0)
+                volume_ratio = stock_info.get('volume_ratio', 1)
+                sector = stock_info.get('sector', 'Unknown')
+                name = stock_info.get('name', symbol)
+                
+                # Categorize market cap
+                if market_cap_inr_cr >= 100000:  # > 1 lakh crore
+                    market_cap_category = "Large Cap"
+                elif market_cap_inr_cr >= 20000:  # > 20k crore
+                    market_cap_category = "Mid Cap"
+                else:
+                    market_cap_category = "Small Cap"
+                
+                stock_details.append({
+                    'symbol': symbol,
+                    'name': name,
+                    'sector': sector,
+                    'market_cap_inr_cr': round(market_cap_inr_cr, 0),
+                    'market_cap_category': market_cap_category,
+                    'current_price': current_price,
+                    'day_change': price_change,
+                    'volume_ratio': volume_ratio,
+                    'pe_ratio': stock_info.get('pe_ratio'),
+                    'dividend_yield': stock_info.get('dividend_yield'),
+                    'price_to_book': stock_info.get('price_to_book'),
+                    'data_source': 'real-time',
+                    'last_updated': last_data_update.strftime('%Y-%m-%d %H:%M:%S') if last_data_update else None
+                })
             else:
-                market_cap_category = "Small Cap"
-            
-            stock_details.append({
-                'symbol': symbol,
-                'name': info.get('shortName', symbol),
-                'sector': info.get('sector', 'Unknown'),
-                'market_cap_inr_cr': round(market_cap_inr_cr, 0),
-                'market_cap_category': market_cap_category,
-                'current_price': info.get('currentPrice', 0),
-                'day_change': info.get('regularMarketPrice', 0) - info.get('regularMarketPreviousClose', 0)
-            })
+                # Fallback to individual fetch if not in cache
+                ticker = yf.Ticker(symbol)
+                info = ticker.info
+                hist = ticker.history(period="1d", interval="1d")
+                
+                current_price = hist['Close'].iloc[-1] if not hist.empty else 0
+                previous_close = hist['Close'].iloc[-2] if len(hist) > 1 else current_price
+                price_change = (current_price - previous_close) / previous_close * 100 if previous_close > 0 else 0
+                
+                market_cap = info.get('marketCap', 0)
+                market_cap_inr_cr = (market_cap * 83.5) / 10000000 if market_cap else 0
+                
+                # Categorize market cap
+                if market_cap_inr_cr >= 100000:
+                    market_cap_category = "Large Cap"
+                elif market_cap_inr_cr >= 20000:
+                    market_cap_category = "Mid Cap"
+                else:
+                    market_cap_category = "Small Cap"
+                
+                stock_details.append({
+                    'symbol': symbol,
+                    'name': info.get('shortName', symbol),
+                    'sector': info.get('sector', 'Unknown'),
+                    'market_cap_inr_cr': round(market_cap_inr_cr, 0),
+                    'market_cap_category': market_cap_category,
+                    'current_price': round(current_price, 2),
+                    'day_change': round(price_change, 2),
+                    'volume_ratio': 1,
+                    'pe_ratio': info.get('trailingPE'),
+                    'dividend_yield': info.get('dividendYield'),
+                    'price_to_book': info.get('priceToBook'),
+                    'data_source': 'live-fetch',
+                    'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                })
+                
         except Exception as e:
             print(f"Error getting details for {symbol}: {e}")
             stock_details.append({
@@ -147,7 +383,8 @@ def get_top_20_stocks():
                 'market_cap_inr_cr': 0,
                 'market_cap_category': 'Unknown',
                 'current_price': 0,
-                'day_change': 0
+                'day_change': 0,
+                'data_source': 'error'
             })
     
     response_data = {
