@@ -1,0 +1,253 @@
+/* Custom Styles for Stock Predictor */
+
+/* Prediction Box Styles */
+.prediction-box {
+    padding: 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.prediction-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Price Color Coding */
+.entry-price {
+    color: #0066cc !important; /* Blue */
+    font-weight: 700;
+}
+
+.exit-price {
+    color: #28a745 !important; /* Green */
+    font-weight: 700;
+}
+
+.stop-loss-price {
+    color: #dc3545 !important; /* Red */
+    font-weight: 700;
+}
+
+/* Indicator Item Styles */
+.indicator-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.indicator-item:last-child {
+    border-bottom: none;
+}
+
+.indicator-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.indicator-value {
+    font-weight: 700;
+    color: #212529;
+    font-size: 1.1em;
+}
+
+/* Stock List Styles */
+.stock-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.stock-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.stock-list-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.stock-list-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.list-group-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    border-left-color: #007bff;
+    transform: translateX(3px);
+}
+
+.list-group-item.active-stock {
+    background-color: #e3f2fd;
+    border-left-color: #2196f3;
+}
+
+/* Signal Badge Styles */
+.badge.bg-success {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(45deg, #dc3545, #fd7e14) !important;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(45deg, #ffc107, #fd7e14) !important;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+/* Filter Bar Styles */
+.stock-filters-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8f9fa !important;
+}
+
+/* Card Header Gradients */
+.card-header {
+    border: none;
+    font-weight: 600;
+}
+
+/* Sticky Top Enhancement */
+.sticky-top {
+    z-index: 100;
+}
+
+/* Button Enhancements */
+.btn {
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Input Group Enhancements */
+.input-group-text {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Loading Animation */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .prediction-box h4 {
+        font-size: 1rem;
+    }
+    
+    .prediction-box h3 {
+        font-size: 1.1rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    .sticky-top {
+        position: static;
+    }
+}
+
+/* Stock Search Highlight */
+.stock-search-highlight {
+    background-color: #fff3cd;
+    font-weight: 600;
+}
+
+/* Filter Status */
+.filter-applied {
+    border-left: 4px solid #28a745;
+    background-color: #f8fff9;
+}
+
+/* Signal Strength Indicator */
+.signal-strength {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.signal-strength.strong {
+    background-color: #28a745;
+}
+
+.signal-strength.medium {
+    background-color: #ffc107;
+}
+
+.signal-strength.weak {
+    background-color: #dc3545;
+}
+
+/* Tooltips */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
+}
+
+/* Animation for new data */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.new-stock-item {
+    animation: slideInRight 0.3s ease-out;
+}

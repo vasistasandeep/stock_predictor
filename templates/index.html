@@ -7,6 +7,25 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tooltip-custom {
+            cursor: help;
+            border-bottom: 2px dotted #007bff;
+        }
+        .info-icon {
+            color: #007bff;
+            cursor: help;
+            margin-left: 5px;
+        }
+        .expanded-term {
+            font-weight: 600;
+            color: #495057;
+        }
+        .tooltip-inner {
+            max-width: 300px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -16,63 +35,387 @@
     </nav>
 
     <div class="container mt-4">
-        <h1 class="text-center">Nifty 200 Stock Analysis</h1>
+        <div class="text-center mb-4">
+            <h1 class="text-center">
+                <span class="expanded-term">Nifty 200</span> Stock Analysis
+                <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                   title="Nifty 200: Index of India's top 200 largest companies by market capitalization. These are the biggest and most stable stocks in the Indian stock market."></i>
+            </h1>
+            <p class="text-muted">
+                Get intelligent buy/sell recommendations for India's top 200 stocks with technical analysis and risk-based predictions
+            </p>
+        </div>
+        
+        <!-- Stock Filters Section -->
         <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        Prediction
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Signal: <span id="signal" class="badge bg-secondary">-</span></h5>
-                        <p class="card-text">Entry Price: <span id="entryPrice">-</span></p>
-                        <p class="card-text">Exit Price: <span id="exitPrice">-</span></p>
-                        <p class="card-text">Stop-Loss: <span id="stopLoss">-</span></p>
-                    </div>
-                </div>
-                <div class="card mb-4">
-                    <div class="card-header">
-                        Attributes
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">50-Day Simple Moving Average: <span id="sma50">-</span></p>
-                        <p class="card-text">200-Day Simple Moving Average: <span id="sma200">-</span></p>
-                        <p class="card-text">Relative Strength Index (RSI): <span id="rsi">-</span></p>
-                        <p class="card-text">Average True Range (ATR): <span id="atr">-</span></p>
-                    </div>
-                </div>
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        Top 20 Stocks
+                        <h5 class="mb-0">
+                            Stock Filters
+                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                               title="Use filters to narrow down stocks based on your trading preferences and risk appetite."></i>
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <ul class="list-group" id="top20list">
-                            <!-- Stocks will be loaded here -->
-                        </ul>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label for="signalFilter" class="form-label">
+                                    Signal Type
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Signal: Buy (stock likely to go up), Sell (stock likely to go down), Hold (wait and watch). Based on technical analysis."></i>
+                                </label>
+                                <select class="form-select" id="signalFilter">
+                                    <option value="all">All Signals</option>
+                                    <option value="buy">Buy Only</option>
+                                    <option value="sell">Sell Only</option>
+                                    <option value="hold">Hold Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="riskFilter" class="form-label">
+                                    Risk Level
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Risk Level: Low (safe investments, 2% stop-loss), Medium (balanced, 5% stop-loss), High (aggressive, 10% stop-loss). Higher risk = higher potential returns."></i>
+                                </label>
+                                <select class="form-select" id="riskFilter">
+                                    <option value="all">All Risks</option>
+                                    <option value="low">🟢 Low Risk</option>
+                                    <option value="medium">🟡 Medium Risk</option>
+                                    <option value="high">🔴 High Risk</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sectorFilter" class="form-label">
+                                    Sector
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Sector: Industry category like Technology (IT companies), Banking (banks), FMCG (daily use products), Pharma (medicines), Auto (cars/bikes)."></i>
+                                </label>
+                                <select class="form-select" id="sectorFilter">
+                                    <option value="all">All Sectors</option>
+                                    <option value="tech">Technology</option>
+                                    <option value="banking">Banking</option>
+                                    <option value="fmcg">FMCG</option>
+                                    <option value="pharma">Pharma</option>
+                                    <option value="auto">Automobile</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="marketCapFilter" class="form-label">
+                                    Market Cap
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Market Cap: Total company value. Large Cap (>₹50,000 Cr) = very stable, Mid Cap (₹10,000-50,000 Cr) = balanced, Small Cap (<₹10,000 Cr) = growth potential but risky."></i>
+                                </label>
+                                <select class="form-select" id="marketCapFilter">
+                                    <option value="all">All Market Caps</option>
+                                    <option value="large">Large Cap (>₹50,000 Cr)</option>
+                                    <option value="mid">Mid Cap (₹10,000-50,000 Cr)</option>
+                                    <option value="small">Small Cap (<₹10,000 Cr)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortBy" class="form-label">
+                                    Sort By
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Sort By: Market Cap (company size), Signal Strength (buy/sell confidence), RSI Level (momentum indicator), Name (alphabetical)."></i>
+                                </label>
+                                <select class="form-select" id="sortBy">
+                                    <option value="marketcap">Market Cap</option>
+                                    <option value="signal">Signal Strength</option>
+                                    <option value="rsi">RSI Level</option>
+                                    <option value="name">Company Name</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="quickAction" class="form-label">
+                                    Quick Action
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Quick Actions: Analyze All = get signals for all visible stocks, Export = download current analysis as Excel file."></i>
+                                </label>
+                                <div class="btn-group w-100" role="group">
+                                    <button class="btn btn-sm btn-outline-success" id="analyzeAllBtn" title="Analyze all stocks with current risk level">
+                                        📊 Analyze All
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" id="exportBtn" title="Export current view">
+                                        📥 Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+                                <button class="btn btn-secondary" id="resetFilters">Reset</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        Stock Data
+        </div>
+
+        <div class="row mt-4">
+            <!-- Top 20 Stocks - Now more prominent -->
+            <div class="col-lg-5">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            🔥 Top 20 <span class="expanded-term">Nifty 200</span> Stocks
+                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                               title="Top 20: Largest 20 companies from Nifty 200 index. These are market leaders with highest trading volumes and stability."></i>
+                        </h5>
+                        <span class="badge bg-info" id="stockCount">0 stocks</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="stock-filters-bar bg-light p-2 border-bottom">
+                            <input type="text" class="form-control form-control-sm" id="stockSearch" placeholder="🔍 Search stocks by company name or symbol...">
+                        </div>
+                        <div class="stock-list-container" style="max-height: 600px; overflow-y: auto;">
+                            <ul class="list-group list-group-flush" id="top20list">
+                                <!-- Stocks will be loaded here -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Section -->
+            <div class="col-lg-7">
+                <!-- Prediction Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h5 class="mb-0">
+                            📊 Trading Prediction
+                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                               title="Trading Prediction: AI-powered recommendations based on technical analysis. Shows when to buy, sell, or hold stocks with specific price targets."></i>
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <div class="input-group mb-3">
-                            <input type="text" id="tickerInput" class="form-control" placeholder="Enter stock ticker (e.g., RELIANCE.NS)">
-                            <div id="riskAppetite" class="btn-group" role="group">
-                                <input type="radio" class="btn-check" name="risk" id="lowRisk" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="lowRisk">Low</label>
-
-                                <input type="radio" class="btn-check" name="risk" id="mediumRisk" autocomplete="off" checked>
-                                <label class="btn btn-outline-primary" for="mediumRisk">Medium</label>
-
-                                <input type="radio" class="btn-check" name="risk" id="highRisk" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="highRisk">High</label>
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="prediction-box">
+                                    <h6 class="text-muted">
+                                        Signal
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Signal: Buy = Good time to purchase, Sell = Good time to sell, Hold = Wait for better opportunity. Based on price patterns and indicators."></i>
+                                    </h6>
+                                    <h3 id="signal" class="badge bg-secondary fs-5">-</h3>
+                                </div>
                             </div>
-                            <button class="btn btn-primary" type="button" id="fetchBtn">Fetch Data</button>
+                            <div class="col-md-3">
+                                <div class="prediction-box">
+                                    <h6 class="text-muted">
+                                        Entry Price
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Entry Price: Recommended price to buy the stock. Based on recent low prices and support levels."></i>
+                                    </h6>
+                                    <h4 id="entryPrice" class="entry-price">-</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="prediction-box">
+                                    <h6 class="text-muted">
+                                        Exit Price
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Exit Price: Target price to sell for profit. Based on recent high prices and resistance levels."></i>
+                                    </h6>
+                                    <h4 id="exitPrice" class="exit-price">-</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="prediction-box">
+                                    <h6 class="text-muted">
+                                        Stop-Loss
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Stop-Loss: Price to automatically sell to limit losses. Protects your investment if stock price drops unexpectedly."></i>
+                                    </h6>
+                                    <h4 id="stopLoss" class="stop-loss-price">-</h4>
+                                </div>
+                            </div>
                         </div>
-                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Technical Analysis Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h5 class="mb-0">
+                            📈 Technical Indicators
+                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                               title="Technical Indicators: Mathematical calculations based on historical price data. Help predict future price movements and identify trends."></i>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="indicator-item">
+                                    <span class="indicator-label">
+                                        📈 50-Day <span class="expanded-term">Simple Moving Average</span>:
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="50-Day Simple Moving Average (SMA): Average closing price of last 50 trading days. Think of it as a smooth line showing the short-term price trend. If current price is above this line, stock is in uptrend. If below, in downtrend."></i>
+                                    </span>
+                                    <span id="sma50" class="indicator-value">-</span>
+                                </div>
+                                <div class="indicator-item">
+                                    <span class="indicator-label">
+                                        📊 200-Day <span class="expanded-term">Simple Moving Average</span>:
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="200-Day Simple Moving Average (SMA): Average closing price of last 200 trading days (~9 months). This is the most important trend indicator. Above this line = strong uptrend, below = major downtrend. Professional traders watch this closely."></i>
+                                    </span>
+                                    <span id="sma200" class="indicator-value">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="indicator-item">
+                                    <span class="indicator-label">
+                                        ⚡ <span class="expanded-term">Relative Strength Index</span> (14):
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Relative Strength Index (RSI): Momentum oscillator measuring speed of price changes (0-100 scale). Below 30 = stock is oversold (good buying opportunity). Above 70 = overbought (consider selling). 50 is neutral. Helps identify reversal points."></i>
+                                    </span>
+                                    <span id="rsi" class="indicator-value">-</span>
+                                </div>
+                                <div class="indicator-item">
+                                    <span class="indicator-label">
+                                        📉 <span class="expanded-term">Average True Range</span> (14):
+                                        <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                           title="Average True Range (ATR): Measures how much price typically moves up/down each day. High ATR = volatile stock (big price swings). Low ATR = stable stock. Used to set appropriate stop-loss distances based on stock's normal volatility."></i>
+                                    </span>
+                                    <span id="atr" class="indicator-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Input and Chart -->
+                <div class="card">
+                    <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <h5 class="mb-0">
+                            📊 Stock Analysis
+                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                               title="Stock Analysis: Deep dive into any stock with price charts, technical indicators, and personalized trading recommendations."></i>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text">📈</span>
+                                    <input type="text" id="tickerInput" class="form-control" placeholder="Enter stock ticker (e.g., RELIANCE.NS)">
+                                    <span class="input-group-text" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                          title="Stock Ticker: Unique stock symbol. Add .NS for Indian stocks (e.g., RELIANCE.NS, TCS.NS, INFY.NS)."></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div id="riskAppetite" class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="risk" id="lowRisk" autocomplete="off">
+                                    <label class="btn btn-outline-success" for="lowRisk" title="Low Risk: Conservative approach, 2% stop-loss, safer investments">
+                                        🟢 Low Risk
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="risk" id="mediumRisk" autocomplete="off" checked>
+                                    <label class="btn btn-outline-warning" for="mediumRisk" title="Medium Risk: Balanced approach, 5% stop-loss, moderate risk-reward">
+                                        🟡 Medium Risk
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="risk" id="highRisk" autocomplete="off">
+                                    <label class="btn btn-outline-danger" for="highRisk" title="High Risk: Aggressive approach, 10% stop-loss, higher potential returns">
+                                        🔴 High Risk
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary w-100" id="fetchBtn" title="Get detailed analysis and trading signals for selected stock">
+                                    <span>🔍 Analyze</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="chartFrequency" class="form-label">
+                                    📊 Chart Frequency
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Chart Frequency: Daily = each trading day, Weekly = each week, Monthly = each month. Longer periods show broader trends, shorter periods show detailed movements."></i>
+                                </label>
+                                <select class="form-select" id="chartFrequency">
+                                    <option value="daily">📅 Daily (Each Day)</option>
+                                    <option value="weekly">📆 Weekly (Each Week)</option>
+                                    <option value="monthly">📈 Monthly (Each Month)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="chartPeriod" class="form-label">
+                                    ⏰ Time Period
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Time Period: How much historical data to show. 1 Month = recent trends, 6 Months = medium-term, 2 Years = long-term patterns."></i>
+                                </label>
+                                <select class="form-select" id="chartPeriod">
+                                    <option value="1mo">📅 1 Month</option>
+                                    <option value="6mo">📆 6 Months</option>
+                                    <option value="2y" selected>📈 2 Years</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="chartType" class="form-label">
+                                    📋 Chart Type
+                                    <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Chart Type: Line = smooth price connection, Candle = detailed daily price action (open/high/low/close)."></i>
+                                </label>
+                                <select class="form-select" id="chartType">
+                                    <option value="line">📈 Line Chart</option>
+                                    <option value="candlestick">📊 Candlestick Chart</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                   title="Chart shows historical prices with 50-day and 200-day moving averages. Blue line = current price, Orange line = 50-day SMA (short-term trend), Red line = 200-day SMA (long-term trend)."></i>
+                                💡 <strong>How to read:</strong> Blue line above both orange & red = Strong uptrend. Below both = Strong downtrend. Orange crossing red = Trend change signal.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Educational Footer -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            📚 Quick Guide for Beginners
+                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                               title="Learn the basics of stock market analysis and trading strategies."></i>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6 class="text-primary">🟢 Buy Signal</h6>
+                                <small>Good time to purchase stock. Price expected to rise.</small>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-danger">🔴 Sell Signal</h6>
+                                <small>Good time to sell stock. Price expected to fall.</small>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-warning">🟡 Hold Signal</h6>
+                                <small>Wait for better opportunity. Market uncertain.</small>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-info">📊 Risk Management</h6>
+                                <small>Always use stop-loss to protect your capital.</small>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <strong>Disclaimer:</strong> This tool provides educational information only. Not financial advice. 
+                                Consult with a qualified financial advisor before making investment decisions. 
+                                Stock market investments are subject to market risks.
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -81,5 +424,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Initialize all tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    delay: { show: 300, hide: 100 },
+                    trigger: 'hover focus'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
