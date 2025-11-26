@@ -7,11 +7,14 @@ A **free educational stock analysis platform** that provides comprehensive insig
 ## 🌟 Key Features
 
 ### 📊 **Advanced Stock Analysis**
-- **Real-time NIFTY 200 Data**: Automatic hourly updates with fallback mechanisms
-- **Top 20 Stocks**: View and analyze the top 20 stocks from NIFTY 200 index by market cap
-- **Multi-source Data**: NSE API, NSE CSV, Moneycontrol with static fallback
-- **Technical Analysis**: Comprehensive indicators including SMA, RSI, ATR
-- **Risk-Based Recommendations**: Adjustable stop-loss levels (Low/Medium/High risk)
+- **🔄 Real-Time Yahoo Finance Integration**: Live market data with 160+ NIFTY stocks
+- **📈 Top 20 Stocks**: Dynamic ranking by real-time market capitalization
+- **💰 Live Market Metrics**: Real-time prices, market cap, volume, P/E ratios, dividend yields
+- **📊 Technical Analysis**: Comprehensive indicators including SMA, RSI, ATR with NaN handling
+- **🎯 Risk-Based Recommendations**: Adjustable stop-loss levels (Low/Medium/High risk)
+- **📰 Stock-Specific News**: Generated news based on real stock performance
+- **🧠 Market Sentiment**: Multi-source sentiment analysis (technical, news, volume, breadth)
+- **👨‍💼 Analyst Recommendations**: Real Yahoo Finance analyst data with fallbacks
 
 ### 🌐 **Complete Website Structure**
 - **Professional Navigation**: Clean, modern navbar with responsive design
@@ -58,27 +61,38 @@ A **free educational stock analysis platform** that provides comprehensive insig
 
 ## 📊 Data Sources & Methodology
 
-### 🇮🇳 **Primary Data Sources**
-1. **NSE API** (`https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200`)
-   - Real-time NIFTY 200 stock data
-   - Market capitalization ranking
-   - Primary source for top 20 stocks
+### 🔄 **Primary Real-Time Data Sources**
+1. **🚀 Yahoo Finance API** (`yfinance` library)
+   - **Live Market Data**: Real-time prices, volume, market cap
+   - **160+ NIFTY Stocks**: Comprehensive coverage across sectors
+   - **Financial Metrics**: P/E ratios, dividend yields, P/B ratios
+   - **Technical Indicators**: Historical data for SMA, RSI, ATR calculations
+   - **Primary Source**: Main data provider for all analysis
 
-2. **NSE CSV** (`https://www.nseindia.com/content/indices/ind_nifty200list.csv`)
-   - Official NIFTY 200 constituent list
-   - Backup data source
-   - Reliable static data
+2. **🇮🇳 NSE API** (`https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200`)
+   - **Index Constituents**: Official NIFTY 200 stock list
+   - **Market Ranking**: Real-time market capitalization data
+   - **Backup Source**: Fallback when Yahoo Finance is unavailable
 
-3. **Moneycontrol** (`https://www.moneycontrol.com/india/stockmarket/indices/nifty-200-200.html`)
-   - Web scraping fallback
-   - Market data verification
-   - Additional stock information
+3. **📰 News & Sentiment APIs**
+   - **Yahoo Finance News**: Real-time financial news
+   - **Generated News**: Stock-specific news based on performance
+   - **Sentiment Analysis**: Multi-source market sentiment indicators
 
-### 🔄 **Data Refresh System**
-- **Automatic Updates**: Background thread refreshes data every hour
-- **Manual Refresh**: User-initiated data refresh capability
-- **Fallback Mechanism**: Static list of 20 major NIFTY stocks
-- **Timestamp Tracking**: Shows data freshness and next update time
+### ⚡ **Real-Time Data Architecture**
+- **🚀 Fast Startup**: Server starts immediately with fallback data
+- **🔄 Background Fetch**: Real-time data loads in background threads
+- **📊 Live Updates**: Continuous data refresh with timestamps
+- **🛡️ Robust Fallbacks**: Multiple layers of error handling
+- **✅ JSON Validation**: No more NaN errors, browser-compatible
+- **📈 Market Timing**: Real-time market hours data with proper timezone handling
+
+### 🔧 **Technical Implementation**
+- **Background Threading**: Non-blocking real-time data fetching
+- **Error Handling**: Comprehensive exception handling and fallbacks
+- **Data Validation**: NaN handling and JSON compatibility
+- **Performance Optimization**: Efficient data caching and retrieval
+- **Production Ready**: Scalable architecture for deployment
 
 ### 📈 **Technical Indicators Explained**
 
@@ -189,16 +203,22 @@ A **free educational stock analysis platform** that provides comprehensive insig
 ### 📁 **Project Structure**
 ```
 stock_predictor/
-├── app.py                    # Main Flask application & API endpoints
-├── requirements.txt          # Python dependencies
+├── app.py                    # Main Flask application & real-time API endpoints
+├── market_data.py            # Real-time data processing & analysis engine
+├── requirements.txt          # Python dependencies (yfinance, pandas, etc.)
 ├── README.md                 # This comprehensive documentation
+├── realtime_data_manager.py  # Background real-time data service
+├── final_verification.py     # Complete system testing suite
+├── test_enhanced_data.py     # End-to-end real-time data validation
+├── test_realtime_yahoo.py    # Yahoo Finance API testing
+├── test_server_realtime.py   # Server real-time integration testing
 ├── static/                   # Static assets
 │   ├── css/
 │   │   └── style.css         # Custom styles & responsive design
 │   └── js/
-│       └── script.js         # Frontend JavaScript & chart logic
+│       └── script_working.js # Frontend JavaScript with real-time updates
 ├── templates/
-│   ├── index.html            # Main dashboard page
+│   ├── index.html            # Main dashboard with real-time data
 │   ├── about.html            # About Us page with company info
 │   ├── blogs.html            # Financial blogs page
 │   ├── contact.html          # Contact Us page with form
@@ -211,10 +231,12 @@ stock_predictor/
 
 ### 🔧 **Technical Stack**
 - **Backend**: Flask (Python web framework)
-- **Data Sources**: Yahoo Finance API, NSE API, Web Scraping
-- **Technical Analysis**: TA-Lib, Pandas, NumPy
+- **🚀 Real-Time Data**: Yahoo Finance API (yfinance), NSE API
+- **Technical Analysis**: TA-Lib, Pandas, NumPy with NaN handling
 - **Frontend**: Bootstrap 5, Chart.js, Custom JavaScript
-- **Real-time Updates**: Threading, Background data refresh
+- **Background Processing**: Threading, Async data fetching
+- **Data Validation**: JSON compatibility, Error handling
+- **Production Ready**: Scalable architecture for Vercel deployment
 
 ### 🌐 **API Endpoints**
 
@@ -226,9 +248,12 @@ stock_predictor/
 | `/contact` | GET | Contact Us page with form and FAQ |
 | `/privacy` | GET | Privacy policy page |
 | `/terms` | GET | Terms of service page |
-| `/get_top_20_stocks` | GET | Returns top 20 NIFTY stocks with timestamps |
-| `/get_stock_data/<ticker>/<risk>` | GET | Fetches stock analysis with technical indicators |
-| `/refresh_data` | GET | Manual data refresh endpoint |
+| `/get_top_20_stocks` | GET | **Real-time** top 20 NIFTY stocks with live metrics |
+| `/get_stock_data/<ticker>/<risk>` | GET | **Real-time** stock analysis with live indicators |
+| `/get_market_news/<ticker>` | GET | **Stock-specific** news with sentiment analysis |
+| `/get_analyst_recommendations/<ticker>` | GET | **Live analyst** recommendations from Yahoo Finance |
+| `/get_market_sentiment/<ticker>` | GET | **Comprehensive** market sentiment analysis |
+| `/refresh_data` | GET | Manual real-time data refresh |
 
 ### 📊 **Data Flow Architecture**
 ```
@@ -420,6 +445,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Project Repository**: https://github.com/vasistasandeep/stock_predictor
 
 ### 🔄 **Version History**
+- **🚀 v4.0 (Latest)**: **Real-Time Data Integration Complete**
+  - ✅ Live Yahoo Finance API integration with 160+ NIFTY stocks
+  - ✅ Real-time market cap, prices, volume, P/E ratios, dividend yields
+  - ✅ Stock-specific news generation based on performance
+  - ✅ Comprehensive market sentiment analysis
+  - ✅ Fixed JSON NaN errors for browser compatibility
+  - ✅ Background data fetching with instant UI startup
+  - ✅ Production-ready for Vercel deployment
 - **v3.0**: Complete website structure, new pages (About, Blogs, Contact), UI fixes, text rendering improvements
 - **v2.0**: Educational UI, chart filtering, enhanced tooltips
 - **v1.0**: Basic stock analysis and prediction features
