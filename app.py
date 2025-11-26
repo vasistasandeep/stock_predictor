@@ -371,22 +371,41 @@ def get_stock_data(ticker, risk_appetite):
             
             if tech_analysis:
                 print(f"✅ Enhanced analysis successful for {ticker}")
-                rsi = tech_analysis['rsi']
-                signal = tech_analysis['signal']
-                confidence = tech_analysis['confidence']
-                signal_score = tech_analysis['signal_score']
-                factors = tech_analysis['signal_factors']
+                rsi = tech_analysis.get('rsi', 50.0)
+                signal = tech_analysis.get('signal', 'HOLD')
+                confidence = tech_analysis.get('confidence', 50)
+                signal_score = tech_analysis.get('signal_score', 0)
+                factors = tech_analysis.get('signal_factors', [])
                 
-                # Use real indicators
-                ma20 = tech_analysis['ma20']
-                ma50 = tech_analysis['ma50']
-                ma200 = tech_analysis['ma200']
-                atr = tech_analysis['atr']
-
+                # Use real indicators (note: keys are sma_20, sma_50, not ma20, ma50)
+                ma20 = tech_analysis.get('sma_20')
+                ma50 = tech_analysis.get('sma_50')
+                ma200 = tech_analysis.get('sma_200')  # May not exist
+                atr = tech_analysis.get('atr')
+                macd = tech_analysis.get('macd')
+                macd_signal = tech_analysis.get('macd_signal')
+                volume_ratio = tech_analysis.get('volume_ratio')
+                
+                # Get enhanced metrics
+                entry_price = tech_analysis.get('enhanced_entry', current_price)
+                stop_loss = tech_analysis.get('enhanced_stop', current_price * 0.95)
+                exit_price = tech_analysis.get('enhanced_exit', current_price * 1.05)
+                
+                target_profit = exit_price - entry_price
+                risk_reward_ratio = target_profit / (entry_price - stop_loss) if (entry_price - stop_loss) > 0 else 3.0
+                reason = f"Based on {len(factors)} technical factors"
+            else:
+                # Fallback if analysis fails
+                print(f"⚠️ Enhanced analysis failed for {ticker}, using fallback")
+                signal = "HOLD"
+                confidence = 50
+                signal_score = 0
+                ma20 = ma50 = ma200 = atr = macd = macd_signal = volume_ratio = None
+                rsi = 50.0
                 reason = "Insufficient historical data"
                 
                 # Fallback risk calculation
-                risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10}
+                risk_multipliers = {'Low': 0.02, 'Medium': 0.05, 'High': 0.10}
                 stop_loss_pct = risk_multipliers.get(risk_appetite, 0.05)
                 stop_loss = current_price * (1 - stop_loss_pct)
                 entry_price = current_price
