@@ -1,6 +1,28 @@
 # 📈 Stock Predictor Application
 
-A **free educational stock analysis platform** that provides comprehensive insights for Indian stocks with interactive learning features. The application fetches real-time stock data, performs technical analysis, and generates buy/sell/hold signals based on various technical indicators - all focused on financial literacy and investor education.
+A **tiered stock analysis platform** that provides comprehensive insights for Indian stocks with both free and premium features. The application fetches real-time stock data, performs technical analysis, and generates buy/sell/hold signals based on various technical indicators.
+
+## 🔐 Access Levels
+
+### 🎓 **Free Access (No Login Required)**
+- ✅ Top 20 Nifty 200 Stocks (Real-time market cap ranking)
+- ✅ Trading Prediction (Buy/Sell/Hold signals)
+- ✅ Technical Indicators (RSI, SMA, ATR, MACD)
+- ✅ Stock Search and Filtering
+- ✅ Basic Chart Visualization
+
+### 👑 **Enhanced Access (Login Required)**
+- 🔒 Quick Stock Analysis (Advanced input form)
+- 🔒 Market Insights & Analysis (News, Sentiment, Analyst Recommendations)
+- 🔒 Analysis Summary (Comprehensive AI-powered summaries)
+- 🔒 Export to CSV
+- 🔒 Advanced Charting Features
+
+**Login Credentials:**
+- Username: `admin`
+- Password: `password`
+
+> **Note:** This is a demo application. In production, implement proper authentication with secure password hashing and user management.
 
 ![Stock Predictor Screenshot](https://via.placeholder.com/800x500.png?text=Stock+Predictor+Enhanced+UI)
 

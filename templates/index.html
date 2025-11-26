@@ -562,10 +562,10 @@
                 </div>
             </div>
 
-            <!-- Stock Input and Chart -->
             <div class="card mb-4 enhanced-only">
-                <div class="card-header bg-primary text-white">
-                    <h5><i class="fas fa-chart-bar"></i> Quick Stock Analysis
+                <div class="card-header bg-primary text-white position-relative">
+                    <h5><i class="fas fa-chart-bar"></i> Quick Stock Analysis <span
+                            class="badge bg-warning text-dark ms-2"><i class="fas fa-lock"></i> Premium</span>
                         <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
                             title="Get simple trading recommendations for any stock. Just enter the ticker and get Buy/Sell/Hold advice."></i>
                     </h5>
@@ -646,7 +646,8 @@
         <!-- Market Insights & Analysis (Enhanced Only) -->
         <div class="card mb-4 enhanced-only">
             <div class="card-header bg-secondary text-white">
-                <h5><i class="fas fa-newspaper"></i> Market Insights & Analysis</h5>
+                <h5><i class="fas fa-newspaper"></i> Market Insights & Analysis <span
+                        class="badge bg-warning text-dark ms-2"><i class="fas fa-lock"></i> Premium</span></h5>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -676,7 +677,8 @@
         <!-- Analysis Summary (Enhanced Only) -->
         <div class="card mb-4 enhanced-only" id="analysisSummaryCard">
             <div class="card-header bg-info text-white">
-                <h5><i class="fas fa-clipboard-list"></i> Analysis Summary</h5>
+                <h5><i class="fas fa-clipboard-list"></i> Analysis Summary <span
+                        class="badge bg-warning text-dark ms-2"><i class="fas fa-lock"></i> Premium</span></h5>
             </div>
             <div class="card-body">
                 <div id="analysisSummary">
@@ -1177,6 +1179,55 @@
                 });
             });
         </script>
+
+        <!-- Login Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="loginModalLabel">
+                            <i class="fas fa-lock"></i> Login to Access Premium Features
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <strong>Demo Credentials:</strong><br>
+                            Username: <code>admin</code><br>
+                            Password: <code>password</code>
+                        </div>
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user"></i> Username
+                                </label>
+                                <input type="text" class="form-control" id="username" name="username" required
+                                    placeholder="Enter username">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-key"></i> Password
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    placeholder="Enter password">
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt"></i> Your session is secure and encrypted
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 </body>
 
 </html>
