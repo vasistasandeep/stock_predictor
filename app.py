@@ -1,11 +1,19 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from datetime import datetime, timedelta
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import talib
-import time
 import requests
-from datetime import datetime, timedelta
+import json
+import re
+import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from chatbot_intelligence import (
+    get_stock_recommendations, get_stop_loss_analysis, get_market_sentiment_analysis,
+    get_top_movers, get_beginner_recommendations, extract_stock_symbol,
+    get_stock_analysis, get_help_response, handle_portfolio_queries, get_default_response
+)
 from market_data import get_market_news, get_analyst_recommendations, get_market_sentiment
 from multi_source_data import get_stock_data_multi_source, get_multiple_stocks_multi_source, get_data_source_status
 import os
@@ -408,6 +416,74 @@ def old_trading_logic():
 def new_trading_logic():
     """Documentation page for enhanced trading logic"""
     return render_template('new_trading_logic.html')
+
+@app.route('/chatbot')
+def chatbot():
+    """AI Trading Assistant interface"""
+    return render_template('chatbot_interface.html')
+
+@app.route('/chatbot_query', methods=['POST'])
+def chatbot_query():
+    """Handle chatbot queries with real-time market intelligence"""
+    try:
+        data = request.get_json()
+        user_message = data.get('message', '').lower().strip()
+        
+        print(f"🤖 Chatbot Query: {user_message}")
+        
+        # Initialize response
+        response_text = ""
+        additional_data = {}
+        
+        # Stock recommendation queries
+        if any(keyword in user_message for keyword in ['best stocks', 'recommend', 'buy today', 'top stocks', 'which stock']):
+            response_text, additional_data = get_stock_recommendations(user_message)
+        
+        # Stop-loss queries
+        elif any(keyword in user_message for keyword in ['stop loss', 'stoploss', 'risk', 'exit target']):
+            response_text, additional_data = get_stop_loss_analysis(user_message)
+        
+        # Market sentiment queries
+        elif any(keyword in user_message for keyword in ['market sentiment', 'market mood', 'how is market', 'market condition']):
+            response_text, additional_data = get_market_sentiment_analysis()
+        
+        # Top gainers/losers
+        elif any(keyword in user_message for keyword in ['top gainers', 'gainers', 'top losers', 'losers', 'movers']):
+            response_text, additional_data = get_top_movers(user_message)
+        
+        # Beginner recommendations
+        elif any(keyword in user_message for keyword in ['beginner', 'new investor', 'noob', 'start investing', 'first time']):
+            response_text, additional_data = get_beginner_recommendations()
+        
+        # Specific stock queries
+        elif any(ticker in user_message.upper() for ticker in ['RELIANCE', 'TCS', 'HDFC', 'INFY', 'SBIN']):
+            stock_symbol = extract_stock_symbol(user_message)
+            if stock_symbol:
+                response_text, additional_data = get_stock_analysis(stock_symbol)
+        
+        # General help and explanations
+        elif any(keyword in user_message for keyword in ['help', 'explain', 'what is', 'how to', 'tutorial']):
+            response_text, additional_data = get_help_response(user_message)
+        
+        # Watchlist and portfolio queries
+        elif any(keyword in user_message for keyword in ['watchlist', 'portfolio', 'add to', 'my stocks']):
+            response_text, additional_data = handle_portfolio_queries(user_message)
+        
+        # Default response
+        else:
+            response_text = get_default_response(user_message)
+        
+        return jsonify({
+            'response': response_text,
+            'data': additional_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Chatbot error: {e}")
+        return jsonify({
+            'response': "I'm having trouble understanding. Could you please rephrase your question? I can help with stock recommendations, stop-loss calculations, market analysis, and investment guidance.",
+            'data': {}
+        })
 
 # Vercel-specific static file handling
 @app.route('/static/<path:filename>')

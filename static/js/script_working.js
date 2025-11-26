@@ -273,13 +273,15 @@ function updateSignalFilters() {
     signalFilter.innerHTML = '<option value="all">All Signals</option>';
     
     // Add signal options
-    const signals = [...new Set(allSignals.map(s => s.signal))];
-    signals.forEach(signal => {
-        const option = document.createElement('option');
-        option.value = signal;
-        option.textContent = signal;
-        signalFilter.appendChild(option);
-    });
+    if (allSignals && Array.isArray(allSignals)) {
+        const signals = [...new Set(allSignals.map(s => s.signal))];
+        signals.forEach(signal => {
+            const option = document.createElement('option');
+            option.value = signal;
+            option.textContent = signal;
+            signalFilter.appendChild(option);
+        });
+    }
 }
 
 function updateFilteredDisplay() {
@@ -290,6 +292,11 @@ function updateFilteredDisplay() {
     list.innerHTML = '';
     
     // Add filtered stocks
+    if (!filteredStocks || !Array.isArray(filteredStocks)) {
+        list.innerHTML = '<li class="list-group-item">No stocks available</li>';
+        return;
+    }
+    
     filteredStocks.forEach((stock, index) => {
         const originalIndex = allStocks.indexOf(stock);
         const stockDetail = allStockDetails[originalIndex] || {};
@@ -372,22 +379,26 @@ function updateStockDisplay(data) {
     }
     
     // Add stocks
-    filteredStocks.forEach((stock, index) => {
-        let li = document.createElement('li');
-        li.className = 'list-group-item list-group-item-action';
-        li.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>${stock.replace('.NS', '')}</strong>
-                    <small class="text-muted d-block">NSE</small>
+    if (filteredStocks && Array.isArray(filteredStocks)) {
+        filteredStocks.forEach((stock, index) => {
+            let li = document.createElement('li');
+            li.className = 'list-group-item list-group-item-action';
+            li.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${stock.replace('.NS', '')}</strong>
+                        <small class="text-muted d-block">NSE</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-secondary">Analyze</span>
+                    </div>
                 </div>
-                <div class="text-end">
-                    <span class="badge bg-secondary">Analyze</span>
-                </div>
-            </div>
-        `;
-        list.appendChild(li);
-    });
+            `;
+            list.appendChild(li);
+        });
+    } else {
+        list.innerHTML = '<li class="list-group-item">No stocks available</li>';
+    }
     
     console.log(`✅ Displayed ${filteredStocks.length} stocks`);
 }
@@ -701,19 +712,32 @@ function updateMarketNews(news) {
     const container = document.getElementById('marketNews');
     if (!container) return;
     
-    if (!news || news.length === 0) {
+    // Handle different news data structures
+    let newsArray = [];
+    if (news && news.news && Array.isArray(news.news)) {
+        // Backend sends {news: [...]}
+        newsArray = news.news;
+    } else if (news && Array.isArray(news)) {
+        // Direct array
+        newsArray = news;
+    } else if (news && typeof news === 'object') {
+        // Single news object or other structure
+        newsArray = [news];
+    }
+    
+    if (!newsArray || newsArray.length === 0) {
         container.innerHTML = '<h6>📰 Market News</h6><p class="text-muted">No recent news available.</p>';
         return;
     }
     
     let html = '<h6>📰 Latest Market News</h6>';
-    news.forEach(article => {
+    newsArray.forEach(article => {
         const publishDate = article.time_published ? new Date(article.time_published).toLocaleDateString() : 'Recent';
         html += `
             <div class="mb-2 p-2 border rounded">
-                <small class="text-muted">${publishDate} - ${article.source}</small>
-                <h6 class="mb-1"><a href="${article.url}" target="_blank">${article.title}</a></h6>
-                <p class="mb-0 small">${article.summary ? article.summary.substring(0, 150) + '...' : ''}</p>
+                <small class="text-muted">${publishDate} - ${article.source || 'Market Data'}</small>
+                <h6 class="mb-1"><a href="${article.url || '#'}" target="_blank">${article.title || 'Market Update'}</a></h6>
+                <p class="mb-0 small">${article.summary ? article.summary.substring(0, 150) + '...' : 'No summary available.'}</p>
             </div>
         `;
     });

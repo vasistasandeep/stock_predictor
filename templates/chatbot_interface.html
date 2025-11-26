@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trading Assistant - Stock Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .message {
+            margin-bottom: 1rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.bot {
+            text-align: left;
+        }
+        .message-bubble {
+            display: inline-block;
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .message.bot .message-bubble {
+            background: #e9ecef;
+            color: #333;
+        }
+        .typing-indicator {
+            display: none;
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+        .typing-indicator .message-bubble {
+            background: #e9ecef;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+        }
+        .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        .quick-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .quick-action-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        .quick-action-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .stock-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .stock-card:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stock-price {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .stock-change {
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        .neutral { color: #6c757d; }
+        .input-group {
+            position: relative;
+        }
+        .voice-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .voice-btn.recording {
+            color: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+        .suggestion-chip {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            margin: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .suggestion-chip:hover {
+            background: #1976d2;
+            color: white;
+        }
+        .analysis-preview {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+        .risk-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> Stock Predictor
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/chatbot">AI Assistant</a>
+                <a class="nav-link" href="/">Back to App</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>AI Trading Assistant
+                            <small class="float-end text-white-50">Real-time Market Intelligence</small>
+                        </h3>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chat-container">
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" onclick="sendQuickMessage('What are the best stocks to buy today?')">
+                                    <i class="fas fa-chart-line me-1"></i>Best Stocks Today
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Show me top gainers')">
+                                    <i class="fas fa-arrow-up me-1"></i>Top Gainers
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('What is the market sentiment?')">
+                                    <i class="fas fa-poll me-1"></i>Market Sentiment
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Explain stop-loss for RELIANCE')">
+                                    <i class="fas fa-shield-alt me-1"></i>Stop-Loss Help
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Recommend stocks for beginners')">
+                                    <i class="fas fa-graduation-cap me-1"></i>Beginner Picks
+                                </button>
+                            </div>
+
+                            <!-- Chat Messages -->
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message bot">
+                                    <div class="message-bubble">
+                                        <h6><i class="fas fa-robot me-2"></i>AI Trading Assistant</h6>
+                                        <p>Hello! I'm your AI trading assistant. I can help you with:</p>
+                                        <ul>
+                                            <li>📈 Stock recommendations and analysis</li>
+                                            <li>🛡️ Stop-loss and risk management</li>
+                                            <li>📊 Real-time market insights</li>
+                                            <li>💡 Investment strategies for beginners</li>
+                                            <li>🎯 Portfolio suggestions</li>
+                                        </ul>
+                                        <p>Feel free to ask me anything about trading or investments!</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Typing Indicator -->
+                            <div class="typing-indicator" id="typingIndicator">
+                                <div class="message-bubble">
+                                    <div class="typing-dots">
+                                        <div class="typing-dot"></div>
+                                        <div class="typing-dot"></div>
+                                        <div class="typing-dot"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Input Area -->
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" 
+                                       placeholder="Ask me about stocks, stop-loss, market trends..." 
+                                       onkeypress="handleKeyPress(event)">
+                                <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="btn btn-primary" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isRecording = false;
+        let recognition = null;
+
+        // Initialize speech recognition if available
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                const current = event.resultIndex;
+                const transcript = event.results[current][0].transcript;
+                document.getElementById('messageInput').value = transcript;
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopVoiceRecording();
+            };
+
+            recognition.onend = function() {
+                stopVoiceRecording();
+            };
+        }
+
+        function toggleVoiceRecording() {
+            if (!recognition) {
+                alert('Voice recognition is not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            if (isRecording) {
+                stopVoiceRecording();
+            } else {
+                startVoiceRecording();
+            }
+        }
+
+        function startVoiceRecording() {
+            isRecording = true;
+            const voiceBtn = document.getElementById('voiceBtn');
+            voiceBtn.classList.add('recording');
+            voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            recognition.start();
+        }
+
+        function stopVoiceRecording() {
+            isRecording = false;
+            const voiceBtn = document.getElementById('voiceBtn');
+            voiceBtn.classList.remove('recording');
+            voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Send to backend
+            fetch('/chatbot_query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTypingIndicator();
+                addMessage(data.response, 'bot', data.data);
+            })
+            .catch(error => {
+                hideTypingIndicator();
+                addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            });
+        }
+
+        function addMessage(text, sender, additionalData = null) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            let messageContent = `<div class="message-bubble">${text}</div>`;
+            
+            if (additionalData && additionalData.stock_recommendations) {
+                messageContent += createStockCards(additionalData.stock_recommendations);
+            }
+            
+            if (additionalData && additionalData.analysis) {
+                messageContent += createAnalysisPreview(additionalData.analysis);
+            }
+            
+            messageDiv.innerHTML = messageContent;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function createStockCards(stocks) {
+            let html = '<div class="mt-3">';
+            stocks.forEach(stock => {
+                const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                const changeSymbol = stock.change >= 0 ? '+' : '';
+                html += `
+                    <div class="stock-card" onclick="selectStock('${stock.symbol}')">
+                        <div class="stock-info">
+                            <div>
+                                <strong>${stock.symbol}</strong>
+                                <div class="text-muted small">${stock.name}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="stock-price">₹${stock.price}</div>
+                                <div class="stock-change ${changeClass}">${changeSymbol}${stock.change}%</div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <span class="risk-badge risk-${stock.risk.toLowerCase()}">${stock.risk} Risk</span>
+                            <span class="badge bg-info ms-1">${stock.signal}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function createAnalysisPreview(analysis) {
+            return `
+                <div class="analysis-preview">
+                    <h6><i class="fas fa-chart-line me-2"></i>${analysis.symbol} Analysis</h6>
+                    <p><strong>Current Price:</strong> ₹${analysis.current_price}</p>
+                    <p><strong>Stop-Loss:</strong> ₹${analysis.stop_loss}</p>
+                    <p><strong>Exit Target:</strong> ₹${analysis.exit_target}</p>
+                    <p><strong>Risk/Reward:</strong> ${analysis.risk_reward_ratio}</p>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-primary" onclick="applyAnalysis('${analysis.symbol}')">
+                            <i class="fas fa-plus me-1"></i>Add to Watchlist
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary ms-1" onclick="viewDetails('${analysis.symbol}')">
+                            <i class="fas fa-info-circle me-1"></i>View Details
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectStock(symbol) {
+            document.getElementById('messageInput').value = `Tell me more about ${symbol}`;
+            sendMessage();
+        }
+
+        function applyAnalysis(symbol) {
+            document.getElementById('messageInput').value = `Add ${symbol} to my watchlist and set stop-loss`;
+            sendMessage();
+        }
+
+        function viewDetails(symbol) {
+            window.open(`/?stock=${symbol}`, '_blank');
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        // Auto-focus on input
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>
