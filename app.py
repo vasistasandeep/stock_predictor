@@ -372,7 +372,7 @@ def get_stock_data(ticker, risk_appetite):
                 reason = ". ".join(factors[:2]) # Top 2 factors
                 # Use KL Logic values
                 kl_entry = tech_analysis.get('kl_entry', current_price)
-                kl_stop = tech_analysis.get('kl_stop', stop_loss)
+                kl_stop = tech_analysis.get('kl_stop', current_price * 0.95)
                 kl_exit = tech_analysis.get('kl_exit', current_price * 1.05)
                 
                 # Override with KL values if available
