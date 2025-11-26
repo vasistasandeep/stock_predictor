@@ -710,7 +710,13 @@ function updatePredictionDisplay(response) {
     console.log('✅ Technical indicators updated');
 
     // Update market news and analyst data
+    // Update market news and analyst data
     updateMarketInsights(response);
+
+    // Update Chart if data is available
+    if (response.chart_data && response.chart_data.dates && response.chart_data.dates.length > 0) {
+        updateStockChart(response.chart_data, response.ticker);
+    }
 }
 
 function updateMarketInsights(response) {
@@ -898,4 +904,102 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('🚀 DOM loaded, initializing Stock Predictor...');
     setupFilters();
     fetchTopStocks();
+    setupFilters();
+    fetchTopStocks();
 });
+
+// Chart Global Variable
+let stockChartInstance = null;
+
+function toggleChart() {
+    const chartContainer = document.getElementById('chartContainer');
+    const checkbox = document.getElementById('showChart');
+
+    if (checkbox && chartContainer) {
+        if (checkbox.checked) {
+            chartContainer.style.display = 'block';
+            // If we have data but no chart, try to render it (re-trigger analysis if needed?)
+            // Ideally, the chart data should be stored or we re-fetch if needed.
+            // For now, let's assume the user checks this BEFORE analysis or we re-render if data exists.
+        } else {
+            chartContainer.style.display = 'none';
+        }
+    }
+}
+
+function updateStockChart(chartData, ticker) {
+    const ctx = document.getElementById('stockChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (stockChartInstance) {
+        stockChartInstance.destroy();
+    }
+
+    if (!chartData || !chartData.dates || chartData.dates.length === 0) {
+        console.warn('⚠️ No chart data available');
+        return;
+    }
+
+    // Create new chart
+    stockChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.dates,
+            datasets: [{
+                label: `${ticker} Price`,
+                data: chartData.prices,
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1,
+                pointRadius: 0 // Hide points for cleaner look on large datasets
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `Price: ₹${context.parsed.y.toFixed(2)}`;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: `${ticker} Price History`
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    },
+                    ticks: {
+                        maxTicksLimit: 10 // Limit x-axis labels
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Price (₹)'
+                    }
+                }
+            }
+        }
+    });
+    console.log('📈 Chart updated for', ticker);
+}

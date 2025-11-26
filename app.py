@@ -448,11 +448,13 @@ def get_stock_data(ticker, risk_appetite):
                 'macd_signal': macd_signal,
                 'atr': atr,
                 'volume_ratio': volume_ratio,
-                'chart_data': {
+                'atr': atr,
+                'volume_ratio': volume_ratio,
+                'chart_data': tech_analysis.get('historical_data', {
                     'dates': [],
                     'prices': [],
                     'volumes': []
-                }
+                })
             }
             
             # Cache the result

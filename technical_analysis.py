@@ -274,7 +274,13 @@ def analyze_stock(ticker, current_data=None, risk_profile='Medium'):
             'kl_recommendation': kl_recommendation,
             'kl_entry': round(kl_entry, 2),
             'kl_stop': round(kl_stop, 2),
-            'kl_exit': round(kl_exit, 2)
+            'kl_exit': round(kl_exit, 2),
+            # Chart Data
+            'historical_data': {
+                'dates': hist.index.strftime('%Y-%m-%d').tolist(),
+                'prices': hist['Close'].tolist(),
+                'volumes': hist['Volume'].tolist()
+            }
         }
         
     except Exception as e:
