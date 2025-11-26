@@ -126,6 +126,18 @@ def get_top_20_stocks():
 def index():
     return render_template('index.html')
 
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
 @app.route('/refresh_data')
 def refresh_data():
     """Manual endpoint to trigger data refresh."""

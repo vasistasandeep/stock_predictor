@@ -1,10 +1,86 @@
 let allStocks = [];
 let filteredStocks = [];
 
-window.addEventListener('load', function() {
+window.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - initializing application...');
     fetchStockData();
     setupEventListeners();
+    setupChartFilters();
+    
+    // Check if first-time user and show onboarding
+    checkFirstTimeUser();
+    
+    // Test analyze button exists
+    let fetchBtn = document.getElementById('fetchBtn');
+    if (fetchBtn) {
+        console.log('✅ Analyze button found');
+        fetchBtn.addEventListener('click', function() {
+            console.log('🔍 Analyze button clicked!');
+        });
+    } else {
+        console.error('❌ Analyze button not found');
+    }
+    
+    // Test risk buttons
+    let riskButtons = document.querySelectorAll('input[name="risk"]');
+    console.log('🎯 Risk buttons found:', riskButtons.length);
+    
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl, {
+            delay: { show: 300, hide: 100 },
+            trigger: 'hover focus'
+        });
+    });
+    console.log('💡 Tooltips initialized:', tooltipList.length);
 });
+
+// Onboarding functionality
+function checkFirstTimeUser() {
+    // Check if user has seen onboarding before
+    const hasSeenOnboarding = localStorage.getItem('stockPredictorOnboarding');
+    
+    if (!hasSeenOnboarding) {
+        console.log('🎓 First-time user detected - showing onboarding');
+        // Show onboarding modal after a short delay to let page load
+        setTimeout(function() {
+            const onboardingModal = new bootstrap.Modal(document.getElementById('onboardingModal'));
+            onboardingModal.show();
+        }, 1000);
+    } else {
+        console.log('👋 Returning user - skipping onboarding');
+    }
+}
+
+function finishOnboarding() {
+    // Check if "Don't show again" is checked
+    const dontShowAgain = document.getElementById('dontShowAgain').checked;
+    
+    if (dontShowAgain) {
+        // Save preference to localStorage
+        localStorage.setItem('stockPredictorOnboarding', 'true');
+        console.log('✅ User opted out of future onboarding');
+    } else {
+        console.log('🔄 User may see onboarding again');
+    }
+    
+    // Show welcome notification
+    showNotification('🎉 Welcome! Ready to analyze some stocks?', 'success');
+}
+
+// Function to show onboarding manually (for help menu)
+function showOnboarding() {
+    const onboardingModal = new bootstrap.Modal(document.getElementById('onboardingModal'));
+    onboardingModal.show();
+}
+
+// Function to reset onboarding preference
+function resetOnboarding() {
+    localStorage.removeItem('stockPredictorOnboarding');
+    console.log('🔄 Onboarding preference reset');
+    showNotification('Onboarding will show on next page refresh', 'info');
+}
 
 function fetchStockData() {
     fetch('/get_top_20_stocks')
@@ -401,18 +477,37 @@ function refreshStockData() {
 document.getElementById('fetchBtn').addEventListener('click', function() {
     let ticker = document.getElementById('tickerInput').value;
     let riskAppetite = document.querySelector('input[name="risk"]:checked').id.replace('Risk', '');
-    let chartPeriod = document.getElementById('chartPeriod').value;
-    let chartFrequency = document.getElementById('chartFrequency').value;
-    let chartType = document.getElementById('chartType').value;
+    
+    // Safely get chart filtering options with fallbacks
+    let chartPeriod = document.getElementById('chartPeriod') ? document.getElementById('chartPeriod').value : '2y';
+    let chartFrequency = document.getElementById('chartFrequency') ? document.getElementById('chartFrequency').value : 'daily';
+    let chartType = document.getElementById('chartType') ? document.getElementById('chartType').value : 'line';
+    
+    console.log('Analyzing:', ticker, 'Risk:', riskAppetite, 'Period:', chartPeriod, 'Frequency:', chartFrequency);
     
     if (ticker) {
         // Show loading state
         document.getElementById('fetchBtn').innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing...';
         document.getElementById('fetchBtn').disabled = true;
         
-        fetch('/get_stock_data/' + ticker + '/' + riskAppetite + '?period=' + chartPeriod + '&frequency=' + chartFrequency)
-            .then(response => response.json())
+        // Build URL safely
+        let url = '/get_stock_data/' + encodeURIComponent(ticker) + '/' + encodeURIComponent(riskAppetite);
+        let params = new URLSearchParams();
+        params.append('period', chartPeriod);
+        params.append('frequency', chartFrequency);
+        
+        console.log('Fetching URL:', url + '?' + params.toString());
+        
+        fetch(url + '?' + params.toString())
             .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(response => {
+                console.log('Response data:', response);
                 updatePredictionDisplay(response);
                 updateChart(response, chartType);
                 
@@ -421,13 +516,13 @@ document.getElementById('fetchBtn').addEventListener('click', function() {
                 document.getElementById('fetchBtn').disabled = false;
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error fetching stock data');
+                console.error('Error details:', error);
+                showNotification('Error fetching stock data: ' + error.message, 'error');
                 document.getElementById('fetchBtn').innerHTML = '<span>🔍 Analyze</span>';
                 document.getElementById('fetchBtn').disabled = false;
             });
     } else {
-        alert('Please enter a stock ticker');
+        showNotification('Please enter a stock ticker (e.g., RELIANCE.NS)', 'warning');
     }
 });
 
@@ -451,133 +546,194 @@ function updatePredictionDisplay(response) {
 }
 
 function updateChart(response, chartType) {
-    let chartData = JSON.parse(response.data);
-    let dates = Object.keys(chartData.Close).map(ts => new Date(parseInt(ts)).toLocaleDateString());
-    let closePrices = Object.values(chartData.Close);
-    let sma50 = Object.values(chartData.SMA50);
-    let sma200 = Object.values(chartData.SMA200);
-
-    let ctx = document.getElementById('stockChart').getContext('2d');
-    if (window.myChart) {
-        window.myChart.destroy();
-    }
-    
-    let datasets = [
-        {
-            label: '📈 Stock Price',
-            data: closePrices,
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0, 123, 255, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.1
-        },
-        {
-            label: '📊 50-Day SMA (Short-term Trend)',
-            data: sma50,
-            borderColor: '#ff9800',
-            backgroundColor: 'rgba(255, 152, 0, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.1
-        },
-        {
-            label: '📉 200-Day SMA (Long-term Trend)',
-            data: sma200,
-            borderColor: '#f44336',
-            backgroundColor: 'rgba(244, 67, 54, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.1
+    try {
+        console.log('Updating chart with response:', response);
+        
+        // Store current data for chart type changes
+        window.currentChartData = response;
+        
+        // Check if response has data
+        if (!response.data) {
+            console.error('No data in response');
+            showNotification('No chart data available', 'warning');
+            return;
         }
-    ];
+        
+        let chartData = JSON.parse(response.data);
+        console.log('Parsed chart data:', chartData);
+        
+        // Check if we have the required data
+        if (!chartData.Close || !chartData.SMA50 || !chartData.SMA200) {
+            console.error('Missing required chart data fields');
+            showNotification('Incomplete chart data received', 'warning');
+            return;
+        }
+        
+        let dates = Object.keys(chartData.Close).map(ts => new Date(parseInt(ts)).toLocaleDateString());
+        let closePrices = Object.values(chartData.Close);
+        let sma50 = Object.values(chartData.SMA50);
+        let sma200 = Object.values(chartData.SMA200);
+        
+        console.log('Data points - Dates:', dates.length, 'Prices:', closePrices.length, 'SMA50:', sma50.length, 'SMA200:', sma200.length);
 
-    let chartConfig = {
-        type: chartType === 'candlestick' ? 'line' : 'line', // Fallback to line for now
-        data: {
-            labels: dates,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Stock Price Analysis with Moving Averages',
-                    font: {
-                        size: 16
-                    }
-                },
-                legend: {
-                    display: true,
-                    position: 'top'
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        title: function(context) {
-                            return 'Date: ' + context[0].label;
-                        },
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
+        let ctx = document.getElementById('stockChart');
+        if (!ctx) {
+            console.error('Chart canvas not found');
+            return;
+        }
+        
+        ctx = ctx.getContext('2d');
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+        
+        let datasets = [
+            {
+                label: '📈 Stock Price',
+                data: closePrices,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.1
+            },
+            {
+                label: '📊 50-Day SMA (Short-term Trend)',
+                data: sma50,
+                borderColor: '#ff9800',
+                backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.1
+            },
+            {
+                label: '📉 200-Day SMA (Long-term Trend)',
+                data: sma200,
+                borderColor: '#f44336',
+                backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.1
+            }
+        ];
+
+        let chartConfig = {
+            type: chartType === 'candlestick' ? 'line' : 'line', // Fallback to line for now
+            data: {
+                labels: dates,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Stock Price Analysis with Moving Averages',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            title: function(context) {
+                                return 'Date: ' + context[0].label;
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += '₹' + context.parsed.y.toFixed(2);
+                                return label;
                             }
-                            label += '₹' + context.parsed.y.toFixed(2);
-                            return label;
                         }
                     }
-                }
-            },
-            scales: {
-                x: {
-                    display: true,
-                    title: {
+                },
+                scales: {
+                    x: {
                         display: true,
-                        text: 'Date'
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Price (₹)'
+                        }
                     }
                 },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Price (₹)'
-                    }
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
                 }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
             }
-        }
-    };
+        };
 
-    window.myChart = new Chart(ctx, chartConfig);
+        window.myChart = new Chart(ctx, chartConfig);
+        console.log('Chart updated successfully');
+        
+    } catch (error) {
+        console.error('Error updating chart:', error);
+        showNotification('Error updating chart: ' + error.message, 'error');
+    }
 }
 
-// Chart filter event listeners
-document.getElementById('chartFrequency').addEventListener('change', function() {
-    let ticker = document.getElementById('tickerInput').value;
-    if (ticker) {
-        document.getElementById('fetchBtn').click();
+// Chart filter event listeners - safely add only if elements exist
+function setupChartFilters() {
+    let chartFrequency = document.getElementById('chartFrequency');
+    let chartPeriod = document.getElementById('chartPeriod');
+    let chartType = document.getElementById('chartType');
+    
+    if (chartFrequency) {
+        chartFrequency.addEventListener('change', function() {
+            let ticker = document.getElementById('tickerInput').value;
+            if (ticker) {
+                console.log('Chart frequency changed to:', this.value);
+                document.getElementById('fetchBtn').click();
+            }
+        });
     }
-});
+    
+    if (chartPeriod) {
+        chartPeriod.addEventListener('change', function() {
+            let ticker = document.getElementById('tickerInput').value;
+            if (ticker) {
+                console.log('Chart period changed to:', this.value);
+                document.getElementById('fetchBtn').click();
+            }
+        });
+    }
+    
+    if (chartType) {
+        chartType.addEventListener('change', function() {
+            let ticker = document.getElementById('tickerInput').value;
+            if (ticker && window.myChart) {
+                console.log('Chart type changed to:', this.value);
+                let chartType = this.value;
+                // Re-render chart with new type if we have data
+                if (window.currentChartData) {
+                    updateChart(window.currentChartData, chartType);
+                } else {
+                    // If no current data, re-fetch
+                    document.getElementById('fetchBtn').click();
+                }
+            }
+        });
+    }
+}
 
-document.getElementById('chartPeriod').addEventListener('change', function() {
-    let ticker = document.getElementById('tickerInput').value;
-    if (ticker) {
-        document.getElementById('fetchBtn').click();
-    }
-});
-
-document.getElementById('chartType').addEventListener('change', function() {
-    let ticker = document.getElementById('tickerInput').value;
-    if (ticker && window.myChart) {
-        let chartType = document.getElementById('chartType').value;
-        // Re-render chart with new type
-        updateChart(window.currentChartData, chartType);
-    }
+// Setup chart filters when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    setupChartFilters();
 });

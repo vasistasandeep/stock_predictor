@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Predictor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -29,8 +30,39 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Stock Predictor</a>
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Stock Predictor
+                <span class="badge bg-success ms-2">PRO</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pricing">
+                            <i class="fas fa-tags me-1"></i>Pricing
+                        </a>
+                    </li>
+                </ul>
+                <div class="navbar-nav">
+                    <button class="btn btn-outline-light btn-sm me-2" onclick="showOnboarding()" title="View Help & Tutorial">
+                        <i class="fas fa-question-circle me-1"></i>Help
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm me-2" onclick="resetOnboarding()" title="Reset Tutorial (Show on next visit)">
+                        <i class="fas fa-redo me-1"></i>Reset Tour
+                    </button>
+                    <a href="/pricing" class="btn btn-success btn-sm">
+                        <i class="fas fa-crown me-1"></i>Upgrade Plan
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -190,6 +222,28 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <h6 class="alert-heading">📊 How Trading Analysis Works:</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>🟢 Buy Signal:</strong> Stock likely to go up
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>🔴 Sell Signal:</strong> Stock likely to go down
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>🟡 Hold Signal:</strong> Wait for better opportunity
+                                </div>
+                            </div>
+                            <hr>
+                            <small class="mb-0">
+                                <strong>Risk Levels Explained:</strong> 
+                                🛡️ Conservative = Safe investments (2% loss limit), 
+                                ⚖️ Balanced = Moderate risk (5% loss limit), 
+                                🚀 Aggressive = High risk/reward (10% loss limit)
+                            </small>
+                        </div>
+                        
                         <div class="row text-center">
                             <div class="col-md-3">
                                 <div class="prediction-box">
@@ -306,21 +360,38 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div id="riskAppetite" class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="risk" id="lowRisk" autocomplete="off">
-                                    <label class="btn btn-outline-success" for="lowRisk" title="Low Risk: Conservative approach, 2% stop-loss, safer investments">
-                                        🟢 Low Risk
-                                    </label>
+                                <div class="card bg-light">
+                                    <div class="card-body p-3">
+                                        <h6 class="mb-3">
+                                            💰 Choose Your Investment Style
+                                            <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                               title="Investment Style: Conservative = Safe investments with small losses, Balanced = Mix of safety and growth, Aggressive = Higher risk for higher returns."></i>
+                                        </h6>
+                                        <div id="riskAppetite" class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="risk" id="lowRisk" autocomplete="off">
+                                            <label class="btn btn-outline-success" for="lowRisk">
+                                                🛡️ Conservative<br>
+                                                <small>Safe & Steady</small>
+                                            </label>
 
-                                    <input type="radio" class="btn-check" name="risk" id="mediumRisk" autocomplete="off" checked>
-                                    <label class="btn btn-outline-warning" for="mediumRisk" title="Medium Risk: Balanced approach, 5% stop-loss, moderate risk-reward">
-                                        🟡 Medium Risk
-                                    </label>
+                                            <input type="radio" class="btn-check" name="risk" id="mediumRisk" autocomplete="off" checked>
+                                            <label class="btn btn-outline-warning" for="mediumRisk">
+                                                ⚖️ Balanced<br>
+                                                <small>Moderate Risk</small>
+                                            </label>
 
-                                    <input type="radio" class="btn-check" name="risk" id="highRisk" autocomplete="off">
-                                    <label class="btn btn-outline-danger" for="highRisk" title="High Risk: Aggressive approach, 10% stop-loss, higher potential returns">
-                                        🔴 High Risk
-                                    </label>
+                                            <input type="radio" class="btn-check" name="risk" id="highRisk" autocomplete="off">
+                                            <label class="btn btn-outline-danger" for="highRisk">
+                                                🚀 Aggressive<br>
+                                                <small>High Risk/Return</small>
+                                            </label>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <strong>Stop-Loss:</strong> Conservative (2%), Balanced (5%), Aggressive (10%)
+                                            </small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -417,6 +488,306 @@
                             </small>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Footer -->
+    <footer class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-chart-line me-2"></i>Stock Predictor</h5>
+                    <p class="text-muted">Professional stock analysis and prediction platform for informed investment decisions. Powered by advanced AI and real-time market data.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6>Product</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/" class="text-muted text-decoration-none">Dashboard</a></li>
+                        <li class="mb-2"><a href="/pricing" class="text-muted text-decoration-none">Pricing</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Features</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">API</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6>Company</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Careers</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Blog</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Press</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6>Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Help Center</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Contact Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Status</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6>Legal</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/terms" class="text-muted text-decoration-none">Terms of Service</a></li>
+                        <li class="mb-2"><a href="/privacy" class="text-muted text-decoration-none">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Cookie Policy</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-white">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 Stock Predictor Technologies Pvt. Ltd. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        <i class="fas fa-map-marker-alt me-1"></i>Mumbai, India | 
+                        <i class="fas fa-envelope me-1"></i>support@stockpredictor.com | 
+                        <i class="fas fa-phone me-1"></i>+91-22-1234-5678
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- First Time Onboarding Modal -->
+    <div class="modal fade" id="onboardingModal" tabindex="-1" aria-labelledby="onboardingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="onboardingModalLabel">
+                        🎉 Welcome to Stock Predictor - Quick Tour
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Onboarding Carousel -->
+                    <div id="onboardingCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#onboardingCarousel" data-bs-slide-to="0" class="active"></button>
+                            <button type="button" data-bs-target="#onboardingCarousel" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#onboardingCarousel" data-bs-slide-to="2"></button>
+                            <button type="button" data-bs-target="#onboardingCarousel" data-bs-slide-to="3"></button>
+                            <button type="button" data-bs-target="#onboardingCarousel" data-bs-slide-to="4"></button>
+                        </div>
+                        
+                        <div class="carousel-inner">
+                            <!-- Slide 1: Welcome -->
+                            <div class="carousel-item active">
+                                <div class="text-center py-4">
+                                    <div class="mb-4">
+                                        <i class="fas fa-chart-line" style="font-size: 4rem; color: #007bff;"></i>
+                                    </div>
+                                    <h4>🚀 Welcome to Your Stock Analysis Tool!</h4>
+                                    <p class="lead">Get intelligent trading recommendations for India's top stocks with technical analysis and risk management.</p>
+                                    <div class="alert alert-info">
+                                        <strong>What this tool does:</strong><br>
+                                        • Analyzes NIFTY 200 stocks in real-time<br>
+                                        • Provides Buy/Sell/Hold signals<br>
+                                        • Calculates entry, exit, and stop-loss prices<br>
+                                        • Shows technical indicators and charts
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Slide 2: Understanding Signals -->
+                            <div class="carousel-item">
+                                <div class="text-center py-4">
+                                    <div class="mb-4">
+                                        <i class="fas fa-signal" style="font-size: 4rem; color: #28a745;"></i>
+                                    </div>
+                                    <h4>📊 Understanding Trading Signals</h4>
+                                    <div class="row mt-4">
+                                        <div class="col-md-4">
+                                            <div class="card border-success">
+                                                <div class="card-body">
+                                                    <h5 class="text-success">🟢 Buy Signal</h5>
+                                                    <p>Stock likely to go up. Good time to purchase.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card border-danger">
+                                                <div class="card-body">
+                                                    <h5 class="text-danger">🔴 Sell Signal</h5>
+                                                    <p>Stock likely to go down. Good time to sell.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card border-warning">
+                                                <div class="card-body">
+                                                    <h5 class="text-warning">🟡 Hold Signal</h5>
+                                                    <p>Wait for better opportunity. Market uncertain.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-light mt-3">
+                                        <strong>💡 Tip:</strong> Signals are based on technical analysis including moving averages, RSI, and market trends.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Slide 3: Risk Management -->
+                            <div class="carousel-item">
+                                <div class="text-center py-4">
+                                    <div class="mb-4">
+                                        <i class="fas fa-shield-alt" style="font-size: 4rem; color: #ffc107;"></i>
+                                    </div>
+                                    <h4>🛡️ Choose Your Risk Appetite</h4>
+                                    <div class="row mt-4">
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h5>🛡️ Conservative</h5>
+                                                    <p class="small">Safe & Steady</p>
+                                                    <strong>Stop-Loss: 2%</strong><br>
+                                                    <small>Best for beginners and risk-averse investors</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h5>⚖️ Balanced</h5>
+                                                    <p class="small">Moderate Risk</p>
+                                                    <strong>Stop-Loss: 5%</strong><br>
+                                                    <small>Mix of safety and growth potential</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h5>🚀 Aggressive</h5>
+                                                    <p class="small">High Risk/Return</p>
+                                                    <strong>Stop-Loss: 10%</strong><br>
+                                                    <small>Higher risk for potentially higher returns</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-warning mt-3">
+                                        <strong>⚠️ Important:</strong> Stop-loss automatically sells if price drops to limit your losses. Always use it!
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Slide 4: How to Use -->
+                            <div class="carousel-item">
+                                <div class="text-center py-4">
+                                    <div class="mb-4">
+                                        <i class="fas fa-play-circle" style="font-size: 4rem; color: #17a2b8;"></i>
+                                    </div>
+                                    <h4>🎯 How to Use the Application</h4>
+                                    <div class="text-start">
+                                        <div class="alert alert-success">
+                                            <h5>📋 Step-by-Step Guide:</h5>
+                                            <ol>
+                                                <li><strong>Select a Stock:</strong> Choose from Top 20 list or enter ticker (e.g., RELIANCE.NS)</li>
+                                                <li><strong>Choose Risk Level:</strong> Conservative, Balanced, or Aggressive</li>
+                                                <li><strong>Click Analyze:</strong> Get trading signals and price recommendations</li>
+                                                <li><strong>Review Results:</strong> Check signal, entry price, exit price, and stop-loss</li>
+                                                <li><strong>Study Chart:</strong> Look at price trends with moving averages</li>
+                                                <li><strong>Make Decision:</strong> Based on analysis and your risk tolerance</li>
+                                            </ol>
+                                        </div>
+                                        <div class="alert alert-info">
+                                            <strong>💡 Pro Tips:</strong><br>
+                                            • Hover over any blue ℹ️ icon for detailed explanations<br>
+                                            • Use filters to find specific types of stocks<br>
+                                            • Export results for further analysis<br>
+                                            • Check technical indicators for market insights
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Slide 5: Technical Indicators -->
+                            <div class="carousel-item">
+                                <div class="text-center py-4">
+                                    <div class="mb-4">
+                                        <i class="fas fa-chart-area" style="font-size: 4rem; color: #6f42c1;"></i>
+                                    </div>
+                                    <h4>📈 Understanding Technical Indicators</h4>
+                                    <div class="row text-start mt-4">
+                                        <div class="col-md-6">
+                                            <div class="card border-primary mb-3">
+                                                <div class="card-body">
+                                                    <h6 class="text-primary">📊 Simple Moving Average (SMA)</h6>
+                                                    <p><strong>50-Day SMA:</strong> Short-term trend (last 50 days)</p>
+                                                    <p><strong>200-Day SMA:</strong> Long-term trend (last 200 days)</p>
+                                                    <small>Price above SMA = Bullish (upward trend)</small><br>
+                                                    <small>Price below SMA = Bearish (downward trend)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-info mb-3">
+                                                <div class="card-body">
+                                                    <h6 class="text-info">⚡ RSI (Relative Strength Index)</h6>
+                                                    <p>Momentum indicator (0-100 scale)</p>
+                                                    <small><strong>Below 30:</strong> Oversold (good to buy)</small><br>
+                                                    <small><strong>Above 70:</strong> Overbought (good to sell)</small><br>
+                                                    <small><strong>30-70:</strong> Neutral zone</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-warning">
+                                                <div class="card-body">
+                                                    <h6 class="text-warning">📉 ATR (Average True Range)</h6>
+                                                    <p>Volatility indicator</p>
+                                                    <small><strong>High ATR:</strong> Volatile stock (big price swings)</small><br>
+                                                    <small><strong>Low ATR:</strong> Stable stock (small price movements)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-success">
+                                                <div class="card-body">
+                                                    <h6 class="text-success">🎯 Price Recommendations</h6>
+                                                    <p><strong>Entry Price:</strong> Good price to buy (support level)</p>
+                                                    <p><strong>Exit Price:</strong> Target price to sell (resistance level)</p>
+                                                    <p><strong>Stop-Loss:</strong> Safety net to limit losses</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="carousel-control-prev" type="button" data-bs-target="#onboardingCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#onboardingCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-check me-auto">
+                        <input class="form-check-input" type="checkbox" id="dontShowAgain">
+                        <label class="form-check-label" for="dontShowAgain">
+                            Don't show this again
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Skip Tour</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="finishOnboarding()">Get Started</button>
                 </div>
             </div>
         </div>

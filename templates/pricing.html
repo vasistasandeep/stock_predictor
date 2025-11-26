@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans - Stock Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .pricing-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .pricing-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin: 1rem 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .pricing-card.featured {
+            border-color: #007bff;
+            transform: scale(1.05);
+        }
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+        .price-tag {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+        .price-currency {
+            font-size: 1.5rem;
+            vertical-align: super;
+        }
+        .price-period {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .badge-popular {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .trust-badges {
+            background: #f8f9fa;
+            padding: 3rem 0;
+        }
+        .faq-section {
+            background: white;
+            padding: 3rem 0;
+        }
+        .btn-pricing {
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-pricing:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Stock Predictor
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link active" href="/pricing">Pricing</a>
+                <a class="nav-link" href="/terms">Terms</a>
+                <a class="nav-link" href="/privacy">Privacy</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="pricing-header">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">
+                <i class="fas fa-tags me-3"></i>Choose Your Investment Plan
+            </h1>
+            <p class="lead mb-4">Professional stock analysis tools for every investor level</p>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <span class="badge bg-success me-2"><i class="fas fa-check me-1"></i>14-Day Money Back</span>
+                        <span class="badge bg-info me-2"><i class="fas fa-lock me-1"></i>Secure Payment</span>
+                        <span class="badge bg-warning"><i class="fas fa-sync me-1"></i>Cancel Anytime</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="container my-5">
+        <div class="row">
+            <!-- Free Plan -->
+            <div class="col-lg-4 mb-4">
+                <div class="pricing-card h-100">
+                    <div class="text-center mb-4">
+                        <h3><i class="fas fa-seedling me-2"></i>Free</h3>
+                        <div class="price-tag">
+                            <span class="price-currency">₹</span>0
+                            <span class="price-period">/month</span>
+                        </div>
+                        <p class="text-muted">Perfect for getting started</p>
+                    </div>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success me-2"></i>5 Stock Analysis per month</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Basic Technical Indicators</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Daily Price Updates</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Simple Charts</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Email Support</li>
+                        <li><i class="fas fa-times text-muted me-2"></i>Real-time Data</li>
+                        <li><i class="fas fa-times text-muted me-2"></i>Advanced Indicators</li>
+                        <li><i class="fas fa-times text-muted me-2"></i>Portfolio Tracking</li>
+                        <li><i class="fas fa-times text-muted me-2"></i>API Access</li>
+                    </ul>
+                    <button class="btn btn-outline-primary btn-pricing w-100" onclick="selectPlan('free')">
+                        Start Free Trial
+                    </button>
+                </div>
+            </div>
+
+            <!-- Professional Plan -->
+            <div class="col-lg-4 mb-4">
+                <div class="pricing-card h-100 featured position-relative">
+                    <span class="badge-popular">MOST POPULAR</span>
+                    <div class="text-center mb-4">
+                        <h3><i class="fas fa-chart-line me-2"></i>Professional</h3>
+                        <div class="price-tag">
+                            <span class="price-currency">₹</span>999
+                            <span class="price-period">/month</span>
+                        </div>
+                        <p class="text-muted">For serious investors</p>
+                    </div>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success me-2"></i>Unlimited Stock Analysis</li>
+                        <li><i class="fas fa-check text-success me-2"></i>All Technical Indicators</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Real-time Data Streaming</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Interactive Charts</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Portfolio Tracking</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Advanced Analytics</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Priority Support</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Custom Alerts</li>
+                        <li><i class="fas fa-times text-muted me-2"></i>API Access</li>
+                        <li><i class="fas fa-times text-muted me-2"></i>White Label</li>
+                    </ul>
+                    <button class="btn btn-primary btn-pricing w-100" onclick="selectPlan('professional')">
+                        Start 14-Day Trial
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="col-lg-4 mb-4">
+                <div class="pricing-card h-100">
+                    <div class="text-center mb-4">
+                        <h3><i class="fas fa-building me-2"></i>Enterprise</h3>
+                        <div class="price-tag">
+                            <span class="price-currency">₹</span>4,999
+                            <span class="price-period">/month</span>
+                        </div>
+                        <p class="text-muted">For teams and institutions</p>
+                    </div>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success me-2"></i>Everything in Professional</li>
+                        <li><i class="fas fa-check text-success me-2"></i>API Access (100K calls/month)</li>
+                        <li><i class="fas fa-check text-success me-2"></i>White Label Solutions</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Custom Integrations</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Dedicated Account Manager</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Custom Reports</li>
+                        <li><i class="fas fa-check text-success me-2"></i>SLA Guarantee</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Priority Phone Support</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Training Sessions</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Custom Features</li>
+                    </ul>
+                    <button class="btn btn-outline-success btn-pricing w-100" onclick="selectPlan('enterprise')">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Annual Savings -->
+        <div class="row my-5">
+            <div class="col-md-8 mx-auto">
+                <div class="alert alert-success text-center">
+                    <h5><i class="fas fa-piggy-bank me-2"></i>Save 20% with Annual Plans</h5>
+                    <p class="mb-0">Get 2 months free when you choose annual billing. Pay yearly and maximize your savings!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="trust-badges">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h3>Trusted by 10,000+ Investors Across India</h3>
+                <p class="text-muted">Join thousands of successful investors using Stock Predictor</p>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-3 mb-3">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                        <h5>10,000+ Users</h5>
+                        <p class="text-muted small">Active investors</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                        <h5>₹500 Cr+</h5>
+                        <p class="text-muted small">Assets analyzed</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                        <h5>95% Success</h5>
+                        <p class="text-muted small">Prediction accuracy</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <i class="fas fa-star fa-2x text-danger mb-2"></i>
+                        <h5>4.8/5 Rating</h5>
+                        <p class="text-muted small">Customer satisfaction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3>Frequently Asked Questions</h3>
+                <p class="text-muted">Everything you need to know about our pricing</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Can I change my plan anytime?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any differences in pricing.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Is there a money-back guarantee?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Absolutely! We offer a 14-day money-back guarantee for all paid plans. If you're not satisfied, contact us within 14 days for a full refund.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    What payment methods do you accept?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    We accept all major credit cards, debit cards, UPI, net banking, and popular digital wallets. All payments are processed securely through Stripe.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="accordion" id="faqAccordion2">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    Is my data secure?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion2">
+                                <div class="accordion-body">
+                                    Yes, we use bank-level encryption and security measures. Your data is encrypted in transit and at rest, and we never share your personal information with third parties.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    Can I cancel my subscription?
+                                </button>
+                            </h2>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion2">
+                                <div class="accordion-body">
+                                    Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period, and no future charges will be made.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                    Do you offer discounts?
+                                </button>
+                            </h2>
+                            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion2">
+                                <div class="accordion-body">
+                                    Yes! Save 20% with annual billing. We also offer special discounts for students, educational institutions, and bulk corporate licenses.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="container my-5">
+        <div class="text-center">
+            <div class="bg-primary text-white p-5 rounded">
+                <h3 class="mb-3">Ready to Start Your Investment Journey?</h3>
+                <p class="lead mb-4">Join thousands of successful investors using Stock Predictor</p>
+                <button class="btn btn-light btn-lg btn-pricing" onclick="selectPlan('professional')">
+                    <i class="fas fa-rocket me-2"></i>Start Your Free Trial
+                </button>
+                <p class="mt-3 mb-0">
+                    <small>No credit card required for free plan • Cancel anytime • 14-day money-back guarantee</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-chart-line me-2"></i>Stock Predictor</h5>
+                    <p>Professional stock analysis and prediction platform for informed investment decisions.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h6>Legal</h6>
+                    <a href="/terms" class="text-white me-3">Terms of Service</a>
+                    <a href="/privacy" class="text-white">Privacy Policy</a>
+                </div>
+            </div>
+            <hr class="bg-white">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 Stock Predictor. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectPlan(plan) {
+            // In a real application, this would redirect to a payment page
+            if (plan === 'free') {
+                alert('Redirecting to sign up page for Free plan...');
+            } else if (plan === 'professional') {
+                alert('Redirecting to payment page for Professional plan...');
+            } else if (plan === 'enterprise') {
+                alert('Redirecting to contact form for Enterprise plan...');
+            }
+        }
+    </script>
+</body>
+</html>
