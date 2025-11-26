@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np
 import yfinance as yf
+import math
 from datetime import datetime, timedelta
+
+def calculate_normal_cdf(x, mu, sigma):
+    """Calculate Cumulative Distribution Function (CDF) for Normal Distribution"""
+    return 0.5 * (1 + math.erf((x - mu) / (sigma * math.sqrt(2))))
 
 def fetch_historical_data(ticker, period="1y"):
     """Fetch historical data for technical analysis"""
@@ -52,7 +57,88 @@ def calculate_atr(data, period=14):
     atr = true_range.rolling(window=period).mean()
     return atr
 
-def analyze_stock(ticker, current_data=None):
+def calculate_kl_metrics(data, current_price, risk_profile='Medium'):
+    """
+    Calculate KL Trading Logic Metrics (Probabilistic Analysis).
+    Returns dictionary with entry, stop_loss, exit_target, and recommendation.
+    """
+    try:
+        # Calculate daily returns
+        data['Daily_Return'] = data['Close'].pct_change()
+        
+        # Calculate mu (average daily return) and sigma (volatility)
+        # Using last 30 days as per requirement
+        recent_data = data.tail(30)
+        mu = recent_data['Daily_Return'].mean()
+        sigma = recent_data['Daily_Return'].std()
+        
+        if pd.isna(mu) or pd.isna(sigma) or sigma == 0:
+            return None
+            
+        # Define targets to evaluate
+        targets = [0.02, 0.03, 0.04, 0.05] # 2%, 3%, 4%, 5%
+        
+        # Define allowed loss based on risk profile
+        # Low: 1%, Medium: 2%, High: 3% (Adjusted from spreadsheet's fixed 1%)
+        allowed_loss_map = {'Low': 0.01, 'Medium': 0.02, 'High': 0.03, 'Custom': 0.02}
+        allowed_loss = allowed_loss_map.get(risk_profile, 0.02)
+        
+        best_target = 0.03
+        max_expected_return = -float('inf')
+        
+        for target in targets:
+            # P(Target) = 1 - CDF(target) => Probability of reaching target
+            # Assuming normal distribution of returns
+            # We scale target to daily timeframe? No, target is absolute return.
+            # We need probability of reaching target in "typical day"? 
+            # The spreadsheet says "P(Target) ... on a typical day".
+            # This implies P(Daily_Return >= Target).
+            
+            p_target = 1 - calculate_normal_cdf(target, mu, sigma)
+            
+            # P(Loss) = CDF(-allowed_loss) => Probability of falling below loss limit
+            p_loss = calculate_normal_cdf(-allowed_loss, mu, sigma)
+            
+            # Expected Return formula from spreadsheet
+            expected_return = (p_target * target) - (p_loss * allowed_loss)
+            
+            if expected_return > max_expected_return:
+                max_expected_return = expected_return
+                best_target = target
+                
+        # Recommendation
+        recommendation = "BUY" if max_expected_return > 0 else "HOLD" # Spreadsheet says YES/NO
+        
+        # Suggested Entry: current * (1 - entryZ * sigma)
+        # entryZ is 0.5 in example
+        entry_z = 0.5
+        suggested_entry = current_price * (1 - (entry_z * sigma))
+        
+        # Stop Loss: 1% below suggested entry (or allowed_loss below?)
+        # Spreadsheet says "1% below suggested entry" AND "your allowed loss".
+        # Let's use the allowed_loss parameter to make it dynamic as requested.
+        stop_loss = suggested_entry * (1 - allowed_loss)
+        
+        # Exit Price: Entry * (1 + best_target)
+        exit_price = suggested_entry * (1 + best_target)
+        
+        return {
+            'mu': mu,
+            'sigma': sigma,
+            'best_target_pct': best_target,
+            'expected_return': max_expected_return,
+            'recommendation': recommendation,
+            'suggested_entry': suggested_entry,
+            'stop_loss': stop_loss,
+            'exit_price': exit_price,
+            'risk_profile': risk_profile
+        }
+        
+    except Exception as e:
+        print(f"Error calculating KL metrics: {e}")
+        return None
+
+def analyze_stock(ticker, current_data=None, risk_profile='Medium'):
     """
     Perform comprehensive technical analysis on a stock.
     Returns a dictionary with indicators and signals.
@@ -148,6 +234,24 @@ def analyze_stock(ticker, current_data=None):
         # Calculate Confidence
         confidence = min(95, 50 + abs(signal_score) / 2)
         
+        # --- KL Logic Integration ---
+        kl_metrics = calculate_kl_metrics(hist, current_price, risk_profile)
+        
+        # Merge KL logic if available
+        kl_recommendation = "HOLD"
+        kl_entry = current_price
+        kl_stop = current_price * 0.95
+        kl_exit = current_price * 1.05
+        
+        if kl_metrics:
+            kl_recommendation = kl_metrics['recommendation']
+            kl_entry = kl_metrics['suggested_entry']
+            kl_stop = kl_metrics['stop_loss']
+            kl_exit = kl_metrics['exit_price']
+            
+            # If KL says BUY, boost the signal score slightly?
+            # Or just return the KL specific values for Entry/Exit
+            
         return {
             'ticker': ticker,
             'current_price': current_price,
@@ -165,7 +269,12 @@ def analyze_stock(ticker, current_data=None):
             'signal': signal,
             'signal_score': signal_score,
             'signal_factors': factors,
-            'confidence': round(confidence, 1)
+            'confidence': round(confidence, 1),
+            # KL Metrics
+            'kl_recommendation': kl_recommendation,
+            'kl_entry': round(kl_entry, 2),
+            'kl_stop': round(kl_stop, 2),
+            'kl_exit': round(kl_exit, 2)
         }
         
     except Exception as e:

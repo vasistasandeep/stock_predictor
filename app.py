@@ -349,7 +349,7 @@ def get_stock_data(ticker, risk_appetite):
             
             # --- ENHANCED ANALYSIS START ---
             # Perform technical analysis using the new module
-            tech_analysis = analyze_stock(ticker)
+            tech_analysis = analyze_stock(ticker, risk_profile=risk_appetite)
             
             if tech_analysis:
                 print(f"✅ Enhanced analysis successful for {ticker}")
@@ -370,6 +370,22 @@ def get_stock_data(ticker, risk_appetite):
                 
                 # Construct reason from factors
                 reason = ". ".join(factors[:2]) # Top 2 factors
+                # Use KL Logic values
+                kl_entry = tech_analysis.get('kl_entry', current_price)
+                kl_stop = tech_analysis.get('kl_stop', stop_loss)
+                kl_exit = tech_analysis.get('kl_exit', current_price * 1.05)
+                
+                # Override with KL values if available
+                entry_price = kl_entry
+                stop_loss = kl_stop
+                exit_price = kl_exit
+                target_profit = exit_price - entry_price
+                
+                # Recalculate risk reward
+                risk = entry_price - stop_loss
+                reward = exit_price - entry_price
+                risk_reward_ratio = reward / risk if risk > 0 else 0
+                
             else:
                 print(f"⚠️ Enhanced analysis failed for {ticker}, using fallback")
                 # Fallback logic
@@ -379,19 +395,16 @@ def get_stock_data(ticker, risk_appetite):
                 signal_score = 0
                 ma20 = ma50 = ma200 = atr = macd = macd_signal = volume_ratio = None
                 reason = "Insufficient historical data"
-            # --- ENHANCED ANALYSIS END ---
-            
-            risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10}
-            stop_loss_pct = risk_multipliers.get(risk_appetite, 0.05)
-            
-            # Use ATR for stop loss if available (Enhanced Risk Management)
-            if atr and current_price > 0:
-                atr_stop = current_price - (2 * atr)
-                pct_stop = current_price * (1 - stop_loss_pct)
-                # Use the more conservative (higher) stop loss
-                stop_loss = max(atr_stop, pct_stop)
-            else:
+                
+                # Fallback risk calculation
+                risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10}
+                stop_loss_pct = risk_multipliers.get(risk_appetite, 0.05)
                 stop_loss = current_price * (1 - stop_loss_pct)
+                entry_price = current_price
+                exit_price = current_price + (3 * (current_price - stop_loss))
+                target_profit = exit_price - entry_price
+                risk_reward_ratio = 3.0
+            # --- ENHANCED ANALYSIS END ---
             
             analysis_summary = f"Technical indicators suggest {signal} (Score: {signal_score}). {reason}. Consider stop-loss at ₹{stop_loss:.2f}."
             
@@ -424,12 +437,12 @@ def get_stock_data(ticker, risk_appetite):
                 # Trading prediction fields
                 'signal': signal,
                 'signal_score': signal_score,
-                'entry_price': current_price,
-                'exit_price': current_price + (3 * (current_price - stop_loss)), # 3:1 Risk Reward
+                'entry_price': entry_price,
+                'exit_price': exit_price,
                 'stop_loss': stop_loss,
                 'confidence': confidence,
-                'target_profit': (current_price + (3 * (current_price - stop_loss))) - current_price,
-                'risk_reward_ratio': 3.0,
+                'target_profit': target_profit,
+                'risk_reward_ratio': round(risk_reward_ratio, 2),
                 'time_horizon': '1-2 weeks',
                 'macd': macd,
                 'macd_signal': macd_signal,
