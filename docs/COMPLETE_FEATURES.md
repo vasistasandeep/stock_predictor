@@ -1,319 +1,91 @@
-# Stock Predictor - Complete Feature Documentation
-**Last Updated:** November 27, 2025
+# 🚀 Stock Predictor - Complete Feature Documentation
 
-## 🎯 Overview
-Stock Predictor is a tiered stock analysis platform providing comprehensive insights for Indian stocks with both free and premium features.
+## 1. 🔐 Tiered Access System
 
----
+### Free Access (No Login)
+*   **Top 20 Nifty 200 Stocks**: Real-time ranking based on market cap.
+*   **Trading Predictions**: Buy/Sell/Hold signals for top stocks.
+*   **Basic Technical Indicators**: RSI, SMA, ATR values.
+*   **Stock Search**: Search for any NIFTY stock.
+*   **Educational Tooltips**: Learn trading terms on hover.
 
-## 🔐 Access Control System
-
-### Free Features (No Login Required)
-- ✅ **Top 20 Nifty 200 Stocks** - Real-time market cap ranking
-- ✅ **Trading Prediction** - Buy/Sell/Hold signals
-- ✅ **Technical Indicators** - RSI, SMA, ATR, MACD, Volume Ratio
-- ✅ **Stock Search** - Real-time search by name or symbol
-- ✅ **Advanced Filtering** - Signal, Sector, Market Cap filters
-- ✅ **Sorting Options** - Sort by Name, Signal, Confidence, Entry/Exit/Stop-Loss
-- ✅ **Basic Chart Visualization** - Price history charts
-
-### Premium Features (Login Required)
-- 🔒 **Quick Stock Analysis** - Advanced analysis form with risk settings
-- 🔒 **Market Insights & Analysis** - News, Sentiment, Analyst Recommendations
-- 🔒 **Analysis Summary** - Comprehensive AI-powered summaries
-- 🔒 **AI Trading Assistant** - Chatbot for trading guidance
-- 🔒 **Export to CSV** - Download analysis results
-- 🔒 **Advanced Charts** - Enhanced charting features
-
-### Login Credentials (Demo)
-```
-Username: admin
-Password: password
-```
-
-> **Security Note:** For production, implement proper authentication with secure password hashing, environment variables for secrets, and user management system.
+### Enhanced Access (Login Required)
+*   **Quick Stock Analysis**: Detailed analysis for any specific stock.
+*   **Market Insights**: News, Analyst Recommendations, and Sentiment.
+*   **Analysis Summary**: AI-powered summary of the stock's potential.
+*   **Investment Style Selection**: Choose between Conservative, Balanced, and Aggressive risk profiles.
+*   **AI Trading Assistant**: Interactive chatbot for trading queries.
+*   **Export Functionality**: Download analysis data as CSV.
 
 ---
 
-## 🎨 User Interface Features
+## 2. 🤖 AI Trading Chatbot (New!)
 
-### Navigation Bar
-- **Dashboard Link** - Home page access
-- **Enhanced Analysis Link** - Visible only when logged in, jumps to Quick Stock Analysis
-- **Login/Logout Buttons** - Dynamic display based on auth status
-- **AI Assistant Link** - Login-protected, visible only for authenticated users
-- **Help Button** - Opens onboarding modal
-
-### Premium Indicators
-All premium sections display consistent badges:
-```html
-<span class="badge bg-warning text-dark ms-2">
-    <i class="fas fa-lock"></i> Premium
-</span>
-```
-
-### Login CTA Footer
-- **Visibility**: Shows only when user is NOT logged in
-- **Content**: "Login to Enjoy Enhanced Analysis" with prominent button
-- **Behavior**: Automatically hidden when user logs in
-- **Action**: Opens login modal on button click
-
-### Footer Quick Links
-- Vertically aligned with icons
-- Links: About Us, Blogs, Help Center, Contact Us
-- Icons for better visual hierarchy
-- No text decoration for clean look
+### Intelligent Features
+*   **Intent Detection**: Automatically understands if you want:
+    *   **Price Check**: "Price of Reliance"
+    *   **Full Analysis**: "Analyze TCS", "Should I buy INFY?"
+    *   **Stop-Loss Advice**: "Stop loss for SBIN"
+    *   **Definitions**: "What is RSI?", "Explain MACD"
+*   **Real-Time Data Integration**: Fetches live market data to answer your queries.
+*   **Smart Symbol Mapping**: Recognizes company names (e.g., "Maruti") and maps them to NSE symbols (`MARUTI.NS`).
+*   **Rich UI**: Displays stock cards and analysis summaries directly in the chat.
+*   **Voice Support**: Voice-to-text input for hands-free querying.
 
 ---
 
-## 🔍 Filtering & Sorting System
+## 3. 🔍 Smart Filtering & Sorting
 
-### Filter Options
-
-#### 1. Search Bar
-- **Type**: Text input
-- **Functionality**: Real-time search by stock name or symbol
-- **Behavior**: Filters as you type
-
-#### 2. Signal Filter
-- **Type**: Dropdown
-- **Options**: Auto-populated from analysis results
-  - All Signals
-  - BUY
-  - SELL
-  - HOLD
-- **Behavior**: Dynamically populated after data fetch
-
-#### 3. Sector Filter
-- **Type**: Dropdown
-- **Options**: Auto-populated from actual stock data
-  - All Sectors
-  - Technology
-  - Financial Services
-  - Energy
-  - Healthcare
-  - Consumer Goods
-  - (and more based on available stocks)
-- **Behavior**: Extracted from `allStockDetails` via `populateFilterDropdowns()`
-
-#### 4. Market Cap Filter
-- **Type**: Dropdown
-- **Options**:
-  - All
-  - Large Cap (₹20,000+ Cr)
-  - Mid Cap (₹5,000-20,000 Cr)
-  - Small Cap (<₹5,000 Cr)
-- **Behavior**: Filters based on `market_cap_category` field
-
-#### 5. Sort By
-- **Type**: Dropdown
-- **Options**:
-  - Name (A-Z) - Alphabetical sorting
-  - Signal - BUY → HOLD → SELL order
-  - Confidence % - Highest confidence first (descending)
-  - Entry Price - Lowest to highest
-  - Exit Price - Lowest to highest
-  - Stop-Loss - Lowest to highest
-- **Behavior**: Sorts filtered results in real-time
-
-### Filter Implementation
-```javascript
-// Filters are applied via applyFilters() function
-// Called on: filter change, search input, sort change
-// Process: Filter → Sort → Display
-```
+### Advanced Filters
+*   **Signal Type**: Filter stocks by BUY, SELL, or HOLD signals.
+*   **Sector**: Auto-populated filter based on the sectors of available stocks.
+*   **Market Cap**: Filter by Large Cap (>₹20k Cr), Mid Cap (₹5k-20k Cr), and Small Cap (<₹5k Cr).
+*   **Sort By**:
+    *   **Name**: Alphabetical order.
+    *   **Signal**: Buy -> Hold -> Sell.
+    *   **Confidence**: Highest confidence first.
+    *   **Entry/Exit/Stop-Loss**: Sort by price levels.
 
 ---
 
-## 📊 Technical Indicators
+## 4. 📊 Technical Analysis Engine
 
-### Available Indicators
-1. **RSI (Relative Strength Index)**
-   - Range: 0-100
-   - Oversold: < 30 (Buy signal)
-   - Overbought: > 70 (Sell signal)
+### Indicators Used
+*   **SMA (Simple Moving Average)**: 50-day and 200-day averages for trend detection.
+*   **RSI (Relative Strength Index)**: Momentum indicator (Overbought > 70, Oversold < 30).
+*   **ATR (Average True Range)**: Volatility measure for dynamic stop-loss calculation.
+*   **MACD**: Trend-following momentum indicator.
 
-2. **SMA (Simple Moving Average)**
-   - SMA 20: Short-term trend
-   - SMA 50: Medium-term trend
-   - Golden Cross: SMA 50 > SMA 200 (Bullish)
-   - Death Cross: SMA 50 < SMA 200 (Bearish)
-
-3. **ATR (Average True Range)**
-   - Measures volatility
-   - Higher ATR = More volatile
-   - Used for stop-loss calculations
-
-4. **MACD (Moving Average Convergence Divergence)**
-   - MACD Line
-   - Signal Line
-   - Crossovers indicate buy/sell signals
-
-5. **Volume Ratio**
-   - Current volume vs average
-   - > 1.5 indicates high activity
+### Signal Logic
+*   **BUY**: Price > SMA200 AND RSI < 30 (Oversold) AND Golden Cross (SMA50 > SMA200).
+*   **SELL**: Price < SMA200 AND RSI > 70 (Overbought) AND Death Cross (SMA50 < SMA200).
+*   **HOLD**: Mixed signals or neutral RSI (30-70).
 
 ---
 
-## 🎯 Risk Management
+## 5. 🎨 UI/UX Enhancements
 
-### Risk Levels (Quick Stock Analysis Only)
-- **Low Risk**: Conservative, 2% stop-loss
-- **Medium Risk**: Balanced, 5% stop-loss
-- **High Risk**: Aggressive, 10% stop-loss
-- **Custom**: User-defined stop-loss and exit targets
-
-> **Note:** Risk level is NOT a filter - it's a parameter for analysis calculations.
+*   **Consistent Premium Badging**: Gold "Premium" badges on all locked features.
+*   **Dynamic Login CTA**: Footer CTA that disappears when logged in.
+*   **Responsive Design**: Fully optimized for mobile and desktop.
+*   **Clean Layout**: Removed clutter (testimonials, duplicate filters) for a professional look.
+*   **Interactive Charts**: Chart.js integration for visualizing price trends.
 
 ---
 
-## 🔄 Data Flow
+## 6. 🛠️ Technical Stack
 
-### Stock Data Loading
-```
-1. Page Load → fetchStockData()
-2. GET /get_top_20_stocks
-3. Receive stock data + details
-4. Store in allStocks, allStockDetails
-5. Populate filters via populateFilterDropdowns()
-6. Display stocks via updateStockDisplay()
-```
-
-### Filter Application
-```
-1. User changes filter/sort
-2. applyFilters() triggered
-3. Filter allStocks based on criteria
-4. Sort filteredStocks by selected option
-5. updateFilteredDisplay() renders results
-```
-
-### Authentication Flow
-```
-1. User clicks Login
-2. Modal opens with credentials hint
-3. Submit form → POST /login
-4. Server validates → creates session
-5. Response → isLoggedIn = true
-6. updateAuthUI() called
-7. Show enhanced sections, hide login CTA
-```
+*   **Backend**: Flask (Python)
+*   **Data**: Yahoo Finance API (`yfinance`), NSE Data
+*   **Frontend**: Bootstrap 5, Vanilla JS, Chart.js
+*   **Analysis**: Pandas, NumPy, TA-Lib (optional/custom implementation)
+*   **Deployment**: Ready for Vercel/Render
 
 ---
 
-## 📱 Responsive Design
+## 7. 🔮 Future Roadmap
 
-### Breakpoints
-- **Mobile**: < 768px
-- **Tablet**: 768px - 1024px
-- **Desktop**: > 1024px
-
-### Mobile Optimizations
-- Stacked filter layout
-- Touch-friendly buttons
-- Collapsible sections
-- Optimized font sizes
-
----
-
-## 🚀 Performance Features
-
-### Data Optimization
-- Background data fetching
-- Efficient caching
-- Minimal re-renders
-- Lazy loading for charts
-
-### User Experience
-- Loading states for all async operations
-- Real-time notifications
-- Smooth transitions
-- Error handling with user-friendly messages
-
----
-
-## 🔧 Technical Stack
-
-### Backend
-- **Framework**: Flask (Python)
-- **Data Source**: Yahoo Finance API (yfinance)
-- **Analysis**: TA-Lib, Pandas, NumPy
-- **Session Management**: Flask sessions
-
-### Frontend
-- **Framework**: Bootstrap 5
-- **Charts**: Chart.js
-- **Icons**: Font Awesome
-- **JavaScript**: Vanilla JS (ES6+)
-
----
-
-## 📝 Key Files
-
-### Backend
-- `app.py` - Main Flask application
-- `technical_analysis.py` - Analysis engine
-- `multi_source_data.py` - Data fetching
-
-### Frontend
-- `templates/index.html` - Main dashboard
-- `static/js/script_working.js` - Frontend logic
-- `static/css/style.css` - Custom styles
-
-### Documentation
-- `README.md` - Main documentation
-- `docs/LOGIN_GUIDE.md` - Login system guide
-- `docs/Product_Requirements_Document.md` - PRD
-
----
-
-## 🐛 Known Limitations
-
-1. **Demo Authentication**: Hardcoded credentials (admin/password)
-2. **Session Persistence**: Sessions expire on browser close
-3. **Data Refresh**: Manual refresh required for latest data
-4. **API Rate Limits**: Yahoo Finance may throttle requests
-
----
-
-## 🔮 Future Enhancements
-
-### Planned Features
-- [ ] User registration and management
-- [ ] Persistent user preferences
-- [ ] Watchlist functionality
-- [ ] Price alerts
-- [ ] Portfolio tracking
-- [ ] Historical performance analysis
-- [ ] Multi-language support
-- [ ] Dark mode
-- [ ] PWA capabilities
-
-### Security Improvements
-- [ ] Environment variable for secret key
-- [ ] Password hashing (bcrypt/argon2)
-- [ ] CSRF protection
-- [ ] Rate limiting
-- [ ] Secure cookie flags
-- [ ] Session timeout
-- [ ] Email verification
-
----
-
-## 📞 Support
-
-### Getting Help
-- **GitHub Issues**: Report bugs and request features
-- **Documentation**: Check README.md and this guide
-- **Login Guide**: See docs/LOGIN_GUIDE.md
-
-### Contributing
-1. Fork the repository
-2. Create feature branch
-3. Make changes
-4. Test thoroughly
-5. Submit pull request
-
----
-
-**Built with ❤️ for the Indian trading community**
+*   **User Accounts**: Real database for user registration (currently demo admin/password).
+*   **Portfolio Tracking**: Save analyzed stocks to a personal portfolio.
+*   **Alerts**: Email/SMS alerts for price targets.
+*   **More Indicators**: Bollinger Bands, Stochastic Oscillator.

@@ -49,7 +49,8 @@ A **tiered stock analysis platform** that provides comprehensive insights for In
 ### 🎨 **Enhanced UI/UX Design**
 - **Dynamic Login CTA**: Prominent login footer (hidden when logged in)
 - **Enhanced Navigation**: "Enhanced Analysis" link in navbar for logged-in users
-- **AI Assistant Access**: Login-protected AI trading assistant
+- **AI Assistant Access**: Login-protected intelligent trading chatbot
+- **Premium Badges**: Consistent visual indicators for premium features
 - **Premium Badges**: Consistent visual indicators for premium features
 - **Clean Hyperlinks**: All links without underlines for modern appearance
 - **Text Rendering Fixes**: Eliminated text artifacts and rendering issues
@@ -74,11 +75,18 @@ A **tiered stock analysis platform** that provides comprehensive insights for In
 
 ### 🔍 **Smart Filtering & Sorting System**
 - **Signal Type Filter**: Filter by Buy/Sell/Hold signals (auto-populated from analysis)
-- **Sector Classification**: Auto-populated from actual stock data (Technology, Banking, FMCG, Pharma, Auto, etc.)
+- **Sector Classification**: Auto-populated from actual stock data
 - **Market Cap Filtering**: Large Cap (₹20,000+ Cr), Mid Cap (₹5,000-20,000 Cr), Small Cap (<₹5,000 Cr)
 - **Advanced Sorting**: Sort by Name, Signal, Confidence %, Entry Price, Exit Price, Stop-Loss
 - **Real-time Search**: Instant stock search by name or symbol
 - **Bulk Analysis**: Analyze all stocks with one click
+
+### 🤖 **AI Trading Chatbot**
+- **Intelligent Intent Detection**: Understands queries about Price, Analysis, Stop-Loss, and Definitions
+- **Real-Time Data**: Fetches live stock data for answers
+- **Knowledge Base**: Explains trading terms (RSI, MACD, etc.)
+- **Smart Mapping**: Maps company names to NSE symbols automatically
+- **Voice Support**: Voice-to-text input for queries
 
 ### 💡 **User Experience**
 - **Professional UI**: Modern gradient design with responsive layout
@@ -468,18 +476,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: Check this README for detailed information
 - **Community**: Fork, modify, and improve the project
 
-### 📧 **Developer Contact**
-- **GitHub**: [Vasista Sandeep](https://github.com/vasistasandeep)
-- **Project Repository**: https://github.com/vasistasandeep/stock_predictor
-
-### 🔄 **Version History**
-- **🚀 v4.0 (Latest)**: **Real-Time Data Integration Complete**
-  - ✅ Live Yahoo Finance API integration with 160+ NIFTY stocks
-  - ✅ Real-time market cap, prices, volume, P/E ratios, dividend yields
-  - ✅ Stock-specific news generation based on performance
-  - ✅ Comprehensive market sentiment analysis
-  - ✅ Fixed JSON NaN errors for browser compatibility
-  - ✅ Background data fetching with instant UI startup
   - ✅ Production-ready for Vercel deployment
 - **v3.0**: Complete website structure, new pages (About, Blogs, Contact), UI fixes, text rendering improvements
 - **v2.0**: Educational UI, chart filtering, enhanced tooltips

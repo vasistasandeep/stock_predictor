@@ -599,17 +599,17 @@ function updateFilteredDisplay() {
 
         let signalBadge = '';
         if (signal && signal.signal) {
-            signalBadge = `<span class="badge bg-${signal.signal_color || 'secondary'} me-2">${signal.signal}</span>`;
+            signalBadge = `<span class="badge bg-${signal.signal_color || 'secondary'} me-2" data-bs-toggle="tooltip" title="Signal: ${signal.signal} - Recommendation based on technical analysis">${signal.signal}</span>`;
         }
 
         let sectorBadge = '';
         if (stockDetail && stockDetail.sector && stockDetail.sector !== 'Unknown') {
-            sectorBadge = `<span class="badge bg-info me-2">${stockDetail.sector}</span>`;
+            sectorBadge = `<span class="badge bg-info me-2" data-bs-toggle="tooltip" title="Sector: ${stockDetail.sector}">${stockDetail.sector}</span>`;
         }
 
         let marketCapBadge = '';
         if (stockDetail && stockDetail.market_cap_category && stockDetail.market_cap_category !== 'Unknown') {
-            marketCapBadge = `<span class="badge bg-secondary me-2">${stockDetail.market_cap_category}</span>`;
+            marketCapBadge = `<span class="badge bg-secondary me-2" data-bs-toggle="tooltip" title="Market Cap: ${stockDetail.market_cap_category}">${stockDetail.market_cap_category}</span>`;
         }
 
         li.innerHTML = `
@@ -646,6 +646,9 @@ function updateFilteredDisplay() {
     if (countBadge) {
         countBadge.textContent = filteredStocks.length;
     }
+
+    // Re-initialize tooltips for new elements
+    initTooltips();
 }
 
 function updateStockDisplay(data) {
