@@ -706,176 +706,139 @@ def get_stock_data(ticker, risk_appetite):
         # Use multi-source data fetching
         stock_data = get_stock_data_multi_source(ticker, source=source, timeout=10)
         
+        # Always try to run enhanced trading logic, even if data sources fail
+        current_price = 0
+        actual_source = "multi-source-emergency-fallback"
+        
         if stock_data:
             data = stock_data['data']
             actual_source = stock_data['source']
-            
-            # Generate analysis summary
             current_price = data.get('current_price', 0)
+        
+        # Calculate comprehensive technical indicators using direct Yahoo Finance
+        try:
+            # Get historical data for technical indicators
+            stock = yf.Ticker(ticker)
+            hist = stock.history(period="60d", interval="1d")
             
-            # Calculate comprehensive technical indicators
-            try:
-                # Get historical data for technical indicators
-                stock = yf.Ticker(ticker)
-                hist = stock.history(period="60d", interval="1d")
+            if not hist.empty and len(hist) >= 50:
+                # Use current price from historical data if data source failed
+                if current_price == 0:
+                    current_price = hist['Close'].iloc[-1]
                 
-                if not hist.empty and len(hist) >= 50:
-                    # Calculate moving averages
-                    hist['MA20'] = hist['Close'].rolling(window=20).mean()
-                    hist['MA50'] = hist['Close'].rolling(window=50).mean()
-                    hist['MA200'] = hist['Close'].rolling(window=200).mean()
-                    
-                    # Calculate RSI (14-period)
-                    delta = hist['Close'].diff()
-                    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-                    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-                    rs = gain / loss.replace(0, 1)
-                    rsi = 100 - (100 / (1 + rs))
-                    rsi = rsi.iloc[-1] if not rsi.empty else 50.0
-                    
-                    # Calculate ATR (14-period)
-                    high_low = hist['High'] - hist['Low']
-                    high_close = abs(hist['High'] - hist['Close'].shift())
-                    low_close = abs(hist['Low'] - hist['Close'].shift())
-                    true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
-                    atr = true_range.rolling(window=14).mean().iloc[-1] if not true_range.empty else 0.0
-                    
-                    # Calculate MACD
-                    exp12 = hist['Close'].ewm(span=12, adjust=False).mean()
-                    exp26 = hist['Close'].ewm(span=26, adjust=False).mean()
-                    macd = exp12 - exp26
-                    signal_line = macd.ewm(span=9, adjust=False).mean()
+                # Calculate moving averages
+                hist['MA20'] = hist['Close'].rolling(window=20).mean()
+                hist['MA50'] = hist['Close'].rolling(window=50).mean()
+                hist['MA200'] = hist['Close'].rolling(window=200).mean()
+                
+                # RSI calculation
+                delta = hist['Close'].diff()
+                gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+                loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+                rs = gain / loss.replace(0, 1)
+                rsi = 100 - (100 / (1 + rs))
+                current_rsi = rsi.iloc[-1]
+                
+                # ATR calculation
+                high_low = hist['High'] - hist['Low']
+                high_close = abs(hist['High'] - hist['Close'].shift())
+                low_close = abs(hist['Low'] - hist['Close'].shift())
+                true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+                atr = true_range.rolling(window=14).mean().iloc[-1]
+                
+                # Volume analysis
+                avg_volume = hist['Volume'].rolling(window=20).mean().iloc[-1]
+                current_volume = hist['Volume'].iloc[-1]
+                volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1
+                
+                # Enhanced signal generation
+                signal_score = 0
+                signal_factors = []
+                
+                # RSI scoring (40% weight)
+                if current_rsi < 30:
+                    signal_score += 40
+                    signal_factors.append("RSI oversold")
+                elif current_rsi > 70:
+                    signal_score -= 40
+                    signal_factors.append("RSI overbought")
+                elif 30 <= current_rsi <= 50:
+                    signal_score += 10
+                    signal_factors.append("RSI bullish")
+                elif 50 < current_rsi <= 70:
+                    signal_score -= 10
+                    signal_factors.append("RSI bearish")
+                
+                # Moving averages scoring (25% weight)
+                if current_price > hist['MA20'].iloc[-1] > hist['MA50'].iloc[-1]:
+                    signal_score += 25
+                    signal_factors.append("Uptrend (MA20 > MA50)")
+                elif current_price < hist['MA20'].iloc[-1] < hist['MA50'].iloc[-1]:
+                    signal_score -= 25
+                    signal_factors.append("Downtrend (MA20 < MA50)")
+                
+                # Volume confirmation (10% weight)
+                if volume_ratio > 1.5:
+                    signal_score += 10
+                    signal_factors.append("High volume confirmation")
+                elif volume_ratio < 0.5:
+                    signal_score -= 10
+                    signal_factors.append("Low volume warning")
+                
+                # ATR volatility adjustment (5% weight)
+                if atr > 0:
+                    price_atr_ratio = (atr / current_price) * 100
+                    if price_atr_ratio < 2:
+                        signal_score += 5
+                        signal_factors.append("Low volatility")
+                    elif price_atr_ratio > 5:
+                        signal_score -= 5
+                        signal_factors.append("High volatility")
+                
+                # MACD scoring (20% weight)
+                try:
+                    exp1 = hist['Close'].ewm(span=12).mean()
+                    exp2 = hist['Close'].ewm(span=26).mean()
+                    macd = exp1 - exp2
+                    signal_line = macd.ewm(span=9).mean()
                     macd_histogram = macd - signal_line
                     
-                    # Volume analysis
-                    avg_volume = hist['Volume'].rolling(window=20).mean().iloc[-1]
-                    current_volume = hist['Volume'].iloc[-1]
-                    volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
-                    
-                    # Get current values
-                    current_price = hist['Close'].iloc[-1]
-                    ma20 = hist['MA20'].iloc[-1] if not hist['MA20'].empty else None
-                    ma50 = hist['MA50'].iloc[-1] if not hist['MA50'].empty else None
-                    ma200 = hist['MA200'].iloc[-1] if len(hist) >= 200 and not hist['MA200'].empty else None
-                    
-                    # Recent high/low for support/resistance
-                    recent_high = hist['High'][-20:].max()
-                    recent_low = hist['Low'][-20:].min()
-                    
-                    # MACD values
-                    macd_current = macd.iloc[-1] if not macd.empty else 0
-                    macd_signal = signal_line.iloc[-1] if not signal_line.empty else 0
-                    macd_hist = macd_histogram.iloc[-1] if not macd_histogram.empty else 0
-                    
-                    print(f"📊 Enhanced Technical Analysis:")
-                    print(f"   RSI: {rsi:.2f}, MACD: {macd_current:.4f}, Signal: {macd_signal:.4f}")
-                    print(f"   MA20: {ma20:.2f}, MA50: {ma50:.2f}, MA200: {ma200:.2f if ma200 else 'N/A'}")
-                    print(f"   Volume Ratio: {volume_ratio:.2f}, ATR: {atr:.2f}")
-                    
+                    if macd.iloc[-1] > signal_line.iloc[-1] and macd_histogram.iloc[-1] > 0:
+                        signal_score += 20
+                        signal_factors.append("MACD bullish")
+                    elif macd.iloc[-1] < signal_line.iloc[-1] and macd_histogram.iloc[-1] < 0:
+                        signal_score -= 20
+                        signal_factors.append("MACD bearish")
+                except:
+                    signal_factors.append("MACD unavailable")
+                
+                # Generate signal based on score
+                if signal_score >= 60:
+                    signal = "STRONG_BUY"
+                    signal_color = "success"
+                    confidence = min(95, 70 + (signal_score - 60) // 4)
+                elif signal_score >= 20:
+                    signal = "BUY"
+                    signal_color = "success"
+                    confidence = min(85, 60 + (signal_score - 20) // 2)
+                elif signal_score <= -60:
+                    signal = "STRONG_SELL"
+                    signal_color = "danger"
+                    confidence = min(95, 70 + (-signal_score - 60) // 4)
+                elif signal_score <= -20:
+                    signal = "SELL"
+                    signal_color = "danger"
+                    confidence = min(85, 60 + (-signal_score - 20) // 2)
                 else:
-                    # Fallback values
-                    print("⚠️ Insufficient historical data, using fallback values")
-                    rsi = 50.0
-                    ma20 = current_price * 0.98
-                    ma50 = current_price * 0.95
-                    ma200 = None
-                    atr = current_price * 0.02
-                    volume_ratio = 1.0
-                    macd_current = 0
-                    macd_signal = 0
-                    macd_hist = 0
-                    recent_high = current_price * 1.05
-                    recent_low = current_price * 0.95
-                    
-            except Exception as e:
-                print(f"⚠️ Enhanced technical indicators calculation failed: {e}")
-                # Fallback values
-                rsi = 50.0
-                ma20 = current_price * 0.98
-                ma50 = current_price * 0.95
-                ma200 = None
-                atr = current_price * 0.02
-                volume_ratio = 1.0
-                macd_current = 0
-                macd_signal = 0
-                macd_hist = 0
-                recent_high = current_price * 1.05
-                recent_low = current_price * 0.95
-            
-            # Enhanced signal generation based on comprehensive analysis
-            print(f"📊 RSI Calculation Result: {rsi:.2f}")
-            
-            # Initialize signal score
-            signal_score = 0
-            signal_factors = []
-            
-            # RSI Analysis (40% weight)
-            if rsi < 30:
-                signal_score += 40
-                signal_factors.append(f"RSI ({rsi:.1f}) oversold")
-            elif rsi > 70:
-                signal_score -= 40
-                signal_factors.append(f"RSI ({rsi:.1f}) overbought")
-            elif 30 <= rsi <= 50:
-                signal_score += 10
-                signal_factors.append(f"RSI ({rsi:.1f}) bullish zone")
-            elif 50 < rsi <= 70:
-                signal_score -= 10
-                signal_factors.append(f"RSI ({rsi:.1f}) bearish zone")
-            
-            # Moving Average Analysis (25% weight)
-            if ma20 and ma50:
-                if current_price > ma20 > ma50:
-                    signal_score += 25
-                    signal_factors.append("Price above MAs (bullish trend)")
-                elif current_price < ma20 < ma50:
-                    signal_score -= 25
-                    signal_factors.append("Price below MAs (bearish trend)")
-                elif ma20 < current_price < ma50:
-                    signal_score += 5
-                    signal_factors.append("Price between MAs (consolidating)")
-            
-            # MACD Analysis (20% weight)
-            if macd_current > macd_signal and macd_hist > 0:
-                signal_score += 20
-                signal_factors.append("MACD bullish crossover")
-            elif macd_current < macd_signal and macd_hist < 0:
-                signal_score -= 20
-                signal_factors.append("MACD bearish crossover")
-            
-            # Volume Analysis (10% weight)
-            if volume_ratio > 1.5:
-                signal_score += 10
-                signal_factors.append(f"High volume ({volume_ratio:.1f}x avg)")
-            elif volume_ratio < 0.7:
-                signal_score -= 5
-                signal_factors.append(f"Low volume ({volume_ratio:.1f}x avg)")
-            
-            # ATR Volatility Analysis (5% weight)
-            if atr > 0 and (atr / current_price) > 0.03:  # High volatility > 3%
-                signal_score -= 5
-                signal_factors.append("High volatility (risk)")
-            elif atr > 0 and (atr / current_price) < 0.01:  # Low volatility < 1%
-                signal_score += 5
-                signal_factors.append("Low volatility (stable)")
-            
-            # Generate final signal based on score
-            if signal_score >= 60:
-                signal = "STRONG_BUY"
-                signal_color = "success"
-                confidence = min(95, 70 + signal_score // 10)
-                reason = f"Strong bullish signal: {', '.join(signal_factors[:3])}"
-            elif signal_score >= 20:
-                signal = "BUY"
-                signal_color = "success"
-                confidence = min(85, 60 + signal_score // 10)
-                reason = f"Bullish signal: {', '.join(signal_factors[:2])}"
-            elif signal_score <= -60:
-                signal = "STRONG_SELL"
-                signal_color = "danger"
-                confidence = min(95, 70 + abs(signal_score) // 10)
-                reason = f"Strong bearish signal: {', '.join(signal_factors[:3])}"
-            elif signal_score <= -20:
+                    signal = "HOLD"
+                    signal_color = "warning"
+                    confidence = 70
+                
+                # Enhanced risk management
+                recent_low = hist['Low'][-20:].min()
+                recent_high = hist['High'][-20:].max()
+                
+                # ATR-based stop loss
                 signal = "SELL"
                 signal_color = "danger"
                 confidence = min(85, 60 + abs(signal_score) // 10)
@@ -1356,6 +1319,129 @@ def get_default_recommendations():
         'source': 'Not Available',
         'summary': 'Analyst recommendations not available at this time.'
     }
+
+def create_emergency_fallback_response(ticker, risk_appetite, current_price=0):
+    """Create emergency fallback response with enhanced trading logic when all sources fail"""
+    try:
+        # Try to get at least basic price data from Yahoo Finance
+        if current_price == 0:
+            stock = yf.Ticker(ticker)
+            hist = stock.history(period="5d", interval="1d")
+            if not hist.empty:
+                current_price = hist['Close'].iloc[-1]
+        
+        # Generate basic signal with minimal data
+        if current_price > 0:
+            # Simple fallback signal logic
+            signal = "HOLD"
+            signal_color = "warning"
+            confidence = 50
+            signal_factors = ["Limited data available"]
+            
+            # Basic risk management
+            stop_loss = current_price * 0.95  # 5% stop loss
+            exit_target = current_price * 1.10  # 10% target
+            
+            return jsonify({
+                'signal': signal,
+                'signal_color': signal_color,
+                'confidence': confidence,
+                'signal_score': 0,
+                'signal_factors': signal_factors,
+                'current_price': round(current_price, 2),
+                'entry_price': round(current_price, 2),
+                'exit_price': round(exit_target, 2),
+                'stop_loss': round(stop_loss, 2),
+                'target_profit': round(exit_target - current_price, 2),
+                'risk_reward_ratio': '2:1',
+                'time_horizon': '1 week',
+                # Technical indicators (limited)
+                'rsi': 50.0,
+                'ma20': None,
+                'ma50': None,
+                'ma200': None,
+                'atr': None,
+                'volume_ratio': None,
+                'macd': None,
+                'macd_signal': None,
+                'macd_histogram': None,
+                'support_level': None,
+                'resistance_level': None,
+                # Market data
+                'market_news': {'news': [{'title': 'All data sources unavailable', 'summary': 'Please try again later or contact support'}]},
+                'analyst_recommendations': {'recommendation': 'HOLD', 'total_analysts': 0},
+                'market_sentiment': {'sentiment': 'NEUTRAL', 'score': 0.5},
+                'analysis_summary': f"All data sources failed. Using basic analysis. RSI (50.0) is in neutral zone. Consider stop-loss at ₹{stop_loss:.2f} for {risk_appetite} risk.",
+                'data_source': 'multi-source-emergency-fallback',
+                'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'ticker': ticker,
+                'risk_level': risk_appetite,
+                'error': 'All data sources failed'
+            })
+        else:
+            # Complete fallback when no price data available
+            return jsonify({
+                'signal': 'HOLD',
+                'signal_color': 'warning',
+                'confidence': 50,
+                'signal_score': 0,
+                'signal_factors': ['No data available'],
+                'current_price': 0,
+                'entry_price': 0,
+                'exit_price': 0,
+                'stop_loss': 0,
+                'target_profit': 0,
+                'risk_reward_ratio': 'N/A',
+                'time_horizon': 'N/A',
+                # Technical indicators
+                'rsi': None,
+                'ma20': None,
+                'ma50': None,
+                'ma200': None,
+                'atr': None,
+                'volume_ratio': None,
+                'macd': None,
+                'macd_signal': None,
+                'macd_histogram': None,
+                'support_level': None,
+                'resistance_level': None,
+                # Market data
+                'market_news': {'news': [{'title': 'All data sources unavailable', 'summary': 'Please try again later or contact support'}]},
+                'analyst_recommendations': {'recommendation': 'HOLD', 'total_analysts': 0},
+                'market_sentiment': {'sentiment': 'NEUTRAL', 'score': 0.5},
+                'analysis_summary': 'All data sources failed. No price data available.',
+                'data_source': 'multi-source-emergency-fallback',
+                'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'ticker': ticker,
+                'risk_level': risk_appetite,
+                'error': 'All data sources failed'
+            })
+            
+    except Exception as e:
+        print(f"❌ Error in emergency fallback: {e}")
+        return jsonify({
+            'signal': 'HOLD',
+            'signal_color': 'warning',
+            'confidence': 50,
+            'current_price': 0,
+            'entry_price': 0,
+            'exit_price': 0,
+            'stop_loss': 0,
+            'rsi': 50.0,
+            'ma20': None,
+            'ma50': None,
+            'ma200': None,
+            'atr': None,
+            'market_news': {'news': [{'title': 'All data sources unavailable', 'summary': 'Please try again later or contact support'}]},
+            'analyst_recommendations': {'recommendation': 'HOLD', 'total_analysts': 0},
+            'market_sentiment': {'sentiment': 'NEUTRAL', 'score': 0.5},
+            'analysis_summary': 'All data sources failed. Please try again later.',
+            'data_source': 'multi-source-emergency-fallback',
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'ticker': ticker,
+            'risk_level': risk_appetite,
+            'error': 'All data sources failed'
+        })
 
 def create_fallback_response():
     """Create a fallback response when stock data is not available"""
