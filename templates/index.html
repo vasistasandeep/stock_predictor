@@ -283,11 +283,38 @@
                             <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" 
                                title="Top 20: Largest 20 companies from Nifty 200 index. These are market leaders with highest trading volumes and stability."></i>
                         </h5>
-                        <span class="badge bg-info" id="stockCount">0 stocks</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-success" id="analyzeAllBtn">
+                                <i class="fas fa-chart-line me-1"></i>Analyze All
+                            </button>
+                            <span class="badge bg-info" id="stockCount">0 stocks</span>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="stock-filters-bar bg-light p-2 border-bottom">
-                            <input type="text" class="form-control form-control-sm" id="stockSearch" placeholder="🔍 Search stocks by company name or symbol...">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control form-control-sm" id="stockSearch" placeholder="🔍 Search stocks...">
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select form-select-sm" id="signalFilter">
+                                        <option value="all">All Signals</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select form-select-sm" id="sectorFilter">
+                                        <option value="all">All Sectors</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select form-select-sm" id="marketCapFilter">
+                                        <option value="all">All Market Cap</option>
+                                        <option value="Large Cap">Large Cap</option>
+                                        <option value="Mid Cap">Mid Cap</option>
+                                        <option value="Small Cap">Small Cap</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="stock-list-container" style="max-height: 600px; overflow-y: auto;">
                             <ul class="list-group list-group-flush" id="top20list">
@@ -500,6 +527,53 @@
                                     💡 <strong>Simple chart reading:</strong> Line going up = Good trend. Line going down = Bad trend.
                                 </small>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        <!-- Market Insights -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">📰 Market Insights & Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="marketNews">
+                                    <h6>📰 Latest Market News</h6>
+                                    <p class="text-muted">Analyze a stock to see market news...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="analystRecommendations">
+                                    <h6>📊 Analyst Recommendations</h6>
+                                    <p class="text-muted">Analyze a stock to see analyst data...</p>
+                                </div>
+                                <hr>
+                                <div id="marketSentiment">
+                                    <h6>💭 Market Sentiment</h6>
+                                    <p class="text-muted">Analyze a stock to see sentiment...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Summary -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">📋 Analysis Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="analysisSummary">
+                            <p class="text-muted">Analyze a stock to see comprehensive analysis summary...</p>
                         </div>
                     </div>
                 </div>
@@ -901,7 +975,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script_working.js') }}"></script>
     <script>
         // Initialize all tooltips
         document.addEventListener('DOMContentLoaded', function() {

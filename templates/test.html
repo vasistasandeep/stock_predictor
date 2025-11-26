@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock List Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Stock List Test</h1>
+        <button onclick="testStockAPI()">Test Stock API</button>
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        async function testStockAPI() {
+            try {
+                const response = await fetch('/get_top_20_stocks');
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <div class="alert alert-success">
+                        <h3>✅ API Working!</h3>
+                        <p>Stocks loaded: ${data.stocks.length}</p>
+                        <p>Last updated: ${data.last_updated}</p>
+                        <ul>
+                            ${data.stocks.slice(0, 5).map(stock => `<li>${stock}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('API Error:', error);
+                document.getElementById('results').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h3>❌ API Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

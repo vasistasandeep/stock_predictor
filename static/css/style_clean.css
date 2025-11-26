@@ -246,13 +246,42 @@ a:focus, button:focus, input:focus, textarea:focus, select:focus {
     outline-offset: 2px !important;
 }
 
-/* Accessible modal */
-.modal-dialog {
-    pointer-events: all !important;
+/* Stock selection styles */
+.active-stock {
+    background-color: #e3f2fd !important;
+    border-left: 4px solid #2196f3 !important;
+}
+
+.list-group-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item .badge {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.list-group-item .badge:hover {
+    transform: scale(1.05);
+}
+
+/* Accessibility improvements for modals */
+.modal[role="dialog"] {
+    padding: 0;
 }
 
 .modal[aria-hidden="false"] {
     display: block !important;
+}
+
+/* Accessible modal */
+.modal-dialog {
+    pointer-events: all !important;
 }
 
 .modal[aria-hidden="true"] {

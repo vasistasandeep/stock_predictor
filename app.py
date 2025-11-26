@@ -3,10 +3,12 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import talib
+import threading
+import time
 import requests
 from datetime import datetime, timedelta
-import time
-import threading
+from market_data import get_market_news, get_analyst_recommendations, get_market_sentiment
+import os
 
 app = Flask(__name__)
 
@@ -15,81 +17,75 @@ last_data_update = None
 data_update_interval = 3600  # Refresh data every hour (3600 seconds)
 
 def get_nifty_200_list():
-    """Fetches real-time NIFTY 200 list from NSE and stores the top 20 stocks."""
+    """Fetches top 20 NIFTY stocks by market cap using Yahoo Finance."""
     global top_20_stocks, last_data_update
+    
     try:
-        # Method 1: Try NSE API first
-        nse_url = "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200"
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.9',
-        }
+        print("Fetching top NIFTY stocks from Yahoo Finance...")
         
-        try:
-            response = requests.get(nse_url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                if 'data' in data and len(data['data']) > 0:
-                    # Sort by market cap and get top 20
-                    sorted_stocks = sorted(data['data'], key=lambda x: x.get('marketCap', 0), reverse=True)
-                    top_20 = sorted_stocks[:20]
-                    # Extract symbols and add .NS suffix for Yahoo Finance
-                    top_20_stocks = [f"{stock['symbol']}.NS" for stock in top_20]
-                    last_data_update = datetime.now()
-                    print(f"Successfully fetched {len(top_20_stocks)} stocks from NSE API at {last_data_update.strftime('%Y-%m-%d %H:%M:%S')}")
-                    return
-        except Exception as nse_error:
-            print(f"NSE API failed: {nse_error}")
-        
-        # Method 2: Fallback to NSE website scraping
-        try:
-            nse_csv_url = "https://www.nseindia.com/content/indices/ind_nifty200list.csv"
-            response = requests.get(nse_csv_url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                from io import StringIO
-                df = pd.read_csv(StringIO(response.text))
-                # Get first 20 symbols
-                top_20 = df.head(20)
-                top_20_stocks = [f"{symbol}.NS" for symbol in top_20['Symbol'].tolist()]
-                last_data_update = datetime.now()
-                print(f"Successfully fetched {len(top_20_stocks)} stocks from NSE CSV at {last_data_update.strftime('%Y-%m-%d %H:%M:%S')}")
-                return
-        except Exception as csv_error:
-            print(f"NSE CSV failed: {csv_error}")
-        
-        # Method 3: Fallback to a reliable third-party source
-        try:
-            # Using Moneycontrol API for NIFTY 200
-            moneycontrol_url = "https://www.moneycontrol.com/india/stockmarket/indices/nifty-200-200.html"
-            response = requests.get(moneycontrol_url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                # Parse HTML to extract stock symbols (basic implementation)
-                import re
-                pattern = r'/stockpricequote/(.*?)/'
-                symbols = list(set(re.findall(pattern, response.text)))
-                # Clean and get first 20
-                symbols = [s.strip() for s in symbols if s.strip() and len(s) > 1]
-                top_20_stocks = [f"{symbol.upper()}.NS" for symbol in symbols[:20]]
-                last_data_update = datetime.now()
-                print(f"Successfully fetched {len(top_20_stocks)} stocks from Moneycontrol at {last_data_update.strftime('%Y-%m-%d %H:%M:%S')}")
-                return
-        except Exception as mc_error:
-            print(f"Moneycontrol failed: {mc_error}")
-        
-        # Method 4: Final fallback to static list of major NIFTY 200 stocks
-        print("Using fallback static list of major NIFTY 200 stocks")
-        fallback_stocks = [
+        # Major NIFTY stocks to analyze (these are the largest companies)
+        nifty_stocks = [
             'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
             'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
             'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
-            'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS'
+            'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS',
+            'LT.NS', 'SUNPHARMA.NS', 'TITAN.NS', 'M&M.NS', 'POWERGRID.NS',
+            'NTPC.NS', 'COALINDIA.NS', 'BPCL.NS', 'GAIL.NS', 'ONGC.NS',
+            'HDFCLIFE.NS', 'SBILIFE.NS', 'GRASIM.NS', 'ADANIPORTS.NS', 'TECHM.NS'
         ]
-        top_20_stocks = fallback_stocks
-        last_data_update = datetime.now()
         
+        # Fetch market cap data for all stocks
+        stock_data = []
+        for symbol in nifty_stocks:
+            try:
+                ticker = yf.Ticker(symbol)
+                info = ticker.info
+                
+                # Get market cap (in crores INR)
+                market_cap = info.get('marketCap', 0)
+                if market_cap and market_cap > 0:
+                    # Convert to INR crores for better understanding
+                    market_cap_inr_cr = (market_cap * 83) / 10000000  # Approx 1 USD = 83 INR
+                    stock_data.append({
+                        'symbol': symbol,
+                        'market_cap': market_cap_inr_cr,
+                        'name': info.get('shortName', symbol),
+                        'sector': info.get('sector', 'Unknown')
+                    })
+                    print(f"✅ {symbol}: ₹{market_cap_inr_cr:.0f} cr market cap")
+                else:
+                    print(f"⚠️ {symbol}: No market cap data")
+                    
+            except Exception as e:
+                print(f"❌ {symbol}: Error - {str(e)}")
+                continue
+        
+        # Sort by market cap and get top 20
+        if stock_data:
+            sorted_stocks = sorted(stock_data, key=lambda x: x['market_cap'], reverse=True)
+            top_20_stocks = [stock['symbol'] for stock in sorted_stocks[:20]]
+            
+            print(f"\n🏆 TOP 20 STOCKS BY MARKET CAP:")
+            for i, stock in enumerate(sorted_stocks[:20], 1):
+                print(f"{i:2d}. {stock['symbol']:12s} - ₹{stock['market_cap']:,.0f} cr ({stock['name']})")
+            
+            last_data_update = datetime.now()
+            print(f"\n✅ Successfully fetched {len(top_20_stocks)} top stocks from Yahoo Finance at {last_data_update.strftime('%Y-%m-%d %H:%M:%S')}")
+        else:
+            # Fallback to static list if Yahoo Finance fails
+            print("⚠️ Yahoo Finance failed, using fallback list")
+            fallback_stocks = [
+                'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
+                'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
+                'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
+                'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS'
+            ]
+            top_20_stocks = fallback_stocks
+            last_data_update = datetime.now()
+            print(f"Using fallback list of {len(top_20_stocks)} stocks")
+            
     except Exception as e:
-        print(f"Error fetching NIFTY 200 list: {e}")
+        print(f"❌ Error fetching from Yahoo Finance: {e}")
         # Final fallback
         top_20_stocks = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS']
         last_data_update = datetime.now()
@@ -113,9 +109,50 @@ def is_data_fresh():
 
 @app.route('/get_top_20_stocks')
 def get_top_20_stocks():
-    """Return top 20 stocks with timestamp information."""
+    """Return top 20 stocks with detailed information including sector and market cap categories."""
+    
+    # Get detailed stock information with sectors and market caps
+    stock_details = []
+    for symbol in top_20_stocks:
+        try:
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
+            
+            market_cap = info.get('marketCap', 0)
+            market_cap_inr_cr = (market_cap * 83) / 10000000 if market_cap else 0
+            
+            # Categorize market cap
+            if market_cap_inr_cr >= 100000:  # > 1 lakh crore
+                market_cap_category = "Large Cap"
+            elif market_cap_inr_cr >= 20000:  # > 20k crore
+                market_cap_category = "Mid Cap"
+            else:
+                market_cap_category = "Small Cap"
+            
+            stock_details.append({
+                'symbol': symbol,
+                'name': info.get('shortName', symbol),
+                'sector': info.get('sector', 'Unknown'),
+                'market_cap_inr_cr': round(market_cap_inr_cr, 0),
+                'market_cap_category': market_cap_category,
+                'current_price': info.get('currentPrice', 0),
+                'day_change': info.get('regularMarketPrice', 0) - info.get('regularMarketPreviousClose', 0)
+            })
+        except Exception as e:
+            print(f"Error getting details for {symbol}: {e}")
+            stock_details.append({
+                'symbol': symbol,
+                'name': symbol,
+                'sector': 'Unknown',
+                'market_cap_inr_cr': 0,
+                'market_cap_category': 'Unknown',
+                'current_price': 0,
+                'day_change': 0
+            })
+    
     response_data = {
         'stocks': top_20_stocks,
+        'stock_details': stock_details,
         'last_updated': last_data_update.strftime('%Y-%m-%d %H:%M:%S') if last_data_update else None,
         'is_fresh': is_data_fresh(),
         'next_update_in_minutes': max(0, data_update_interval - int((datetime.now() - last_data_update).total_seconds())) // 60 if last_data_update else 0
@@ -146,6 +183,56 @@ def blogs():
 def contact():
     return render_template('contact.html')
 
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
+@app.route('/test_functionality')
+def test_functionality():
+    return render_template('test_functionality.html')
+
+@app.route('/test_quick_analysis')
+def test_quick_analysis():
+    return render_template('test_quick_analysis.html')
+
+@app.route('/enhanced_demo')
+def enhanced_demo():
+    return render_template('enhanced_demo.html')
+
+@app.route('/get_market_news/<string:symbol>')
+def get_market_news_endpoint(symbol):
+    """Get latest market news for a stock"""
+    try:
+        news = get_market_news(symbol, limit=5)
+        return jsonify({
+            'status': 'success',
+            'news': news,
+            'total': len(news)
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to fetch market news: {str(e)}'
+        }), 500
+
+@app.route('/get_analyst_recommendations/<string:symbol>')
+def get_analyst_recommendations_endpoint(symbol):
+    """Get analyst recommendations for a stock"""
+    try:
+        recommendations = get_analyst_recommendations(symbol)
+        sentiment = get_market_sentiment(symbol)
+        
+        return jsonify({
+            'status': 'success',
+            'recommendations': recommendations,
+            'sentiment': sentiment
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to fetch analyst recommendations: {str(e)}'
+        }), 500
+
 
 @app.route('/refresh_data')
 def refresh_data():
@@ -161,115 +248,374 @@ def refresh_data():
     except Exception as e:
         return jsonify({
             'status': 'error',
-            'message': str(e)
+            'message': f'Failed to refresh data: {str(e)}'
+        }), 500
+
+@app.route('/get_all_signals')
+def get_all_signals():
+    """Get buy/sell/hold signals for all top stocks using UNIFIED function."""
+    try:
+        print("🔄 Starting UNIFIED bulk signal analysis...")
+        signals = []
+        
+        for symbol in top_20_stocks:
+            # Use the UNIFIED signal function for 100% consistency
+            signal_data = calculate_unified_signal(symbol, period="2y", interval="1d")
+            
+            if signal_data['success']:
+                signals.append(signal_data)
+            else:
+                print(f"⚠️ Failed to get signal for {symbol}, using fallback")
+                signals.append(signal_data)
+        
+        print(f"✅ UNIFIED bulk analysis complete: {len(signals)} signals")
+        
+        return jsonify({
+            'status': 'success',
+            'signals': signals,
+            'total_analyzed': len(signals)
+        })
+        
+    except Exception as e:
+        print(f"❌ Error in bulk signal analysis: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to analyze signals: {str(e)}'
         }), 500
 
 @app.route('/get_stock_data/<string:ticker>/<string:risk_appetite>')
 def get_stock_data(ticker, risk_appetite):
-    # Get query parameters for chart filtering
-    period = request.args.get('period', '2y')
-    frequency = request.args.get('frequency', 'daily')
-    
-    # Get custom risk parameters if provided
-    custom_stop_loss = request.args.get('customStopLoss', type=float)
-    custom_exit_target = request.args.get('customExitTarget', type=float)
-    
-    stock = yf.Ticker(ticker)
-    
-    # Map frequency to yfinance interval
-    interval_map = {
-        'daily': '1d',
-        'weekly': '1wk', 
-        'monthly': '1mo'
-    }
-    interval = interval_map.get(frequency, '1d')
-    
-    # Use appropriate period and interval
-    hist = stock.history(period=period, interval=interval)
-
-    # Calculate all indicators first
-    hist['SMA50'] = hist['Close'].rolling(window=50).mean()
-    hist['SMA200'] = hist['Close'].rolling(window=200).mean()
-    hist['RSI'] = talib.RSI(hist['Close'], timeperiod=14)
-    hist['ATR'] = talib.ATR(hist['High'], hist['Low'], hist['Close'], timeperiod=14)
-    
-    # Remove rows with NaN values (only after all calculations)
-    hist.dropna(inplace=True)
-
-    # Generate Signal based on multiple conditions
-    # Condition 1: SMA Crossover
-    sma_cross_signal = np.where(hist['SMA50'] > hist['SMA200'], 1, -1)
-    
-    # Condition 2: RSI levels (oversold/overbought)
-    rsi_signal = np.where(hist['RSI'] < 30, 1, np.where(hist['RSI'] > 70, -1, 0))
-    
-    # Combined signal (weighted approach)
-    hist['Signal'] = np.where(sma_cross_signal == 1, 1, 
-                            np.where(sma_cross_signal == -1, -1, rsi_signal))
-    
-    # Generate trading signals (buy/sell/hold)
-    hist['Position'] = hist['Signal'].diff()
-
-    # Get the last signal and attributes
-    if not hist.empty:
-        last_signal = hist['Signal'].iloc[-1]  # Use Signal instead of Position for current state
-        if last_signal == 1:
-            signal_text = 'Buy'
-        elif last_signal == -1:
-            signal_text = 'Sell'
-        else:
-            signal_text = 'Hold'
-
-        # Suggest Entry, Exit, and Stop-Loss
-        recent_low = hist['Low'][-14:].min()
-        recent_high = hist['High'][-14:].max()
-        entry_price = f'{recent_low:.2f}'
+    try:
+        print(f"🔍 Analyzing stock: {ticker} with risk: {risk_appetite}")
         
-        # Adjust exit price and stop-loss based on risk appetite
-        if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
-            # Custom risk - use user-defined percentages
-            stop_loss = f'{(recent_low * (1 - custom_stop_loss/100)):.2f}'
-            exit_price = f'{(recent_low * (1 + custom_exit_target/100)):.2f}'
-        elif risk_appetite == 'Low':
-            stop_loss = f'{(recent_low * 0.98):.2f}' # 2% below the 14-day low
-            exit_price = f'{(recent_low * 1.06):.2f}'  # 6% above entry (3:1 risk-reward)
-        elif risk_appetite == 'Medium':
-            stop_loss = f'{(recent_low * 0.95):.2f}' # 5% below the 14-day low
-            exit_price = f'{(recent_low * 1.15):.2f}'  # 15% above entry (3:1 risk-reward)
-        else: # High
-            stop_loss = f'{(recent_low * 0.90):.2f}' # 10% below the 14-day low
-            exit_price = f'{(recent_low * 1.30):.2f}'  # 30% above entry (3:1 risk-reward)
-
-        attributes = {
-            'SMA50': f'{hist["SMA50"].iloc[-1]:.2f}',
-            'SMA200': f'{hist["SMA200"].iloc[-1]:.2f}',
-            'RSI': f'{hist["RSI"].iloc[-1]:.2f}',
-            'ATR': f'{hist["ATR"].iloc[-1]:.2f}'
+        # Get query parameters for chart filtering
+        period = request.args.get('period', '2y')
+        frequency = request.args.get('frequency', 'daily')
+        
+        # Get custom risk parameters if provided
+        custom_stop_loss = request.args.get('customStopLoss', type=float)
+        custom_exit_target = request.args.get('customExitTarget', type=float)
+        
+        # Add .NS suffix if not present for Indian stocks
+        if not ticker.endswith('.NS'):
+            ticker = ticker + '.NS'
+        
+        print(f"📈 Fetching data for: {ticker}")
+        stock = yf.Ticker(ticker)
+        
+        # Map frequency to yfinance interval
+        interval_map = {
+            'daily': '1d',
+            'weekly': '1wk', 
+            'monthly': '1mo'
         }
-        data = hist.to_json()
-    else:
-        signal_text = 'Not Available'
-        entry_price = 'Not Available'
-        exit_price = 'Not Available'
-        stop_loss = 'Not Available'
-        attributes = {
+        interval = interval_map.get(frequency, '1d')
+        
+        # Use appropriate period and interval
+        hist = stock.history(period=period, interval=interval)
+        print(f"📊 Got {len(hist)} rows of data")
+
+        if hist.empty:
+            print("❌ No data received from yfinance")
+            return create_fallback_response()
+
+        # Calculate all indicators first (same as bulk analysis)
+        hist['SMA50'] = hist['Close'].rolling(window=50).mean()
+        hist['SMA200'] = hist['Close'].rolling(window=200).mean()
+        
+        # RSI calculation (same as bulk analysis)
+        delta = hist['Close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        hist['RSI'] = 100 - (100 / (1 + rs))
+        
+        hist['ATR'] = talib.ATR(hist['High'], hist['Low'], hist['Close'], timeperiod=14)
+        
+        print(f"📈 Calculated indicators, data length after calculations: {len(hist)}")
+        
+        # Remove rows with NaN values (only after all calculations)
+        hist_clean = hist.dropna()
+        print(f"🧹 Data length after dropping NaN: {len(hist_clean)}")
+        
+        if hist_clean.empty:
+            print("❌ No valid data after dropping NaN values")
+            return create_fallback_response()
+
+        hist = hist_clean
+
+        # Generate Signal based on multiple conditions
+        # Condition 1: SMA Crossover
+        sma_cross_signal = np.where(hist['SMA50'] > hist['SMA200'], 1, -1)
+        
+        # Condition 2: RSI levels (oversold/overbought)
+        rsi_signal = np.where(hist['RSI'] < 30, 1, np.where(hist['RSI'] > 70, -1, 0))
+        
+        # Combined signal (weighted approach)
+        hist['Signal'] = np.where(sma_cross_signal == 1, 1, 
+                                np.where(sma_cross_signal == -1, -1, rsi_signal))
+        
+        # Generate trading signals (buy/sell/hold)
+        hist['Position'] = hist['Signal'].diff()
+
+        # Get signal using UNIFIED function for 100% consistency
+        unified_signal = calculate_unified_signal(ticker, period=period, interval=interval)
+        
+        if not hist.empty and unified_signal['success']:
+            signal_text = unified_signal['signal']
+            current_price = unified_signal['current_price']
+            current_sma_50 = unified_signal['sma_50']
+            current_sma_200 = unified_signal['sma_200']
+            current_rsi = unified_signal['rsi']
+            
+            print(f"✅ UNIFIED signal for {ticker}: {signal_text}")
+
+            # Suggest Entry, Exit, and Stop-Loss
+            recent_low = hist['Low'][-14:].min()
+            recent_high = hist['High'][-14:].max()
+            entry_price = f'{recent_low:.2f}'
+            
+            # Adjust exit price and stop-loss based on risk appetite
+            if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
+                # Custom risk - use user-defined percentages
+                stop_loss = f'{(recent_low * (1 - custom_stop_loss/100)):.2f}'
+                exit_price = f'{(recent_low * (1 + custom_exit_target/100)):.2f}'
+            elif risk_appetite == 'Low':
+                stop_loss = f'{(recent_low * 0.98):.2f}' # 2% below the 14-day low
+                exit_price = f'{(recent_low * 1.06):.2f}'  # 6% above entry (3:1 risk-reward)
+            elif risk_appetite == 'Medium':
+                stop_loss = f'{(recent_low * 0.95):.2f}' # 5% below the 14-day low
+                exit_price = f'{(recent_low * 1.15):.2f}'  # 15% above entry (3:1 risk-reward)
+            else: # High
+                stop_loss = f'{(recent_low * 0.90):.2f}' # 10% below the 14-day low
+                exit_price = f'{(recent_low * 1.30):.2f}'  # 30% above entry (3:1 risk-reward)
+
+            attributes = {
+                'SMA50': f'{hist["SMA50"].iloc[-1]:.2f}',
+                'SMA200': f'{hist["SMA200"].iloc[-1]:.2f}',
+                'RSI': f'{hist["RSI"].iloc[-1]:.2f}',
+                'ATR': f'{hist["ATR"].iloc[-1]:.2f}'
+            }
+            data = hist.to_json()
+            
+            print(f"✅ Successfully analyzed {ticker}: {signal_text}")
+            
+            # Get additional market data
+            try:
+                print(f"📰 Fetching market news for {ticker}...")
+                market_news = get_market_news(ticker, limit=3)
+                print(f"📊 Getting analyst recommendations for {ticker}...")
+                analyst_data = get_analyst_recommendations(ticker)
+                market_sentiment = get_market_sentiment(ticker)
+            except Exception as e:
+                print(f"⚠️ Error fetching additional market data: {e}")
+                market_news = []
+                analyst_data = get_default_recommendations()
+                market_sentiment = {'sentiment': 'UNKNOWN', 'score': 0.5, 'summary': 'Unable to determine sentiment'}
+
+            response = {
+                'signal': signal_text,
+                'entry_price': entry_price,
+                'exit_price': exit_price,
+                'stop_loss': stop_loss,
+                'attributes': attributes,
+                'data': data,
+                # New fields
+                'market_news': market_news,
+                'analyst_recommendations': analyst_data,
+                'market_sentiment': market_sentiment,
+                'analysis_summary': generate_analysis_summary(signal_text, analyst_data, market_sentiment)
+            }
+
+            return jsonify(response)
+        else:
+            print("❌ Empty dataframe after processing")
+            return create_fallback_response()
+            
+    except Exception as e:
+        print(f"❌ Error in get_stock_data: {str(e)}")
+        return create_fallback_response()
+
+def calculate_unified_signal(symbol, period="2y", interval="1d"):
+    """
+    UNIFIED signal calculation function used by ALL endpoints
+    Ensures 100% consistency across the application
+    Returns: dict with all signal data
+    """
+    try:
+        print(f"🔍 UNIFIED analysis for {symbol} (period: {period}, interval: {interval})")
+        
+        # Get stock data
+        stock = yf.Ticker(symbol)
+        hist = stock.history(period=period, interval=interval)
+        
+        if hist.empty:
+            print(f"❌ No data for {symbol}")
+            return create_fallback_signal_dict(symbol)
+        
+        # Calculate ALL indicators using EXACT same method
+        close = hist['Close']
+        sma_50 = close.rolling(window=50).mean()
+        sma_200 = close.rolling(window=200).mean()
+        
+        # RSI calculation (manual method for consistency)
+        delta = close.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs))
+        
+        # Get latest values
+        current_price = close.iloc[-1]
+        current_sma_50 = sma_50.iloc[-1]
+        current_sma_200 = sma_200.iloc[-1] if not pd.isna(sma_200.iloc[-1]) else current_sma_50
+        current_rsi = rsi.iloc[-1]
+        
+        print(f"📊 {symbol} - Price: {current_price:.2f}, SMA50: {current_sma_50:.2f}, SMA200: {current_sma_200:.2f}, RSI: {current_rsi:.2f}")
+        
+        # Generate signal using unified logic
+        signal, signal_color = generate_unified_signal_logic(current_price, current_sma_50, current_sma_200, current_rsi)
+        
+        # Return unified signal data
+        return {
+            'symbol': symbol,
+            'signal': signal,
+            'signal_color': signal_color,
+            'current_price': round(current_price, 2),
+            'sma_50': round(current_sma_50, 2) if not pd.isna(current_sma_50) else None,
+            'sma_200': round(current_sma_200, 2) if not pd.isna(current_sma_200) else None,
+            'rsi': round(current_rsi, 2) if not pd.isna(current_rsi) else None,
+            'success': True
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in unified signal calculation for {symbol}: {e}")
+        return create_fallback_signal_dict(symbol)
+
+def generate_unified_signal_logic(current_price, sma_50, sma_200, rsi):
+    """
+    UNIFIED signal logic - single source of truth
+    """
+    try:
+        # Handle NaN values
+        sma_200_valid = not pd.isna(sma_200)
+        rsi_valid = not pd.isna(rsi)
+        
+        # More balanced BUY conditions
+        buy_conditions = (
+            current_price > sma_50 and
+            (not sma_200_valid or current_price > sma_200) and
+            rsi_valid and 25 <= rsi <= 75
+        )
+        
+        # More balanced SELL conditions  
+        sell_conditions = (
+            current_price < sma_50 and
+            (not sma_200_valid or current_price < sma_200) and
+            rsi_valid and 25 <= rsi <= 75
+        )
+        
+        if buy_conditions:
+            return "BUY", "success"
+        elif sell_conditions:
+            return "SELL", "danger"
+        else:
+            return "HOLD", "warning"
+            
+    except Exception as e:
+        print(f"Error in signal logic: {e}")
+        return "HOLD", "warning"
+
+def create_fallback_signal_dict(symbol):
+    """Create fallback signal data"""
+    return {
+        'symbol': symbol,
+        'signal': 'HOLD',
+        'signal_color': 'warning',
+        'current_price': None,
+        'sma_50': None,
+        'sma_200': None,
+        'rsi': None,
+        'success': False
+    }
+
+def generate_analysis_summary(signal, analyst_data, sentiment):
+    """Generate a comprehensive analysis summary"""
+    try:
+        summary_parts = []
+        
+        # Signal-based summary
+        if signal == 'BUY':
+            summary_parts.append("Technical indicators suggest a BUY signal")
+        elif signal == 'SELL':
+            summary_parts.append("Technical indicators suggest a SELL signal")
+        else:
+            summary_parts.append("Technical indicators suggest HOLDING")
+        
+        # Analyst summary
+        if analyst_data.get('total_analysts', 0) > 0:
+            total = analyst_data['total_analysts']
+            strong_buy = analyst_data.get('strong_buy', 0)
+            buy = analyst_data.get('buy', 0)
+            hold = analyst_data.get('hold', 0)
+            
+            if strong_buy + buy > hold:
+                summary_parts.append(f"Analysts are generally bullish ({strong_buy + buy} out of {total} recommend buying)")
+            elif hold > strong_buy + buy:
+                summary_parts.append(f"Analysts recommend holding ({hold} out of {total} analysts)")
+            else:
+                summary_parts.append(f"Analyst opinions are mixed ({total} analysts covering)")
+        else:
+            summary_parts.append("Analyst recommendations not available")
+        
+        # Sentiment summary
+        sentiment_score = sentiment.get('score', 0.5)
+        if sentiment_score > 0.6:
+            summary_parts.append("Market sentiment appears positive")
+        elif sentiment_score < 0.4:
+            summary_parts.append("Market sentiment appears negative")
+        else:
+            summary_parts.append("Market sentiment appears neutral")
+        
+        return ". ".join(summary_parts) + "."
+        
+    except Exception as e:
+        print(f"Error generating analysis summary: {e}")
+        return "Analysis summary unavailable."
+
+def get_default_recommendations():
+    """Default recommendations when data is not available"""
+    return {
+        'strong_buy': 0,
+        'buy': 0,
+        'hold': 0,
+        'sell': 0,
+        'strong_sell': 0,
+        'total_analysts': 0,
+        'target_price': None,
+        'source': 'Not Available',
+        'summary': 'Analyst recommendations not available at this time.'
+    }
+
+def create_fallback_response():
+    """Create a fallback response when stock data is not available"""
+    return jsonify({
+        'signal': 'Not Available',
+        'entry_price': 'Not Available',
+        'exit_price': 'Not Available',
+        'stop_loss': 'Not Available',
+        'attributes': {
             'SMA50': 'Not Available',
             'SMA200': 'Not Available',
             'RSI': 'Not Available',
             'ATR': 'Not Available'
-        }
-        data = pd.DataFrame().to_json()
-
-    response = {
-        'signal': signal_text,
-        'entry_price': entry_price,
-        'exit_price': exit_price,
-        'stop_loss': stop_loss,
-        'attributes': attributes,
-        'data': data
-    }
-
-    return jsonify(response)
+        },
+        'data': pd.DataFrame().to_json(),
+        'market_news': [],
+        'analyst_recommendations': get_default_recommendations(),
+        'market_sentiment': {'sentiment': 'UNKNOWN', 'score': 0.5, 'summary': 'Unable to determine sentiment'},
+        'analysis_summary': 'Analysis unavailable due to data issues.'
+    })
 
 # Production deployment
 if __name__ == '__main__':

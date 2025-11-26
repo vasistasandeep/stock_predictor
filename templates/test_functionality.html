@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Functionality Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Stock Functionality Test</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Stock List</h3>
+                <input type="text" class="form-control mb-2" id="tickerInput" placeholder="Stock symbol...">
+                <ul class="list-group" id="top20list">
+                    <!-- Stocks will be loaded here -->
+                </ul>
+                <button class="btn btn-success mt-2" id="analyzeAllBtn">Analyze All</button>
+            </div>
+            <div class="col-md-6">
+                <h3>Test Results</h3>
+                <div id="results"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allStocks = [];
+        let allStockDetails = [];
+        let filteredStocks = [];
+        let allSignals = [];
+        
+        // Test functions
+        function fetchStockData() {
+            fetch('/get_top_20_stocks')
+                .then(response => response.json())
+                .then(data => {
+                    allStocks = data.stocks || [];
+                    allStockDetails = data.stock_details || [];
+                    filteredStocks = [...allStocks];
+                    updateStockDisplay();
+                    logResult('✅ Stock data loaded successfully');
+                })
+                .catch(error => {
+                    logResult('❌ Error loading stock data: ' + error.message);
+                });
+        }
+        
+        function fetchAllSignals() {
+            fetch('/get_all_signals')
+                .then(response => response.json())
+                .then(data => {
+                    allSignals = data.signals || [];
+                    logResult('✅ Signals loaded successfully');
+                })
+                .catch(error => {
+                    logResult('❌ Error loading signals: ' + error.message);
+                });
+        }
+        
+        function updateStockDisplay() {
+            const list = document.getElementById('top20list');
+            list.innerHTML = '';
+            
+            filteredStocks.forEach((stock, index) => {
+                const stockDetail = allStockDetails[index];
+                const signal = allSignals.find(s => s.symbol === stock);
+                
+                let li = document.createElement('li');
+                li.className = 'list-group-item';
+                
+                let signalBadge = '';
+                if (signal) {
+                    signalBadge = `<span class="badge bg-${signal.signal_color} me-2">${signal.signal}</span>`;
+                }
+                
+                li.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${stock.replace('.NS', '')}</strong>
+                            <small class="text-muted d-block">
+                                ${signalBadge}NSE
+                                ${stockDetail ? `• ₹${stockDetail.market_cap_inr_cr.toLocaleString()} cr` : ''}
+                            </small>
+                        </div>
+                        <span class="badge bg-primary">Analyze</span>
+                    </div>
+                `;
+                
+                // Add click event
+                li.addEventListener('click', function() {
+                    selectStock(stock, li);
+                });
+                
+                // Add analyze button click
+                li.querySelector('.badge.bg-primary').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    analyzeStock(stock);
+                });
+                
+                list.appendChild(li);
+            });
+        }
+        
+        function selectStock(stock, element) {
+            // Remove previous selection
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.classList.remove('active-stock');
+                item.style.backgroundColor = '';
+            });
+            
+            // Add selection
+            element.classList.add('active-stock');
+            element.style.backgroundColor = '#e3f2fd';
+            
+            // Set ticker
+            document.getElementById('tickerInput').value = stock;
+            logResult(`📊 ${stock.replace('.NS', '')} selected`);
+        }
+        
+        function analyzeStock(stock) {
+            document.getElementById('tickerInput').value = stock;
+            logResult(`🔄 Analyzing ${stock.replace('.NS', '')}...`);
+        }
+        
+        function analyzeAllStocks() {
+            logResult('🔄 Analyzing all stocks...');
+            
+            const btn = document.getElementById('analyzeAllBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Analyzing...';
+            btn.disabled = true;
+            
+            fetch('/get_all_signals')
+                .then(response => response.json())
+                .then(data => {
+                    allSignals = data.signals || [];
+                    updateStockDisplay();
+                    
+                    const buyCount = allSignals.filter(s => s.signal === 'BUY').length;
+                    const sellCount = allSignals.filter(s => s.signal === 'SELL').length;
+                    const holdCount = allSignals.filter(s => s.signal === 'HOLD').length;
+                    
+                    logResult(`✅ Analysis complete: ${buyCount} BUY, ${sellCount} SELL, ${holdCount} HOLD`);
+                    
+                    btn.innerHTML = 'Analyze All';
+                    btn.disabled = false;
+                })
+                .catch(error => {
+                    logResult('❌ Error analyzing stocks: ' + error.message);
+                    btn.innerHTML = 'Analyze All';
+                    btn.disabled = false;
+                });
+        }
+        
+        function logResult(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="alert alert-info">${timestamp}: ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('analyzeAllBtn').addEventListener('click', analyzeAllStocks);
+            fetchStockData();
+            fetchAllSignals();
+        });
+    </script>
+</body>
+</html>

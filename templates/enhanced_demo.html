@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quick Stock Analysis Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>🎯 Enhanced Quick Stock Analysis Demo</h2>
+        <p class="text-muted">Now includes market news, analyst recommendations, and sentiment analysis!</p>
+        
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text">🔍</span>
+                    <input type="text" id="tickerInput" class="form-control" placeholder="Enter stock name (e.g., RELIANCE, TCS, INFY)" value="RELIANCE">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" id="fetchBtn">
+                    <span>🎯 Get Recommendation</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Trading Prediction -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">📊 Trading Prediction</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="prediction-card">
+                            <h6>Signal</h6>
+                            <h3 id="signal" class="badge bg-secondary fs-5">-</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="prediction-card">
+                            <h6>Entry Price</h6>
+                            <h4 id="entryPrice">-</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="prediction-card">
+                            <h6>Exit Price</h6>
+                            <h4 id="exitPrice">-</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="prediction-card">
+                            <h6>Stop-Loss</h6>
+                            <h4 id="stopLoss">-</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Insights -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">📰 Market Insights</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="marketNews">
+                            <h6>📰 Latest Market News</h6>
+                            <p class="text-muted">Analyze a stock to see market news...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">💭 Market Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="analystRecommendations">
+                            <h6>📊 Analyst Recommendations</h6>
+                            <p class="text-muted">Analyze a stock to see analyst data...</p>
+                        </div>
+                        <hr>
+                        <div id="marketSentiment">
+                            <h6>💭 Market Sentiment</h6>
+                            <p class="text-muted">Analyze a stock to see sentiment...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">📋 Analysis Summary</h6>
+            </div>
+            <div class="card-body">
+                <div id="analysisSummary">
+                    <p class="text-muted">Analyze a stock to see comprehensive analysis summary...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <div id="results" class="alert alert-info" style="display: none;">
+                Results will appear here...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fetchStockDataForTicker() {
+            console.log('🎯 Get Recommendation button clicked!');
+            
+            let ticker = document.getElementById('tickerInput').value;
+            console.log('📝 Ticker input value:', ticker);
+            
+            if (ticker && ticker.trim() !== '') {
+                // Show loading state
+                const fetchBtn = document.getElementById('fetchBtn');
+                fetchBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing...';
+                fetchBtn.disabled = true;
+                
+                // Build URL
+                let url = '/get_stock_data/' + encodeURIComponent(ticker) + '/Medium';
+                console.log('📡 Fetching URL:', url);
+                
+                fetch(url)
+                    .then(response => {
+                        console.log('📡 Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(response => {
+                        console.log('📊 Response data:', response);
+                        updatePredictionDisplay(response);
+                        
+                        // Reset button
+                        fetchBtn.innerHTML = '<span>🎯 Get Recommendation</span>';
+                        fetchBtn.disabled = false;
+                        
+                        document.getElementById('results').innerHTML = `✅ Enhanced analysis complete for ${ticker}! Check out the market insights below.`;
+                        document.getElementById('results').style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('❌ Error details:', error);
+                        document.getElementById('results').innerHTML = `❌ Error: ${error.message}`;
+                        document.getElementById('results').style.display = 'block';
+                        fetchBtn.innerHTML = '<span>🎯 Get Recommendation</span>';
+                        fetchBtn.disabled = false;
+                    });
+            } else {
+                console.log('⚠️ No ticker entered or empty ticker');
+                document.getElementById('results').innerHTML = '⚠️ Please enter a stock ticker';
+                document.getElementById('results').style.display = 'block';
+            }
+        }
+
+        function updatePredictionDisplay(response) {
+            console.log('📊 Updating prediction display with:', response);
+            
+            // Update signal
+            let signalElement = document.getElementById('signal');
+            if (signalElement) {
+                signalElement.textContent = response.signal || 'N/A';
+                signalElement.className = 'badge fs-5';
+                if (response.signal === 'Buy') {
+                    signalElement.classList.add('bg-success');
+                } else if (response.signal === 'Sell') {
+                    signalElement.classList.add('bg-danger');
+                } else {
+                    signalElement.classList.add('bg-warning');
+                }
+                console.log('✅ Signal updated:', response.signal);
+            }
+            
+            // Update prices
+            document.getElementById('entryPrice').textContent = response.entry_price || 'N/A';
+            document.getElementById('exitPrice').textContent = response.exit_price || 'N/A';
+            document.getElementById('stopLoss').textContent = response.stop_loss || 'N/A';
+            
+            // Update market insights
+            updateMarketInsights(response);
+        }
+
+        function updateMarketInsights(response) {
+            console.log('📰 Updating market insights...');
+            
+            // Update analyst recommendations
+            if (response.analyst_recommendations) {
+                updateAnalystRecommendations(response.analyst_recommendations);
+            }
+            
+            // Update market news
+            if (response.market_news) {
+                updateMarketNews(response.market_news);
+            }
+            
+            // Update market sentiment
+            if (response.market_sentiment) {
+                updateMarketSentiment(response.market_sentiment);
+            }
+            
+            // Update analysis summary
+            if (response.analysis_summary) {
+                updateAnalysisSummary(response.analysis_summary);
+            }
+        }
+
+        function updateAnalystRecommendations(recommendations) {
+            const container = document.getElementById('analystRecommendations');
+            if (!container) return;
+            
+            const total = recommendations.total_analysts || 0;
+            const strongBuy = recommendations.strong_buy || 0;
+            const buy = recommendations.buy || 0;
+            const hold = recommendations.hold || 0;
+            const sell = recommendations.sell || 0;
+            
+            let html = `
+                <h6>📊 Analyst Recommendations (${total} analysts)</h6>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <div class="progress mb-1" style="height: 20px;">
+                            <div class="progress-bar bg-success" style="width: ${total > 0 ? (strongBuy/total)*100 : 0}%">Strong Buy: ${strongBuy}</div>
+                        </div>
+                        <div class="progress mb-1" style="height: 20px;">
+                            <div class="progress-bar bg-info" style="width: ${total > 0 ? (buy/total)*100 : 0}%">Buy: ${buy}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="progress mb-1" style="height: 20px;">
+                            <div class="progress-bar bg-warning" style="width: ${total > 0 ? (hold/total)*100 : 0}%">Hold: ${hold}</div>
+                        </div>
+                        <div class="progress mb-1">
+                            <div class="progress-bar bg-danger" style="width: ${total > 0 ? (sell/total)*100 : 0}%">Sell: ${sell}</div>
+                        </div>
+                    </div>
+                </div>
+                <small class="text-muted">Source: ${recommendations.source || 'Technical Analysis'}</small>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function updateMarketNews(news) {
+            const container = document.getElementById('marketNews');
+            if (!container) return;
+            
+            if (!news || news.length === 0) {
+                container.innerHTML = '<h6>📰 Latest Market News</h6><p class="text-muted">No recent news available.</p>';
+                return;
+            }
+            
+            let html = '<h6>📰 Latest Market News</h6>';
+            news.forEach(article => {
+                const publishDate = article.time_published ? new Date(article.time_published).toLocaleDateString() : 'Recent';
+                html += `
+                    <div class="mb-2 p-2 border rounded">
+                        <small class="text-muted">${publishDate} - ${article.source}</small>
+                        <h6 class="mb-1"><a href="${article.url}" target="_blank">${article.title}</a></h6>
+                        <p class="mb-0 small">${article.summary ? article.summary.substring(0, 150) + '...' : ''}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function updateMarketSentiment(sentiment) {
+            const container = document.getElementById('marketSentiment');
+            if (!container) return;
+            
+            const sentimentClass = sentiment.sentiment === 'POSITIVE' ? 'text-success' : 
+                                  sentiment.sentiment === 'NEGATIVE' ? 'text-danger' : 'text-warning';
+            
+            const html = `
+                <h6>💭 Market Sentiment</h6>
+                <div class="alert alert-secondary">
+                    <span class="badge ${sentimentClass}">${sentiment.sentiment}</span>
+                    <p class="mb-0 mt-2">${sentiment.summary}</p>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function updateAnalysisSummary(summary) {
+            const container = document.getElementById('analysisSummary');
+            if (!container) return;
+            
+            const html = `
+                <h6>📋 Analysis Summary</h6>
+                <div class="alert alert-info">
+                    <p class="mb-0">${summary}</p>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Setup event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Enhanced demo page loaded');
+            document.getElementById('fetchBtn').addEventListener('click', fetchStockDataForTicker);
+        });
+    </script>
+</body>
+</html>

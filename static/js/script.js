@@ -1264,3 +1264,4 @@ function showNotification(message, type = 'info') {
     
     console.log(`🔔 Notification shown: ${message}`);
 }
+}
