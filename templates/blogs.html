@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Blogs - Stock Predictor AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-chart-line text-primary me-2"></i>Stock Predictor AI
+                <span class="badge bg-success ms-2">PRO</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i>About Us
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('blogs') }}">
+                            <i class="fas fa-blog me-1"></i>Blogs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showOnboarding()">
+                            <i class="fas fa-question-circle me-1"></i>Help Center
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('contact') }}">
+                            <i class="fas fa-envelope me-1"></i>Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blogs Content -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center mb-5">
+                    <h1 class="display-4 fw-bold text-primary">Financial Insights & Analysis</h1>
+                    <p class="lead text-muted">Expert analysis, market trends, and investment strategies</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Blog -->
+        <div class="row mb-5">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-lg">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <div class="bg-primary d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-chart-line fa-5x text-white"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+                                <div class="mb-2">
+                                    <span class="badge bg-primary">Featured</span>
+                                    <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>November 26, 2025</span>
+                                    <span class="text-muted ms-3"><i class="fas fa-user me-1"></i>AI Research Team</span>
+                                </div>
+                                <h3 class="card-title fw-bold">The Future of AI in Stock Market Prediction</h3>
+                                <p class="card-text text-muted">
+                                    Explore how artificial intelligence is revolutionizing stock market analysis and what it means for individual investors. Learn about the latest machine learning techniques and their practical applications in trading.
+                                </p>
+                                <a href="#" class="btn btn-primary">Read Full Article</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Posts Grid -->
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-brain fa-3x text-primary"></i>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-success">Technology</span>
+                            <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>Nov 25, 2025</span>
+                        </div>
+                        <h5 class="card-title fw-bold">Understanding Neural Networks in Trading</h5>
+                        <p class="card-text text-muted">
+                            Deep dive into how neural networks analyze market patterns and make predictions. Learn the fundamentals of deep learning in financial markets.
+                        </p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-warning">Risk Management</span>
+                            <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>Nov 24, 2025</span>
+                        </div>
+                        <h5 class="card-title fw-bold">Portfolio Diversification Strategies</h5>
+                        <p class="card-text text-muted">
+                            Essential risk management techniques for building a resilient investment portfolio. Learn how AI can help optimize your asset allocation.
+                        </p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-bar fa-3x text-info"></i>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-info">Technical Analysis</span>
+                            <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>Nov 23, 2025</span>
+                        </div>
+                        <h5 class="card-title fw-bold">Advanced Chart Pattern Recognition</h5>
+                        <p class="card-text text-muted">
+                            How AI identifies and analyzes complex chart patterns that human traders might miss. Explore the latest in technical analysis automation.
+                        </p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-newspaper fa-3x text-success"></i>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-success">Market News</span>
+                            <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>Nov 22, 2025</span>
+                        </div>
+                        <h5 class="card-title fw-bold">Sentiment Analysis in Trading</h5>
+                        <p class="card-text text-muted">
+                            Using natural language processing to gauge market sentiment from news and social media. Discover how sentiment impacts stock prices.
+                        </p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-coins fa-3x text-warning"></i>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-warning">Investment</span>
+                            <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>Nov 21, 2025</span>
+                        </div>
+                        <h5 class="card-title fw-bold">Cryptocurrency Market Analysis</h5>
+                        <p class="card-text text-muted">
+                            AI-powered insights into the volatile cryptocurrency market. Learn about automated trading strategies for digital assets.
+                        </p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-graduation-cap fa-3x text-primary"></i>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-primary">Education</span>
+                            <span class="text-muted ms-2"><i class="fas fa-calendar me-1"></i>Nov 20, 2025</span>
+                        </div>
+                        <h5 class="card-title fw-bold">Getting Started with AI Trading</h5>
+                        <p class="card-text text-muted">
+                            A beginner's guide to using artificial intelligence in stock trading. Essential concepts and practical tips for new investors.
+                        </p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Signup -->
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="card bg-primary text-white border-0">
+                    <div class="card-body p-4 text-center">
+                        <h3 class="card-title fw-bold mb-3">Stay Updated with Latest Insights</h3>
+                        <p class="mb-4">Subscribe to our newsletter for weekly market analysis and investment tips.</p>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="email" class="form-control" placeholder="Enter your email">
+                                    <button class="btn btn-light" type="button">Subscribe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-chart-line me-2"></i>Stock Predictor AI</h5>
+                    <p class="text-white-50">Professional stock analysis and prediction platform for informed investment decisions.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h6>Quick Links</h6>
+                    <div class="d-flex flex-column flex-md-row gap-2">
+                        <a href="{{ url_for('about') }}" class="text-white">About Us</a>
+                        <a href="{{ url_for('blogs') }}" class="text-white">Blogs</a>
+                        <a href="#" onclick="showOnboarding()" class="text-white">Help Center</a>
+                        <a href="{{ url_for('contact') }}" class="text-white">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-white">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 Stock Predictor AI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showOnboarding() {
+            window.location.href = "{{ url_for('index') }}?showOnboarding=true";
+        }
+    </script>
+</body>
+</html>

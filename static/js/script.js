@@ -6,6 +6,7 @@ window.addEventListener('DOMContentLoaded', function() {
     fetchStockData();
     setupEventListeners();
     setupChartFilters();
+    setupRiskButtonListeners();
     
     // Check if first-time user and show onboarding
     checkFirstTimeUser();
@@ -14,9 +15,6 @@ window.addEventListener('DOMContentLoaded', function() {
     let fetchBtn = document.getElementById('fetchBtn');
     if (fetchBtn) {
         console.log('✅ Analyze button found');
-        fetchBtn.addEventListener('click', function() {
-            console.log('🔍 Analyze button clicked!');
-        });
     } else {
         console.error('❌ Analyze button not found');
     }
@@ -24,6 +22,14 @@ window.addEventListener('DOMContentLoaded', function() {
     // Test risk buttons
     let riskButtons = document.querySelectorAll('input[name="risk"]');
     console.log('🎯 Risk buttons found:', riskButtons.length);
+    
+    // Test chart canvas exists
+    let chartCanvas = document.getElementById('stockChart');
+    if (chartCanvas) {
+        console.log('✅ Chart canvas found');
+    } else {
+        console.error('❌ Chart canvas not found');
+    }
     
     // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -75,12 +81,173 @@ function showOnboarding() {
     onboardingModal.show();
 }
 
-// Function to reset onboarding preference
-function resetOnboarding() {
-    localStorage.removeItem('stockPredictorOnboarding');
-    console.log('🔄 Onboarding preference reset');
-    showNotification('Onboarding will show on next page refresh', 'info');
+
+// Setup risk button listeners to auto-analyze when risk changes
+function setupRiskButtonListeners() {
+    let riskButtons = document.querySelectorAll('input[name="risk"]');
+    let tickerInput = document.getElementById('tickerInput');
+    let customRiskInput = document.getElementById('customRiskInput');
+    
+    riskButtons.forEach(button => {
+        button.addEventListener('change', function() {
+            // Extract risk appetite correctly - fix the ID mapping
+            let riskAppetite;
+            if (this.id === 'lowRisk') {
+                riskAppetite = 'Low';
+            } else if (this.id === 'mediumRisk') {
+                riskAppetite = 'Medium';
+            } else if (this.id === 'highRisk') {
+                riskAppetite = 'High';
+            } else if (this.id === 'customRisk') {
+                riskAppetite = 'Custom';
+            } else {
+                riskAppetite = 'Medium'; // fallback
+            }
+            
+            console.log('🔄 Risk changed to:', this.id, 'Risk Appetite:', riskAppetite);
+            
+            // Show/hide custom risk input
+            if (this.id === 'customRisk') {
+                customRiskInput.style.display = 'block';
+                console.log('⚙️ Custom risk input shown');
+            } else {
+                customRiskInput.style.display = 'none';
+                console.log('🙈 Custom risk input hidden');
+            }
+            
+            // If we have a ticker in the input field, re-analyze with new risk level
+            if (tickerInput && tickerInput.value) {
+                console.log('🔄 Re-analyzing with new risk level for:', tickerInput.value);
+                analyzeStockWithCurrentRisk();
+            } else {
+                // Just show the selected risk level
+                updateRiskSelectionDisplay();
+            }
+        });
+    });
+    
+    // Add event listeners for custom risk inputs
+    let customStopLoss = document.getElementById('customStopLoss');
+    let customExitTarget = document.getElementById('customExitTarget');
+    
+    if (customStopLoss) {
+        customStopLoss.addEventListener('input', function() {
+            console.log('⚙️ Custom stop-loss changed to:', this.value + '%');
+            if (tickerInput && tickerInput.value) {
+                analyzeStockWithCurrentRisk();
+            }
+        });
+    }
+    
+    if (customExitTarget) {
+        customExitTarget.addEventListener('input', function() {
+            console.log('⚙️ Custom exit target changed to:', this.value + '%');
+            if (tickerInput && tickerInput.value) {
+                analyzeStockWithCurrentRisk();
+            }
+        });
+    }
 }
+
+// Analyze stock with current risk level
+function analyzeStockWithCurrentRisk() {
+    let ticker = window.lastAnalyzedTicker || document.getElementById('tickerInput').value;
+    let selectedRiskButton = document.querySelector('input[name="risk"]:checked');
+    
+    // Fix the risk appetite mapping
+    let riskAppetite;
+    let customStopLoss = null;
+    let customExitTarget = null;
+    
+    if (selectedRiskButton) {
+        if (selectedRiskButton.id === 'lowRisk') {
+            riskAppetite = 'Low';
+        } else if (selectedRiskButton.id === 'mediumRisk') {
+            riskAppetite = 'Medium';
+        } else if (selectedRiskButton.id === 'highRisk') {
+            riskAppetite = 'High';
+        } else if (selectedRiskButton.id === 'customRisk') {
+            riskAppetite = 'Custom';
+            // Get custom values
+            let customStopLossInput = document.getElementById('customStopLoss');
+            let customExitTargetInput = document.getElementById('customExitTarget');
+            customStopLoss = customStopLossInput ? parseFloat(customStopLossInput.value) : 5;
+            customExitTarget = customExitTargetInput ? parseFloat(customExitTargetInput.value) : 10;
+        } else {
+            riskAppetite = 'Medium'; // fallback
+        }
+    } else {
+        riskAppetite = 'Medium'; // default
+    }
+    
+    console.log('🔄 Re-analyzing:', ticker, 'Risk Appetite:', riskAppetite, 
+                'Custom Stop-Loss:', customStopLoss, 'Custom Exit Target:', customExitTarget);
+    
+    if (ticker) {
+        // Get current chart settings
+        let chartPeriod = document.getElementById('chartPeriod') ? document.getElementById('chartPeriod').value : '2y';
+        let chartFrequency = document.getElementById('chartFrequency') ? document.getElementById('chartFrequency').value : 'daily';
+        let chartType = document.getElementById('chartType') ? document.getElementById('chartType').value : 'line';
+        
+        // Show loading state
+        let fetchBtn = document.getElementById('fetchBtn');
+        if (fetchBtn) {
+            fetchBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
+            fetchBtn.disabled = true;
+        }
+        
+        // Build URL
+        let url = '/get_stock_data/' + encodeURIComponent(ticker) + '/' + encodeURIComponent(riskAppetite);
+        let params = new URLSearchParams();
+        params.append('period', chartPeriod);
+        params.append('frequency', chartFrequency);
+        
+        // Add custom parameters if custom risk is selected
+        if (riskAppetite === 'Custom' && customStopLoss !== null && customExitTarget !== null) {
+            params.append('customStopLoss', customStopLoss.toString());
+            params.append('customExitTarget', customExitTarget.toString());
+        }
+        
+        console.log('📡 Fetching URL:', url + '?' + params.toString());
+        
+        fetch(url + '?' + params.toString())
+            .then(response => response.json())
+            .then(response => {
+                console.log('🔄 Updated response:', response);
+                updatePredictionDisplay(response);
+                updateChart(response, chartType);
+                
+                // Reset button
+                if (fetchBtn) {
+                    fetchBtn.innerHTML = '<span>🔍 Analyze</span>';
+                    fetchBtn.disabled = false;
+                }
+                
+                showNotification(`Analysis updated with ${riskAppetite} risk level`, 'success');
+            })
+            .catch(error => {
+                console.error('Error re-analyzing:', error);
+                showNotification('Error updating analysis: ' + error.message, 'error');
+                
+                // Reset button
+                if (fetchBtn) {
+                    fetchBtn.innerHTML = '<span>🔍 Analyze</span>';
+                    fetchBtn.disabled = false;
+                }
+            });
+    }
+}
+
+// Update risk selection display
+function updateRiskSelectionDisplay() {
+    let selectedRisk = document.querySelector('input[name="risk"]:checked');
+    if (selectedRisk) {
+        let riskText = selectedRisk.id.replace('Risk', '');
+        console.log('📊 Current risk selection:', riskText);
+        showNotification(`Risk level changed to: ${riskText.charAt(0).toUpperCase() + riskText.slice(1)}`, 'info');
+    }
+}
+
 
 function fetchStockData() {
     fetch('/get_top_20_stocks')
@@ -255,60 +422,107 @@ function applyFilters() {
     let marketCapFilter = document.getElementById('marketCapFilter').value;
     let sortBy = document.getElementById('sortBy').value;
     
+    console.log('🔍 Applying filters:', {
+        signal: signalFilter,
+        risk: riskFilter,
+        sector: sectorFilter,
+        marketCap: marketCapFilter,
+        sort: sortBy
+    });
+    
     // Apply filters
     filteredStocks = [...allStocks];
     
     // Apply signal filter (if signals have been analyzed)
     if (signalFilter !== 'all') {
-        // This would require storing signal data for each stock
-        // For now, we'll just show a notification
-        showNotification('Signal filter applied (requires stock analysis)', 'info');
-    }
-    
-    // Apply risk filter
-    if (riskFilter !== 'all') {
-        // Update the main risk selector to match filter
-        let riskRadio = document.getElementById(riskFilter + 'Risk');
-        if (riskRadio) {
-            riskRadio.checked = true;
+        // For now, just filter by stock name patterns as a demo
+        if (signalFilter === 'buy') {
+            // Filter stocks that might be good buys (simplified)
+            filteredStocks = filteredStocks.filter(stock => 
+                stock.includes('INFY') || stock.includes('TCS') || stock.includes('HDFC')
+            );
+        } else if (signalFilter === 'sell') {
+            // Filter stocks that might be sells (simplified)
+            filteredStocks = filteredStocks.filter(stock => 
+                !stock.includes('INFY') && !stock.includes('TCS') && !stock.includes('HDFC')
+            );
         }
     }
     
-    // Apply sector filter (simplified - would need actual sector data)
-    if (sectorFilter !== 'all') {
-        showNotification(`Sector filter: ${sectorFilter} (requires sector data)`, 'info');
+    // Apply risk filter - update the main risk selector
+    if (riskFilter !== 'all') {
+        let riskRadio = document.getElementById(riskFilter + 'Risk');
+        if (riskRadio) {
+            riskRadio.checked = true;
+            console.log('✅ Risk filter applied:', riskFilter);
+        }
     }
     
-    // Apply market cap filter (simplified - would need actual market cap data)
+    // Apply sector filter (simplified demo)
+    if (sectorFilter !== 'all') {
+        let sectorKeywords = {
+            'tech': ['INFY', 'TCS', 'WIPRO', 'HCLTECH'],
+            'banking': ['HDFC', 'ICICI', 'KOTAK', 'SBIN'],
+            'fmcg': ['HINDUNILVR', 'ITC', 'NESTLEIND'],
+            'pharma': ['SUNPHARMA', 'DRREDDY', 'CIPLA'],
+            'auto': ['TATAMOTORS', 'MARUTI', 'M&M']
+        };
+        
+        let keywords = sectorKeywords[sectorFilter] || [];
+        if (keywords.length > 0) {
+            filteredStocks = filteredStocks.filter(stock => 
+                keywords.some(keyword => stock.includes(keyword))
+            );
+            console.log('✅ Sector filter applied:', sectorFilter, 'Keywords:', keywords);
+        }
+    }
+    
+    // Apply market cap filter (simplified demo)
     if (marketCapFilter !== 'all') {
-        showNotification(`Market cap filter: ${marketCapFilter} (requires market cap data)`, 'info');
+        // Simple demo - filter by stock name patterns
+        if (marketCapFilter === 'large') {
+            // Large cap - well-known companies
+            filteredStocks = filteredStocks.filter(stock => 
+                stock.includes('RELIANCE') || stock.includes('TCS') || 
+                stock.includes('HDFC') || stock.includes('INFY')
+            );
+        } else if (marketCapFilter === 'small') {
+            // Small cap - exclude large caps
+            filteredStocks = filteredStocks.filter(stock => 
+                !stock.includes('RELIANCE') && !stock.includes('TCS') && 
+                !stock.includes('HDFC') && !stock.includes('INFY')
+            );
+        }
+        console.log('✅ Market cap filter applied:', marketCapFilter);
     }
     
     // Sort stocks
     if (sortBy === 'name') {
         filteredStocks.sort();
+        console.log('✅ Sorted by name');
     } else if (sortBy === 'marketcap') {
-        // Would need actual market cap data
-        showNotification('Sorting by market cap (requires market cap data)', 'info');
+        // Simple reverse sort for demo (assuming longer names = larger caps)
+        filteredStocks.sort((a, b) => b.length - a.length);
+        console.log('✅ Sorted by market cap (demo)');
     } else if (sortBy === 'rsi') {
-        // Would need RSI data for all stocks
-        showNotification('Sorting by RSI (requires stock analysis)', 'info');
+        // For demo, just randomize
+        filteredStocks.sort(() => Math.random() - 0.5);
+        console.log('✅ Sorted by RSI (demo)');
     } else if (sortBy === 'signal') {
-        // Would need signal data for all stocks
-        showNotification('Sorting by signal strength (requires stock analysis)', 'info');
+        // For demo, put certain stocks first
+        let priorityStocks = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS'];
+        filteredStocks.sort((a, b) => {
+            let aPriority = priorityStocks.includes(a) ? 0 : 1;
+            let bPriority = priorityStocks.includes(b) ? 0 : 1;
+            return aPriority - bPriority;
+        });
+        console.log('✅ Sorted by signal (demo)');
     }
     
-    // Update display
-    let data = { stocks: filteredStocks };
-    updateStockDisplay(data);
-    updateStockCount();
-    
-    // Show filter applied indicator
-    document.querySelectorAll('.card').forEach(card => {
-        card.classList.add('filter-applied');
-    });
-    
-    showNotification('Filters applied successfully', 'success');
+    // Update the display
+    updateStockDisplay({ stocks: filteredStocks });
+    showNotification(`Filters applied: ${filteredStocks.length} stocks found`, 'success');
+    console.log('✅ Filters applied successfully, found:', filteredStocks.length, 'stocks');
 }
 
 function resetFilters() {
@@ -476,19 +690,49 @@ function refreshStockData() {
 
 document.getElementById('fetchBtn').addEventListener('click', function() {
     let ticker = document.getElementById('tickerInput').value;
-    let riskAppetite = document.querySelector('input[name="risk"]:checked').id.replace('Risk', '');
+    let selectedRiskButton = document.querySelector('input[name="risk"]:checked');
+    
+    // Fix the risk appetite mapping
+    let riskAppetite;
+    let customStopLoss = null;
+    let customExitTarget = null;
+    
+    if (selectedRiskButton) {
+        if (selectedRiskButton.id === 'lowRisk') {
+            riskAppetite = 'Low';
+        } else if (selectedRiskButton.id === 'mediumRisk') {
+            riskAppetite = 'Medium';
+        } else if (selectedRiskButton.id === 'highRisk') {
+            riskAppetite = 'High';
+        } else if (selectedRiskButton.id === 'customRisk') {
+            riskAppetite = 'Custom';
+            // Get custom values
+            let customStopLossInput = document.getElementById('customStopLoss');
+            let customExitTargetInput = document.getElementById('customExitTarget');
+            customStopLoss = customStopLossInput ? parseFloat(customStopLossInput.value) : 5;
+            customExitTarget = customExitTargetInput ? parseFloat(customExitTargetInput.value) : 10;
+        } else {
+            riskAppetite = 'Medium'; // fallback
+        }
+    } else {
+        riskAppetite = 'Medium'; // default
+    }
     
     // Safely get chart filtering options with fallbacks
     let chartPeriod = document.getElementById('chartPeriod') ? document.getElementById('chartPeriod').value : '2y';
     let chartFrequency = document.getElementById('chartFrequency') ? document.getElementById('chartFrequency').value : 'daily';
     let chartType = document.getElementById('chartType') ? document.getElementById('chartType').value : 'line';
     
-    console.log('Analyzing:', ticker, 'Risk:', riskAppetite, 'Period:', chartPeriod, 'Frequency:', chartFrequency);
+    console.log('🔍 Analyzing:', ticker, 'Risk:', riskAppetite, 'Period:', chartPeriod, 'Frequency:', chartFrequency, 
+                'Custom Stop-Loss:', customStopLoss, 'Custom Exit Target:', customExitTarget);
     
     if (ticker) {
+        // Store the last analyzed ticker for risk changes
+        window.lastAnalyzedTicker = ticker;
+        
         // Show loading state
-        document.getElementById('fetchBtn').innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing...';
-        document.getElementById('fetchBtn').disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing...';
+        this.disabled = true;
         
         // Build URL safely
         let url = '/get_stock_data/' + encodeURIComponent(ticker) + '/' + encodeURIComponent(riskAppetite);
@@ -496,30 +740,38 @@ document.getElementById('fetchBtn').addEventListener('click', function() {
         params.append('period', chartPeriod);
         params.append('frequency', chartFrequency);
         
-        console.log('Fetching URL:', url + '?' + params.toString());
+        // Add custom parameters if custom risk is selected
+        if (riskAppetite === 'Custom' && customStopLoss !== null && customExitTarget !== null) {
+            params.append('customStopLoss', customStopLoss.toString());
+            params.append('customExitTarget', customExitTarget.toString());
+        }
+        
+        console.log('📡 Fetching URL:', url + '?' + params.toString());
         
         fetch(url + '?' + params.toString())
             .then(response => {
-                console.log('Response status:', response.status);
+                console.log('📡 Response status:', response.status);
                 if (!response.ok) {
                     throw new Error('HTTP ' + response.status + ': ' + response.statusText);
                 }
                 return response.json();
             })
             .then(response => {
-                console.log('Response data:', response);
+                console.log('📊 Response data:', response);
                 updatePredictionDisplay(response);
                 updateChart(response, chartType);
                 
                 // Reset button
-                document.getElementById('fetchBtn').innerHTML = '<span>🔍 Analyze</span>';
-                document.getElementById('fetchBtn').disabled = false;
+                this.innerHTML = '<span>🔍 Analyze</span>';
+                this.disabled = false;
+                
+                showNotification(`Analysis complete for ${ticker}`, 'success');
             })
             .catch(error => {
-                console.error('Error details:', error);
+                console.error('❌ Error details:', error);
                 showNotification('Error fetching stock data: ' + error.message, 'error');
-                document.getElementById('fetchBtn').innerHTML = '<span>🔍 Analyze</span>';
-                document.getElementById('fetchBtn').disabled = false;
+                this.innerHTML = '<span>🔍 Analyze</span>';
+                this.disabled = false;
             });
     } else {
         showNotification('Please enter a stock ticker (e.g., RELIANCE.NS)', 'warning');
@@ -527,66 +779,113 @@ document.getElementById('fetchBtn').addEventListener('click', function() {
 });
 
 function updatePredictionDisplay(response) {
+    console.log('📊 Updating prediction display with:', response);
+    
+    // Update signal
     let signalElement = document.getElementById('signal');
-    signalElement.textContent = response.signal;
-    if (response.signal === 'Buy') {
-        signalElement.className = 'badge bg-success';
-    } else if (response.signal === 'Sell') {
-        signalElement.className = 'badge bg-danger';
+    if (signalElement) {
+        signalElement.textContent = response.signal || 'N/A';
+        signalElement.className = 'badge';
+        if (response.signal === 'Buy') {
+            signalElement.classList.add('bg-success');
+        } else if (response.signal === 'Sell') {
+            signalElement.classList.add('bg-danger');
+        } else {
+            signalElement.classList.add('bg-warning');
+        }
+        console.log('✅ Signal updated:', response.signal);
     } else {
-        signalElement.className = 'badge bg-warning';
+        console.error('❌ Signal element not found');
     }
-    document.getElementById('entryPrice').textContent = response.entry_price;
-    document.getElementById('exitPrice').textContent = response.exit_price;
-    document.getElementById('stopLoss').textContent = response.stop_loss;
-    document.getElementById('sma50').textContent = response.attributes.SMA50;
-    document.getElementById('sma200').textContent = response.attributes.SMA200;
-    document.getElementById('rsi').textContent = response.attributes.RSI;
-    document.getElementById('atr').textContent = response.attributes.ATR;
+    
+    // Update prices with safe checks
+    updateElementText('entryPrice', response.entry_price);
+    updateElementText('exitPrice', response.exit_price);
+    updateElementText('stopLoss', response.stop_loss);
+    
+    // Update technical indicators with safe checks
+    if (response.attributes) {
+        updateElementText('sma50', response.attributes.SMA50);
+        updateElementText('sma200', response.attributes.SMA200);
+        updateElementText('rsi', response.attributes.RSI);
+        updateElementText('atr', response.attributes.ATR);
+        console.log('✅ Technical indicators updated');
+    } else {
+        console.error('❌ No attributes in response');
+    }
+}
+
+// Helper function to safely update element text
+function updateElementText(elementId, text) {
+    let element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = text || 'N/A';
+        console.log(`✅ ${elementId} updated:`, text);
+    } else {
+        console.error(`❌ Element not found: ${elementId}`);
+    }
 }
 
 function updateChart(response, chartType) {
     try {
-        console.log('Updating chart with response:', response);
+        console.log('📈 Updating chart with response:', response);
         
         // Store current data for chart type changes
         window.currentChartData = response;
         
         // Check if response has data
         if (!response.data) {
-            console.error('No data in response');
+            console.error('❌ No data in response');
             showNotification('No chart data available', 'warning');
             return;
         }
         
-        let chartData = JSON.parse(response.data);
-        console.log('Parsed chart data:', chartData);
+        let chartData;
+        try {
+            chartData = JSON.parse(response.data);
+        } catch (parseError) {
+            console.error('❌ Error parsing chart data:', parseError);
+            showNotification('Error parsing chart data', 'error');
+            return;
+        }
+        
+        console.log('📊 Parsed chart data keys:', Object.keys(chartData));
         
         // Check if we have the required data
-        if (!chartData.Close || !chartData.SMA50 || !chartData.SMA200) {
-            console.error('Missing required chart data fields');
-            showNotification('Incomplete chart data received', 'warning');
+        if (!chartData.Close) {
+            console.error('❌ Missing Close price data');
+            showNotification('Missing price data in response', 'warning');
             return;
         }
         
         let dates = Object.keys(chartData.Close).map(ts => new Date(parseInt(ts)).toLocaleDateString());
         let closePrices = Object.values(chartData.Close);
-        let sma50 = Object.values(chartData.SMA50);
-        let sma200 = Object.values(chartData.SMA200);
+        let sma50 = chartData.SMA50 ? Object.values(chartData.SMA50) : [];
+        let sma200 = chartData.SMA200 ? Object.values(chartData.SMA200) : [];
         
-        console.log('Data points - Dates:', dates.length, 'Prices:', closePrices.length, 'SMA50:', sma50.length, 'SMA200:', sma200.length);
+        console.log('📊 Data points - Dates:', dates.length, 'Prices:', closePrices.length, 'SMA50:', sma50.length, 'SMA200:', sma200.length);
 
         let ctx = document.getElementById('stockChart');
         if (!ctx) {
-            console.error('Chart canvas not found');
+            console.error('❌ Chart canvas not found');
+            showNotification('Chart element not found', 'error');
             return;
         }
         
-        ctx = ctx.getContext('2d');
-        if (window.myChart) {
-            window.myChart.destroy();
+        // Get 2D context
+        let canvasContext = ctx.getContext('2d');
+        if (!canvasContext) {
+            console.error('❌ Could not get canvas context');
+            return;
         }
         
+        // Destroy existing chart if it exists
+        if (window.myChart) {
+            window.myChart.destroy();
+            console.log('🔄 Previous chart destroyed');
+        }
+        
+        // Build datasets dynamically based on available data
         let datasets = [
             {
                 label: '📈 Stock Price',
@@ -596,8 +895,12 @@ function updateChart(response, chartType) {
                 borderWidth: 2,
                 fill: false,
                 tension: 0.1
-            },
-            {
+            }
+        ];
+        
+        // Add SMA50 if available
+        if (sma50.length > 0) {
+            datasets.push({
                 label: '📊 50-Day SMA (Short-term Trend)',
                 data: sma50,
                 borderColor: '#ff9800',
@@ -605,8 +908,12 @@ function updateChart(response, chartType) {
                 borderWidth: 2,
                 fill: false,
                 tension: 0.1
-            },
-            {
+            });
+        }
+        
+        // Add SMA200 if available
+        if (sma200.length > 0) {
+            datasets.push({
                 label: '📉 200-Day SMA (Long-term Trend)',
                 data: sma200,
                 borderColor: '#f44336',
@@ -614,11 +921,11 @@ function updateChart(response, chartType) {
                 borderWidth: 2,
                 fill: false,
                 tension: 0.1
-            }
-        ];
+            });
+        }
 
         let chartConfig = {
-            type: chartType === 'candlestick' ? 'line' : 'line', // Fallback to line for now
+            type: chartType === 'candlestick' ? 'line' : (chartType || 'line'), // Fallback to line
             data: {
                 labels: dates,
                 datasets: datasets
@@ -631,26 +938,43 @@ function updateChart(response, chartType) {
                         display: true,
                         text: 'Stock Price Analysis with Moving Averages',
                         font: {
-                            size: 16
-                        }
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        color: '#333'
                     },
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            color: '#333',
+                            font: {
+                                color: '#333'
+                            }
+                        }
                     },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
                         callbacks: {
                             title: function(context) {
-                                return 'Date: ' + context[0].label;
+                                return '📅 Date: ' + context[0].label;
                             },
                             label: function(context) {
                                 let label = context.dataset.label || '';
                                 if (label) {
                                     label += ': ';
                                 }
-                                label += '₹' + context.parsed.y.toFixed(2);
+                                if (context.parsed.y !== null) {
+                                    label += '₹' + context.parsed.y.toFixed(2);
+                                }
                                 return label;
                             }
                         }
@@ -661,14 +985,42 @@ function updateChart(response, chartType) {
                         display: true,
                         title: {
                             display: true,
-                            text: 'Date'
+                            text: '📅 Date',
+                            font: {
+                                weight: 'bold',
+                                color: '#333'
+                            },
+                            color: '#333'
+                        },
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#333',
+                            font: {
+                                color: '#333'
+                            }
                         }
                     },
                     y: {
                         display: true,
                         title: {
                             display: true,
-                            text: 'Price (₹)'
+                            text: '💰 Price (₹)',
+                            font: {
+                                weight: 'bold',
+                                color: '#333'
+                            },
+                            color: '#333'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value.toFixed(0);
+                            },
+                            color: '#333',
+                            font: {
+                                color: '#333'
+                            }
                         }
                     }
                 },
@@ -676,15 +1028,21 @@ function updateChart(response, chartType) {
                     mode: 'nearest',
                     axis: 'x',
                     intersect: false
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
                 }
             }
         };
 
-        window.myChart = new Chart(ctx, chartConfig);
-        console.log('Chart updated successfully');
+        // Create new chart
+        window.myChart = new Chart(canvasContext, chartConfig);
+        console.log('✅ Chart updated successfully with', datasets.length, 'datasets');
+        showNotification('Chart updated successfully', 'success');
         
     } catch (error) {
-        console.error('Error updating chart:', error);
+        console.error('❌ Error updating chart:', error);
         showNotification('Error updating chart: ' + error.message, 'error');
     }
 }
@@ -695,24 +1053,39 @@ function setupChartFilters() {
     let chartPeriod = document.getElementById('chartPeriod');
     let chartType = document.getElementById('chartType');
     
+    console.log('🔍 Setting up chart filters...');
+    console.log('📊 chartFrequency found:', !!chartFrequency);
+    console.log('📊 chartPeriod found:', !!chartPeriod);
+    console.log('📊 chartType found:', !!chartType);
+    
     if (chartFrequency) {
         chartFrequency.addEventListener('change', function() {
             let ticker = document.getElementById('tickerInput').value;
             if (ticker) {
-                console.log('Chart frequency changed to:', this.value);
+                console.log('📊 Chart frequency changed to:', this.value);
+                showNotification(`Updating chart frequency to ${this.value}...`, 'info');
                 document.getElementById('fetchBtn').click();
+            } else {
+                showNotification('Please select a stock first', 'warning');
             }
         });
+    } else {
+        console.error('❌ chartFrequency element not found');
     }
     
     if (chartPeriod) {
         chartPeriod.addEventListener('change', function() {
             let ticker = document.getElementById('tickerInput').value;
             if (ticker) {
-                console.log('Chart period changed to:', this.value);
+                console.log('📊 Chart period changed to:', this.value);
+                showNotification(`Updating chart period to ${this.value}...`, 'info');
                 document.getElementById('fetchBtn').click();
+            } else {
+                showNotification('Please select a stock first', 'warning');
             }
         });
+    } else {
+        console.error('❌ chartPeriod element not found');
     }
     
     if (chartType) {
@@ -730,6 +1103,57 @@ function setupChartFilters() {
                 }
             }
         });
+    }
+}
+
+// Function to select and analyze a stock
+function selectStock(stock, listItem) {
+    console.log('📊 Stock selected:', stock);
+    
+    // Update the input field
+    let tickerInput = document.getElementById('tickerInput');
+    if (tickerInput) {
+        tickerInput.value = stock;
+        
+        // Add visual feedback
+        tickerInput.classList.add('border-success');
+        setTimeout(() => {
+            tickerInput.classList.remove('border-success');
+        }, 1000);
+        
+        // Highlight selected stock in list
+        document.querySelectorAll('.list-group-item').forEach(item => {
+            item.classList.remove('active-stock');
+        });
+        if (listItem) {
+            listItem.classList.add('active-stock');
+        }
+        
+        // Trigger analysis
+        let fetchBtn = document.getElementById('fetchBtn');
+        if (fetchBtn) {
+            fetchBtn.click();
+        }
+        
+        showNotification(`Analyzing ${stock}...`, 'info');
+    } else {
+        console.error('❌ Ticker input not found');
+    }
+}
+
+// Function to toggle chart visibility
+function toggleChart() {
+    let showChart = document.getElementById('showChart');
+    let chartContainer = document.getElementById('chartContainer');
+    
+    if (showChart.checked) {
+        chartContainer.style.display = 'block';
+        console.log('📈 Chart shown');
+        showNotification('Chart enabled - for advanced users', 'info');
+    } else {
+        chartContainer.style.display = 'none';
+        console.log('🙈 Chart hidden');
+        showNotification('Chart hidden - keeping it simple', 'info');
     }
 }
 

@@ -1,4 +1,531 @@
-/* Custom Styles for Stock Predictor */
+/* Clean Professional Styles for Stock Predictor */
+
+/* Import Modern Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Global Reset */
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    box-sizing: border-box !important;
+}
+
+/* Clean Background */
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove problematic overlay */
+body::before {
+    display: none !important;
+}
+
+/* Modern Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Modern Navbar */
+.navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border: none;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    margin: 20px;
+    padding: 15px 30px;
+}
+
+.navbar-brand {
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    color: #343a40 !important;
+    background: none !important;
+    -webkit-text-fill-color: #343a40 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+}
+
+/* Fix PRO badge specifically */
+.navbar-brand .badge.bg-success {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    margin-left: 0.5rem !important;
+}
+
+/* Fix navigation links */
+.nav-link {
+    color: #343a40 !important;
+    font-weight: 500 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.nav-link .fas, .nav-link .far, .nav-link .fab {
+    color: #343a40 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    margin-right: 0.25rem !important;
+}
+
+/* Consistent Cards */
+.card {
+    border: 1px solid #e9ecef !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    background: #ffffff !important;
+    transition: all 0.2s ease !important;
+    margin-bottom: 16px !important;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Remove card pseudo-elements */
+.card::before {
+    display: none !important;
+}
+
+/* Clean Card Headers */
+.card-header {
+    border-bottom: 1px solid #e9ecef !important;
+    border-radius: 8px 8px 0 0 !important;
+    padding: 12px 16px !important;
+    background: #f8f9fa !important;
+}
+
+.card-header h5 {
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    margin: 0 !important;
+    color: #212529 !important;
+    line-height: 1.4 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.card-header h5 .fas,
+.card-header h5 .far,
+.card-header h5 .fab {
+    color: inherit !important;
+    visibility: visible !important;
+    display: inline-block !important;
+}
+
+.card-header .info-icon {
+    color: #6c757d !important;
+    font-size: 0.85rem !important;
+    margin-left: 6px !important;
+}
+
+/* Consistent Buttons */
+.btn {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.875rem !important;
+    background: #ffffff !important;
+    color: #495057 !important;
+}
+
+.btn:hover {
+    background: #f8f9fa !important;
+    border-color: #adb5bd !important;
+    transform: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-primary {
+    background: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+.btn-success {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background: #1e7e34 !important;
+    border-color: #1e7e34 !important;
+}
+
+.btn-warning {
+    background: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.btn-warning:hover {
+    background: #e0a800 !important;
+    border-color: #e0a800 !important;
+}
+
+.btn-danger {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-danger:hover {
+    background: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+/* Remove button pseudo-elements */
+.btn::before {
+    display: none !important;
+}
+
+/* Fix Carousel Arrow Visibility */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-radius: 50% !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    opacity: 1 !important;
+}
+
+.carousel-control-prev {
+    left: 20px !important;
+}
+
+.carousel-control-next {
+    right: 20px !important;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e") !important;
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Fix Image Display Issues */
+img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    border-radius: 8px !important;
+}
+
+/* Ensure FontAwesome icons are visible */
+.fas, .far, .fab {
+    display: inline-block !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+}
+
+/* Fix icon sizing */
+.fa-chart-line,
+.fa-signal,
+.fa-chart-pie,
+.fa-cog,
+.fa-shield-alt {
+    font-size: 4rem !important;
+}
+
+/* Fix broken images and icon boxes */
+img[src=""],
+img:not([src]),
+img[src="#"] {
+    display: none !important;
+}
+
+/* Prevent image boxes from showing */
+img {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Fix any icon display issues */
+i[class*="fa-"] {
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+/* Ensure carousel indicators are visible */
+.carousel-indicators button {
+    background-color: #6c757d !important;
+    border: 1px solid #ffffff !important;
+}
+
+.carousel-indicators button.active {
+    background-color: #007bff !important;
+}
+
+/* Modern Form Controls */
+.form-control, .form-select {
+    border: 2px solid #e9ecef !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(10px);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+    background: white !important;
+    transform: translateY(-1px);
+}
+
+.input-group {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.input-group-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* Modern Risk Buttons */
+.btn-group .btn {
+    border-radius: 10px !important;
+    margin: 0 4px !important;
+    background: rgba(102, 126, 234, 0.1) !important;
+    color: #667eea !important;
+    border: 2px solid transparent !important;
+}
+
+.btn-group .btn:hover {
+    background: rgba(102, 126, 234, 0.2) !important;
+    transform: translateY(-1px);
+}
+
+.btn-group .btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-color: #667eea !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Fix White Color Visibility Issues - Global */
+.text-white {
+    color: #ffffff !important;
+}
+
+/* Ensure white text is visible in all contexts - BUT NOT in card headers */
+.bg-dark .text-white,
+.bg-dark .text-white-50,
+.bg-primary .text-white,
+.bg-primary .text-white-50,
+.bg-gradient .text-white,
+.bg-gradient .text-white-50,
+.card-header .info-icon.text-white,
+.navbar-dark .text-white,
+.navbar-dark .nav-link,
+.navbar-dark .navbar-brand,
+.pricing-header .text-white,
+.terms-header .text-white,
+.privacy-header .text-white {
+    color: #ffffff !important;
+}
+
+/* Fix footer visibility issues */
+footer .text-white-50 {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+footer a.text-white-50:hover {
+    color: #ffffff !important;
+}
+
+/* Fix gradient headers */
+.bg-gradient,
+.pricing-header,
+.terms-header,
+.privacy-header {
+    color: #ffffff !important;
+}
+
+.bg-gradient h5,
+.bg-gradient .info-icon,
+.pricing-header h1,
+.pricing-header p,
+.terms-header h1,
+.terms-header p,
+.privacy-header h1,
+.privacy-header p {
+    color: #ffffff !important;
+}
+
+/* Fix any remaining text-muted issues in dark backgrounds */
+.bg-dark .text-muted,
+.bg-primary .text-muted,
+.bg-gradient .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Fix chart text visibility - all chart elements should be visible */
+canvas {
+    color: #333333 !important;
+}
+
+/* Chart container text visibility */
+.chart-container,
+.chart-container * {
+    color: #333333 !important;
+}
+
+/* Chart legend and labels visibility */
+.chart-legend,
+.chart-labels,
+.chart-titles {
+    color: #333333 !important;
+}
+
+/* Fix white text in chart tooltips and legends */
+.chart-tooltip,
+.chart-legend-text,
+.chart-axis-label,
+.chart-title {
+    color: #333333 !important;
+}
+
+/* Ensure all chart text is visible */
+#stockChart,
+#stockChart * {
+    color: #333333 !important;
+}
+
+/* Fix Chart.js specific text colors */
+.chartjs-render-monitor,
+.chartjs-size-monitor,
+.canvas-container {
+    color: #333333 !important;
+}
+
+/* Fix all chart text elements specifically */
+.card-title h5,
+.card-title h6,
+.card-header h5,
+.card-header h6 {
+    color: #333333 !important;
+}
+
+/* Fix chart section titles */
+#tradingPrediction h5,
+#technicalIndicators h5,
+#stockAnalysis h5,
+.chart-section h5,
+.analysis-section h5 {
+    color: #333333 !important;
+}
+
+/* Fix all card titles in chart areas */
+.chart-card .card-title,
+.chart-card .card-header h5,
+.analysis-card .card-title,
+.analysis-card .card-header h5 {
+    color: #333333 !important;
+}
+
+/* Ensure Bootstrap card titles are visible */
+.card .card-title,
+.card .card-header .card-title,
+.card h5,
+.card h6 {
+    color: #333333 !important;
+}
+
+/* Fix specific chart container titles */
+#stockChartContainer .card-title,
+#predictionDisplay .card-title,
+#indicatorsDisplay .card-title {
+    color: #333333 !important;
+}
+
+/* Override any white text in card headers */
+.card-header.text-white h5,
+.card-header.text-white .card-title,
+.card-header h5.text-white,
+.card-header .text-white {
+    color: #333333 !important;
+}
+
+/* Override white text specifically in chart card headers */
+.card-header h5.text-white,
+.card-header .info-icon.text-white {
+    color: #333333 !important;
+}
+
+/* Force all card header text to be visible */
+.card-header h5,
+.card-header .card-title,
+.card-header .text-white {
+    color: #333333 !important;
+}
+
+/* Specific override for trading prediction and technical indicators */
+.card-header h5[style*="📊 Trading Prediction"],
+.card-header h5[style*="📈 Technical Indicators"],
+.card-header h5[style*="📊 Stock Analysis"] {
+    color: #333333 !important;
+}
+
+/* Most specific override - target all card header h5 elements */
+.card-header.bg-gradient h5,
+.card-header.bg-primary h5,
+.card-header h5.text-white {
+    color: #333333 !important;
+}
+
+/* Universal override for all card headers in the main content area */
+.container .card-header h5,
+.container .card-header .text-white {
+    color: #333333 !important;
+}
+
+/* Final override - use higher specificity */
+body .container .card-header h5.text-white,
+body .container .card-header .info-icon.text-white {
+    color: #333333 !important;
+}
 
 /* Prediction Box Styles */
 .prediction-box {
@@ -14,20 +541,103 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Price Color Coding */
+/* Modern Price Display */
+.price-display {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 0;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.price-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.price-item:last-child {
+    border-bottom: none;
+}
+
+.price-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.price-value {
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
 .entry-price {
-    color: #0066cc !important; /* Blue */
-    font-weight: 700;
+    color: #007bff !important; /* Modern Blue */
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
 }
 
 .exit-price {
-    color: #28a745 !important; /* Green */
-    font-weight: 700;
+    color: #28a745 !important; /* Modern Green */
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%) !important;
 }
 
 .stop-loss-price {
-    color: #dc3545 !important; /* Red */
+    color: #dc3545 !important; /* Modern Red */
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%) !important;
+}
+
+/* Modern Signal Display */
+.signal-badge {
+    padding: 12px 24px;
+    border-radius: 25px;
     font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.signal-buy {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.signal-sell {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+}
+
+.signal-hold {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
 }
 
 /* Indicator Item Styles */
@@ -46,6 +656,201 @@
 .indicator-label {
     font-weight: 600;
     color: #495057;
+}
+
+.indicator-value {
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+/* Investment Style Card Improvements */
+.bg-light.border-primary {
+    border-width: 2px !important;
+    border-color: #007bff !important;
+}
+
+.bg-primary.text-white h5 {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Risk Button Group Improvements */
+.btn-group .btn {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-group .btn.active {
+    font-weight: 700;
+    transform: scale(1.05);
+}
+
+/* Stock List Improvements */
+.stock-filters-bar {
+    background: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+.stock-list-container {
+    background: #ffffff;
+}
+
+.list-group-item {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+
+/* Card Header Improvements */
+.card-header {
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Tooltip Icon Improvements */
+.info-icon {
+    color: #007bff !important;
+    cursor: help;
+    margin-left: 5px;
+    transition: color 0.2s ease;
+}
+
+.info-icon:hover {
+    color: #0056b3 !important;
+}
+
+.info-icon.text-white {
+    color: #ffffff !important;
+}
+
+.info-icon.text-white:hover {
+    color: #e0e0e0 !important;
+}
+
+/* Alert Box Improvements */
+.alert {
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    border-left-color: #17a2b8;
+    background: #d1ecf1;
+}
+
+.alert-success {
+    border-left-color: #28a745;
+    background: #d4edda;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+    background: #fff3cd;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+    background: #f8d7da;
+}
+
+/* Form Control Improvements */
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button Improvements */
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    border: none;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    border: none;
+    color: #212529;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: none;
+}
+
+/* Sticky Top Improvements */
+.sticky-top {
+    z-index: 1020;
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+    .btn-group .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .indicator-label {
+        font-size: 0.875rem;
+    }
+    
+    .indicator-value {
+        font-size: 0.875rem;
+    }
+}
+
+/* Loading State Improvements */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .indicator-value {
@@ -297,4 +1102,1026 @@
 
 .new-stock-item {
     animation: slideInRight 0.3s ease-out;
+}
+
+/* COMPREHENSIVE HYPERLINK FIXES */
+
+/* Fix all hyperlinks - NO UNDERLINE */
+a, a:hover, a:focus, a:active, a:visited {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease !important;
+}
+
+a:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+}
+
+a:focus {
+    color: #0056b3 !important;
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+}
+
+a:active {
+    color: #004085 !important;
+}
+
+/* Fix navigation links specifically */
+.nav-link {
+    color: #343a40 !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: block !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease !important;
+}
+
+.nav-link:hover {
+    color: #007bff !important;
+    text-decoration: none !important;
+}
+
+.nav-link:focus {
+    color: #007bff !important;
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+}
+
+.nav-link.active {
+    color: #007bff !important;
+    font-weight: 600 !important;
+}
+
+/* Fix navbar brand link */
+.navbar-brand {
+    color: #343a40 !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    background: none !important;
+    -webkit-text-fill-color: #343a40 !important;
+}
+
+.navbar-brand:hover {
+color: #007bff !important;
+text-decoration: none !important;
+}
+
+/* Fix footer links - NO UNDERLINE */
+footer a, footer a:hover, footer a:focus, footer a:active, footer a:visited {
+color: #ffffff !important;
+text-decoration: none !important;
+visibility: visible !important;
+display: inline !important;
+cursor: pointer !important;
+}
+
+footer a:hover {
+color: #e0e0e0 !important;
+text-decoration: none !important;
+}
+
+/* Fix button links */
+.btn {
+text-decoration: none !important;
+cursor: pointer !important;
+    cursor: pointer !important;
+}
+
+.btn:hover {
+    text-decoration: none !important;
+}
+
+/* Fix card links - NO UNDERLINE */
+.card a, .card a:hover, .card a:focus, .card a:active, .card a:visited {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+.card a:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+}
+
+/* Fix modal links - NO UNDERLINE */
+.modal a, .modal a:hover, .modal a:focus, .modal a:active, .modal a:visited {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+.modal a:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+}
+
+/* Fix alert links - NO UNDERLINE */
+.alert a, .alert a:hover, .alert a:focus, .alert a:active, .alert a:visited {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+.alert a:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+}
+
+/* Fix list links - NO UNDERLINE */
+.list-group-item a, .list-group-item a:hover, .list-group-item a:focus, .list-group-item a:active, .list-group-item a:visited {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+.list-group-item a:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+}
+
+/* Fix table links - NO UNDERLINE */
+.table a, .table a:hover, .table a:focus, .table a:active, .table a:visited {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+.table a:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+}
+
+/* Fix dropdown links */
+.dropdown-item {
+    color: #212529 !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: block !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease !important;
+}
+
+.dropdown-item:hover {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    background-color: #007bff !important;
+}
+
+.dropdown-item:focus {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    background-color: #007bff !important;
+}
+
+/* Fix breadcrumb links */
+.breadcrumb-item a, .breadcrumb-item a:hover, .breadcrumb-item a:focus, .breadcrumb-item a:active, .breadcrumb-item a:visited {
+    color: #007bff !important;
+    text-decoration: underline !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix pagination links */
+.page-link {
+    color: #007bff !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    display: block !important;
+    cursor: pointer !important;
+    transition: color 0.2s ease !important;
+}
+
+.page-link:hover {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+    background-color: #e9ecef !important;
+}
+
+.page-link:focus {
+    color: #0056b3 !important;
+    text-decoration: none !important;
+    background-color: #e9ecef !important;
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+}
+
+/* Fix tooltip links */
+[data-bs-toggle="tooltip"] {
+    color: #007bff !important;
+    text-decoration: underline !important;
+    cursor: help !important;
+}
+
+[data-bs-toggle="tooltip"]:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix any link with specific classes */
+.link-primary, .link-secondary, .link-success, .link-danger, .link-warning, .link-info, .link-light, .link-dark {
+    text-decoration: underline !important;
+    cursor: pointer !important;
+    visibility: visible !important;
+    display: inline !important;
+}
+
+.link-primary:hover { color: #0056b3 !important; }
+.link-secondary:hover { color: #5a6268 !important; }
+.link-success:hover { color: #1e7e34 !important; }
+.link-danger:hover { color: #c82333 !important; }
+.link-warning:hover { color: #e0a800 !important; }
+.link-info:hover { color: #138496 !important; }
+.link-light:hover { color: #d3d3d3 !important; }
+.link-dark:hover { color: #1a1a1a !important; }
+
+/* Fix any remaining link issues */
+a[href] {
+    color: #007bff !important;
+    text-decoration: underline !important;
+    visibility: visible !important;
+    display: inline !important;
+    cursor: pointer !important;
+}
+
+a[href]:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix external links */
+a[target="_blank"] {
+    color: #007bff !important;
+    text-decoration: underline !important;
+}
+
+a[target="_blank"]:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix email links */
+a[href^="mailto:"] {
+    color: #007bff !important;
+    text-decoration: underline !important;
+}
+
+a[href^="mailto:"]:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix phone links */
+a[href^="tel:"] {
+    color: #007bff !important;
+    text-decoration: underline !important;
+}
+
+a[href^="tel:"]:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix anchor links */
+a[href^="#"] {
+    color: #007bff !important;
+    text-decoration: underline !important;
+}
+
+a[href^="#"]:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Remove any link styling that might interfere */
+a:not([href]), a[href=""], a[href="#"] {
+    color: #212529 !important;
+    text-decoration: none !important;
+    cursor: default !important;
+}
+
+/* Ensure all links are clickable */
+a {
+    pointer-events: auto !important;
+    user-select: auto !important;
+}
+
+/* Fix link accessibility */
+a:focus-visible {
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+}
+
+/* Fix link in disabled state */
+a.disabled, a[disabled] {
+    color: #6c757d !important;
+    text-decoration: none !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+/* CRITICAL FIX: 💰 Choose Your Investment Style Header */
+.bg-primary.text-white .card-header h5 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    visibility: visible !important;
+    display: block !important;
+    line-height: 1.4 !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.bg-primary.text-white .card-header h5 .fas,
+.bg-primary.text-white .card-header h5 .far,
+.bg-primary.text-white .card-header h5 .fab,
+.bg-primary.text-white .card-header h5 .info-icon {
+    color: #ffffff !important;
+    visibility: visible !important;
+    display: inline-block !important;
+}
+
+/* Fix all bg-primary text-white combinations */
+.bg-primary .text-white,
+.bg-primary h5,
+.bg-primary .card-title,
+.bg-primary .card-header h5,
+.bg-primary .card-header .text-white {
+    color: #ffffff !important;
+    visibility: visible !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.bg-primary .text-white .fas,
+.bg-primary .text-white .far,
+.bg-primary .text-white .fab,
+.bg-primary .text-white .info-icon {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+/* Fix card header with bg-primary */
+.card-header.bg-primary h5,
+.card-header.bg-primary .card-title,
+.card-header.bg-primary .text-white {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    visibility: visible !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.card-header.bg-primary h5 .fas,
+.card-header.bg-primary h5 .far,
+.card-header.bg-primary h5 .fab,
+.card-header.bg-primary h5 .info-icon {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+/* Override any conflicting styles */
+.card-header.bg-primary.text-white h5,
+.card-header.bg-primary.text-white .text-white {
+    color: #ffffff !important;
+    visibility: visible !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Universal fix for any element with both bg-primary and text-white */
+.bg-primary.text-white * {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+.bg-primary.text-white h1,
+.bg-primary.text-white h2,
+.bg-primary.text-white h3,
+.bg-primary.text-white h4,
+.bg-primary.text-white h5,
+.bg-primary.text-white h6 {
+    color: #ffffff !important;
+    visibility: visible !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.bg-primary.text-white .fas,
+.bg-primary.text-white .far,
+.bg-primary.text-white .fab {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+.bg-primary.text-white .fab {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+/* Fix navbar brand and PRO badge */
+.navbar-brand {
+    color: #343a40 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+}
+
+.navbar-brand .badge.bg-success {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    margin-left: 0.5rem !important;
+}
+
+/* Fix navigation links */
+.nav-link {
+    color: #343a40 !important;
+    visibility: visible !important;
+    display: block !important;
+    font-weight: 500 !important;
+}
+
+.nav-link .fas, .nav-link .far, .nav-link .fab {
+    color: #343a40 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    margin-right: 0.25rem !important;
+}
+
+/* AGGRESSIVE FIX for Choose Your Investment Style */
+.card-header.bg-primary.text-white h5,
+.card-header.bg-primary.text-white .card-title,
+.card-header.bg-primary.text-white .text-white,
+.bg-primary.text-white .card-header h5,
+.bg-primary.text-white .card-header .card-title,
+.bg-primary.text-white .card-header .text-white {
+    color: #ffffff !important;
+    visibility: visible !important;
+    display: block !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+    text-shadow: none !important;
+    filter: none !important;
+}
+
+/* Fix icons in the header */
+.card-header.bg-primary.text-white h5 .fas,
+.card-header.bg-primary.text-white h5 .far,
+.card-header.bg-primary.text-white h5 .fab,
+.card-header.bg-primary.text-white h5 .info-icon,
+.bg-primary.text-white .card-header h5 .fas,
+.bg-primary.text-white .card-header h5 .far,
+.bg-primary.text-white .card-header h5 .fab,
+.bg-primary.text-white .card-header h5 .info-icon {
+    color: #ffffff !important;
+    visibility: visible !important;
+    display: inline-block !important;
+}
+
+/* Universal fix for all text elements */
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Fix all card headers */
+.card-header h5,
+.card-header .card-title,
+.card-header .text-white {
+    color: #212529 !important;
+    visibility: visible !important;
+    display: block !important;
+    font-weight: 600 !important;
+}
+
+/* Override for bg-primary card headers */
+.card-header.bg-primary h5,
+.card-header.bg-primary .card-title,
+.card-header.bg-primary .text-white {
+    color: #ffffff !important;
+    visibility: visible !important;
+    display: block !important;
+    font-weight: 600 !important;
+}
+
+/* Fix any remaining text visibility issues */
+.card-header h5,
+.card-header .card-title,
+.card-header .text-white {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Remove any conflicting styles */
+.text-white {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+.bg-primary .text-white {
+    color: #ffffff !important;
+    visibility: visible !important;
+}
+
+/* Force emoji and icon visibility */
+.fas, .far, .fab {
+    visibility: visible !important;
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* REMOVED UNIVERSAL TEXT RENDERING FIX - CAUSING ARTIFACTS */
+
+/* Fix font loading */
+@font-face {
+    font-family: 'Font Awesome 6 Free';
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+    src: url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2") format("woff2"),
+         url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.ttf") format("truetype");
+}
+
+/* Fix text artifacts */
+body, html {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+/* Fix any gradient or overlay issues - BUT preserve modal */
+div:not(.modal):not(.modal-content):not(.modal-header):not(.modal-body) {
+    background: transparent !important;
+    background-image: none !important;
+    background-color: transparent !important;
+}
+
+/* SPECIFIC ONBOARDING MODAL FIXES */
+.modal, .modal-content, .modal-dialog, .modal-header, .modal-body {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.5) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1050 !important;
+}
+
+.modal-dialog {
+    position: relative !important;
+    margin: 1.75rem auto !important;
+    max-width: 500px !important;
+    width: 90% !important;
+}
+
+.modal-content {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.modal-header {
+    background: #007bff !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 1rem !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+.modal-header h5 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body {
+    background: #ffffff !important;
+    color: #212529 !important;
+    padding: 1.5rem !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #212529 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body h4, .modal-body h5, .modal-body h6 {
+    color: #212529 !important;
+    font-weight: 600 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #212529 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body p, .modal-body span, .modal-body div {
+    color: #212529 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #212529 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body ul li {
+    color: #212529 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: list-item !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #212529 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body .fas, .modal-body .far, .modal-body .fab {
+    color: #007bff !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    font-size: 3rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.modal-body ul li {
+    color: #212529 !important;
+    visibility: visible !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Fix carousel in modal */
+.modal .carousel {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.modal .carousel-item {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.modal .carousel-control-prev,
+.modal .carousel-control-next {
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-radius: 50% !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+.modal .carousel-control-prev {
+    left: 20px !important;
+}
+
+.modal .carousel-control-next {
+    right: 20px !important;
+}
+
+.modal .carousel-control-prev-icon,
+.modal .carousel-control-next-icon {
+    visibility: visible !important;
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.modal .carousel-indicators {
+    visibility: visible !important;
+    bottom: 20px !important;
+}
+
+.modal .carousel-indicators button {
+    background-color: #6c757d !important;
+    border: 1px solid #ffffff !important;
+    visibility: visible !important;
+}
+
+.modal .carousel-indicators button.active {
+    background-color: #007bff !important;
+    visibility: visible !important;
+}
+
+/* Fix modal buttons */
+.modal .btn {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+    margin: 0.25rem !important;
+}
+
+.modal .btn-primary {
+    background: #007bff !important;
+    color: #ffffff !important;
+    border-color: #007bff !important;
+}
+
+.modal .btn-secondary {
+    background: #6c757d !important;
+    color: #ffffff !important;
+    border-color: #6c757d !important;
+}
+
+/* Fix modal footer */
+.modal-footer {
+    background: #f8f9fa !important;
+    border-top: 1px solid #dee2e6 !important;
+    padding: 1rem !important;
+    visibility: visible !important;
+}
+
+/* Ensure modal is not hidden by universal selectors */
+.modal.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.modal:not(.show) {
+    display: none !important;
+}
+
+/* Keep only specific backgrounds */
+.bg-primary { background-color: #007bff !important; }
+.bg-success { background-color: #28a745 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+.bg-light { background-color: #f8f9fa !important; }
+.bg-dark { background-color: #343a40 !important; }
+
+/* Fix navbar specifically */
+.navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    visibility: visible !important;
+}
+
+/* Fix card headers specifically */
+.card-header {
+    background: #f8f9fa !important;
+    visibility: visible !important;
+}
+
+.card-header.bg-primary {
+    background: #007bff !important;
+    visibility: visible !important;
+}
+
+/* FINAL CLEAN TEXT RENDERING FIX */
+body, html {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Clean navbar brand */
+.navbar-brand {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    color: #343a40 !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #343a40 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+/* Clean navigation links */
+.nav-link {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    color: #343a40 !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #343a40 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+/* Clean blue header text */
+.bg-primary.text-white h5,
+.bg-primary.text-white .text-white,
+.card-header.bg-primary.text-white h5 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: none !important;
+    background-image: none !important;
+    background-clip: unset !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* AGGRESSIVE TEXT VISIBILITY FIX - MAXIMUM SPECIFICITY */
+html body h1, html body h2, html body h3, html body h4, html body h5, html body h6,
+.modal-body h1, .modal-body h2, .modal-body h3, .modal-body h4, .modal-body h5, .modal-body h6,
+.card-header h1, .card-header h2, .card-header h3, .card-header h4, .card-header h5, .card-header h6 {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    background: none !important;
+    background-image: none !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: unset !important;
+    color: #212529 !important;
+    font-weight: 600 !important;
+}
+
+html body p, html body span, html body div, html body li, html body td, html body th,
+.modal-body p, .modal-body span, .modal-body div, .modal-body li, .modal-body td, .modal-body th {
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    background: none !important;
+    background-image: none !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: unset !important;
+    color: #212529 !important;
+}
+
+/* CRITICAL: Fix all header text with maximum specificity */
+html body h1 { color: #212529 !important; font-weight: 700 !important; opacity: 1 !important; visibility: visible !important; }
+html body h2 { color: #212529 !important; font-weight: 600 !important; opacity: 1 !important; visibility: visible !important; }
+html body h3 { color: #212529 !important; font-weight: 600 !important; opacity: 1 !important; visibility: visible !important; }
+html body h4 { color: #212529 !important; font-weight: 600 !important; opacity: 1 !important; visibility: visible !important; }
+html body h5 { color: #212529 !important; font-weight: 600 !important; opacity: 1 !important; visibility: visible !important; }
+html body h6 { color: #212529 !important; font-weight: 600 !important; opacity: 1 !important; visibility: visible !important; }
+
+/* Override for white text on blue backgrounds with maximum specificity */
+html body .bg-primary h1, html body .bg-primary h2, html body .bg-primary h3, html body .bg-primary h4, html body .bg-primary h5, html body .bg-primary h6,
+html body .bg-primary .text-white, html body .text-white h1, html body .text-white h2, html body .text-white h3, html body .text-white h4, html body .text-white h5, html body .text-white h6,
+.modal-header h5, .modal-header .text-white {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+/* SPECIFIC ONBOARDING MODAL TEXT FIX */
+.modal-header h5 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body h4, .modal-body h5, .modal-body h6 {
+    color: #212529 !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #212529 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.modal-body p, .modal-body span, .modal-body div, .modal-body li {
+    color: #212529 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    -webkit-text-fill-color: #212529 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+/* COMPREHENSIVE TEXT VISIBILITY FIX */
+h1, h2, h3, h4, h5, h6 {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+p, span, div, li, td, th {
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-text-stroke: none !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+/* CRITICAL: Fix all header text in the entire application */
+h1 { color: #212529 !important; font-weight: 700 !important; }
+h2 { color: #212529 !important; font-weight: 600 !important; }
+h3 { color: #212529 !important; font-weight: 600 !important; }
+h4 { color: #212529 !important; font-weight: 600 !important; }
+h5 { color: #212529 !important; font-weight: 600 !important; }
+h6 { color: #212529 !important; font-weight: 600 !important; }
+
+/* Override for white text on blue backgrounds */
+.bg-primary h1, .bg-primary h2, .bg-primary h3, .bg-primary h4, .bg-primary h5, .bg-primary h6,
+.bg-primary .text-white, .text-white h1, .text-white h2, .text-white h3, .text-white h4, .text-white h5, .text-white h6 {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* CLEAN SIMPLE FIX - NO MORE COMPLEX RULES */
+.modal-header h5 {
+    color: #ffffff !important;
+}
+
+.modal-body h4, .modal-body h5, .modal-body h6 {
+    color: #212529 !important;
 }

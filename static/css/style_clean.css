@@ -1,0 +1,327 @@
+/* MINIMAL CLEAN CSS - FRESH START */
+
+/* Basic text visibility fixes */
+.modal-header h5 {
+    color: #ffffff !important;
+}
+
+.modal-body h4, .modal-body h5, .modal-body h6 {
+    color: #212529 !important;
+}
+
+.modal-body p, .modal-body span, .modal-body div, .modal-body li {
+    color: #212529 !important;
+}
+
+.card-header.bg-primary h5 {
+    color: #ffffff !important;
+}
+
+/* Keep existing working styles from original CSS */
+/* Only include essential rules that don't cause conflicts */
+
+/* Font Awesome fixes */
+.fas, .far, .fab {
+    visibility: visible !important;
+    display: inline-block !important;
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Basic modal fixes */
+.modal {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.modal-content {
+    background: #ffffff !important;
+}
+
+.modal-header {
+    background: #007bff !important;
+}
+
+.modal-body {
+    background: #ffffff !important;
+}
+
+/* Basic card fixes */
+.card-header.bg-primary {
+    background: #007bff !important;
+}
+
+/* Link fixes */
+a, a:hover, a:focus, a:active, a:visited {
+    text-decoration: none !important;
+}
+
+/* PREVIOUS FEEDBACK REQUIREMENTS */
+
+/* Clean hyperlinks without underlines */
+footer a, footer a:hover, footer a:focus, footer a:active, footer a:visited {
+    text-decoration: none !important;
+    color: #007bff !important;
+}
+
+.card a, .card a:hover, .card a:focus, .card a:active, .card a:visited {
+    text-decoration: none !important;
+    color: #007bff !important;
+}
+
+.modal a, .modal a:hover, .modal a:focus, .modal a:active, .modal a:visited {
+    text-decoration: none !important;
+    color: #007bff !important;
+}
+
+/* Fix navbar brand and PRO badge */
+.navbar-brand {
+    color: #343a40 !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+}
+
+.navbar-brand .badge.bg-success {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    margin-left: 0.5rem !important;
+}
+
+/* Fix navigation links */
+.nav-link {
+    color: #343a40 !important;
+    font-weight: 500 !important;
+}
+
+.nav-link .fas, .nav-link .far, .nav-link .fab {
+    color: #343a40 !important;
+    margin-right: 0.25rem !important;
+}
+
+/* Fix "Choose Your Investment Style" header specifically */
+.card-header.bg-primary.text-white h5,
+.bg-primary.text-white .card-header h5 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+}
+
+/* Fix icons in headers */
+.card-header.bg-primary.text-white h5 .fas,
+.card-header.bg-primary.text-white h5 .far,
+.card-header.bg-primary.text-white h5 .fab,
+.bg-primary.text-white .card-header h5 .fas,
+.bg-primary.text-white .card-header h5 .far,
+.bg-primary.text-white .card-header h5 .fab {
+    color: #ffffff !important;
+}
+
+/* Carousel arrow fixes */
+.modal .carousel-control-prev,
+.modal .carousel-control-next {
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-radius: 50% !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+.modal .carousel-control-prev {
+    left: 20px !important;
+}
+
+.modal .carousel-control-next {
+    right: 20px !important;
+}
+
+.modal .carousel-control-prev-icon,
+.modal .carousel-control-next-icon {
+    visibility: visible !important;
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.modal .carousel-indicators {
+    visibility: visible !important;
+    bottom: 20px !important;
+}
+
+.modal .carousel-indicators button {
+    background-color: #6c757d !important;
+    border: 1px solid #ffffff !important;
+    visibility: visible !important;
+}
+
+.modal .carousel-indicators button.active {
+    background-color: #007bff !important;
+    visibility: visible !important;
+}
+
+/* ACCESSIBILITY FEATURES */
+
+/* Focus styles for keyboard navigation */
+a:focus, button:focus, input:focus, textarea:focus, select:focus {
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+    position: absolute !important;
+    top: -40px !important;
+    left: 6px !important;
+    background: #007bff !important;
+    color: #ffffff !important;
+    padding: 8px !important;
+    text-decoration: none !important;
+    border-radius: 4px !important;
+    z-index: 10000 !important;
+}
+
+.skip-to-main:focus {
+    top: 6px !important;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .modal-header {
+        background: #000000 !important;
+        border: 2px solid #ffffff !important;
+    }
+    
+    .modal-body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
+    }
+    
+    .btn-primary {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 2px solid #ffffff !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .carousel {
+        transition: none !important;
+    }
+}
+
+/* Focus indicators for carousel */
+.modal .carousel-control-prev:focus,
+.modal .carousel-control-next:focus {
+    outline: 3px solid #ffffff !important;
+    outline-offset: 2px !important;
+}
+
+/* Accessible modal */
+.modal-dialog {
+    pointer-events: all !important;
+}
+
+.modal[aria-hidden="false"] {
+    display: block !important;
+}
+
+.modal[aria-hidden="true"] {
+    display: none !important;
+}
+
+/* Form accessibility */
+.form-control:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+}
+
+.form-label {
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Button accessibility */
+.btn:focus {
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+}
+
+.btn-primary:focus {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+/* Card accessibility */
+.card:focus-within {
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Table accessibility */
+.table {
+    border: 1px solid #dee2e6 !important;
+}
+
+.table th {
+    background-color: #f8f9fa !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+.table td, .table th {
+    padding: 0.75rem !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Alert accessibility */
+.alert {
+    border-left: 4px solid !important;
+    padding-left: 1rem !important;
+}
+
+.alert-success {
+    border-left-color: #28a745 !important;
+}
+
+.alert-danger {
+    border-left-color: #dc3545 !important;
+}
+
+.alert-warning {
+    border-left-color: #ffc107 !important;
+}
+
+.alert-info {
+    border-left-color: #17a2b8 !important;
+}
+
+/* END OF MINIMAL CLEAN CSS */

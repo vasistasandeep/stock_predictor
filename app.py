@@ -134,9 +134,18 @@ def privacy():
 def terms():
     return render_template('terms.html')
 
-@app.route('/pricing')
-def pricing():
-    return render_template('pricing.html')
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/blogs')
+def blogs():
+    return render_template('blogs.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
 
 @app.route('/refresh_data')
 def refresh_data():
@@ -160,6 +169,10 @@ def get_stock_data(ticker, risk_appetite):
     # Get query parameters for chart filtering
     period = request.args.get('period', '2y')
     frequency = request.args.get('frequency', 'daily')
+    
+    # Get custom risk parameters if provided
+    custom_stop_loss = request.args.get('customStopLoss', type=float)
+    custom_exit_target = request.args.get('customExitTarget', type=float)
     
     stock = yf.Ticker(ticker)
     
@@ -211,15 +224,21 @@ def get_stock_data(ticker, risk_appetite):
         recent_low = hist['Low'][-14:].min()
         recent_high = hist['High'][-14:].max()
         entry_price = f'{recent_low:.2f}'
-        exit_price = f'{recent_high:.2f}'
-
-        # Adjust stop-loss based on risk appetite
-        if risk_appetite == 'Low':
+        
+        # Adjust exit price and stop-loss based on risk appetite
+        if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
+            # Custom risk - use user-defined percentages
+            stop_loss = f'{(recent_low * (1 - custom_stop_loss/100)):.2f}'
+            exit_price = f'{(recent_low * (1 + custom_exit_target/100)):.2f}'
+        elif risk_appetite == 'Low':
             stop_loss = f'{(recent_low * 0.98):.2f}' # 2% below the 14-day low
+            exit_price = f'{(recent_low * 1.06):.2f}'  # 6% above entry (3:1 risk-reward)
         elif risk_appetite == 'Medium':
             stop_loss = f'{(recent_low * 0.95):.2f}' # 5% below the 14-day low
+            exit_price = f'{(recent_low * 1.15):.2f}'  # 15% above entry (3:1 risk-reward)
         else: # High
             stop_loss = f'{(recent_low * 0.90):.2f}' # 10% below the 14-day low
+            exit_price = f'{(recent_low * 1.30):.2f}'  # 30% above entry (3:1 risk-reward)
 
         attributes = {
             'SMA50': f'{hist["SMA50"].iloc[-1]:.2f}',

@@ -1,6 +1,6 @@
 # Stock Predictor - Product Requirements Document (PRD)
 
-**Version:** 2.0  
+**Version:** 3.0  
 **Date:** November 26, 2025  
 **Product Owner:** Vasista Sandeep  
 **Company:** Stock Predictor Technologies Pvt. Ltd.
@@ -16,8 +16,9 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 
 ### 🎯 Business Objectives
 - Achieve 10,000+ active users within 6 months
-- Generate ₹50 Lakh ARR through subscription model
-- Establish as a trusted brand in Indian fintech space
+- Establish as a trusted educational platform in Indian fintech space
+- Provide comprehensive financial literacy tools
+- Build a community of educated investors
 - Expand to international markets within 12 months
 
 ---
@@ -56,9 +57,9 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 | Metric | Target | Timeline |
 |--------|--------|----------|
 | Monthly Active Users (MAU) | 10,000 | 6 months |
-| Conversion Rate (Free→Paid) | 15% | 6 months |
-| Customer Lifetime Value (CLV) | ₹15,000 | 12 months |
-| Churn Rate | <5% monthly | 6 months |
+| User Engagement Rate | 70% | 6 months |
+| Educational Content Completion | 60% | 6 months |
+| User Retention Rate | >80% monthly | 6 months |
 | Net Promoter Score (NPS) | 50+ | 6 months |
 
 ### Secondary KPIs
@@ -103,6 +104,80 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 - Profile settings
 - Usage analytics
 
+#### 6. **Website Structure Module** (NEW)
+- Professional navigation system
+- About Us page with company information
+- Financial blogs section with market insights
+- Contact Us page with form and FAQ
+- Help Center with onboarding modal
+- Simplified footer with essential links
+- Clean hyperlink styling (no underlines)
+- Text rendering optimization
+
+---
+
+## 🌐 Website Structure Requirements (v3.0)
+
+### Complete Website Pages
+
+#### 1. **Main Dashboard (/)**
+- Real-time stock analysis interface
+- Interactive charts and technical indicators
+- Educational tooltips and onboarding
+- Responsive design for all devices
+
+#### 2. **About Us Page (/about)**
+- Company mission and vision
+- Team information and expertise
+- Technology and methodology overview
+- Educational commitment statement
+- Professional branding and trust signals
+
+#### 3. **Financial Blogs Page (/blogs)**
+- Market analysis and insights
+- Investment education articles
+- Technical analysis tutorials
+- Market trend discussions
+- Newsletter signup functionality
+
+#### 4. **Contact Us Page (/contact)**
+- Professional contact form
+- Business inquiry sections
+- FAQ section with common questions
+- Business hours and availability
+- Multiple contact methods
+
+#### 5. **Legal Pages**
+- Privacy Policy (/privacy)
+- Terms of Service (/terms)
+- Legal compliance and disclaimers
+
+### UI/UX Improvements
+
+#### 1. **Navigation Enhancement**
+- Clean, modern navbar design
+- Responsive mobile menu
+- Active page highlighting
+- Smooth transitions and hover effects
+
+#### 2. **Footer Simplification**
+- Removed: Career, Press links
+- Added: About Us, Blogs, Contact links
+- Help Center linked to onboarding modal
+- Clean, minimal design
+
+#### 3. **Text Rendering Fixes**
+- Eliminated text artifacts and rendering issues
+- Clean hyperlink styling without underlines
+- Optimized font rendering across browsers
+- Consistent typography throughout
+
+#### 4. **Responsive Design**
+- Mobile-first approach
+- Tablet and desktop optimization
+- Touch-friendly interface elements
+- Consistent experience across devices
+
 ---
 
 ## 📊 Feature Requirements
@@ -130,6 +205,17 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 - [x] User authentication
 - [x] Legal compliance (Terms, Privacy)
 - [x] Professional branding
+
+#### Website Structure Features (v3.0)
+- [x] Complete website navigation system
+- [x] About Us page with company information
+- [x] Financial blogs page with market insights
+- [x] Contact Us page with form and FAQ
+- [x] Help Center with onboarding modal
+- [x] Simplified footer with essential links
+- [x] Clean hyperlink styling (no underlines)
+- [x] Text rendering optimization and artifact fixes
+- [x] Responsive design across all devices
 
 ### 🌟 Should-Have Features (Phase 2)
 
@@ -194,33 +280,32 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 3. **Risk Assessment**: User preference setup
 4. **First Analysis**: Guided stock analysis
 5. **Feature Discovery**: Highlight key features
-
----
-
 ## 💰 Monetization Strategy
 
-### Pricing Tiers
+### 🎯 Current Phase: Free Educational Platform
 
-#### Free Plan (₹0/month)
-- **Target**: Lead generation, user acquisition
-- **Features**: 5 analyses/month, basic indicators, delayed data
-- **Limitations**: Limited access, no real-time data
-- **Conversion**: Encourage upgrade after usage limits
+#### Phase 1: Free Access (Current)
+- **Price**: ₹0/month
+- **Features**: 
+  - Unlimited stock analysis
+  - All technical indicators
+  - Full chart functionality
+  - Educational content
+  - Real-time market data
 
-#### Professional Plan (₹999/month)
-- **Target**: Individual investors, active traders
-- **Features**: Unlimited analysis, real-time data, advanced indicators
-- **Value**: Professional tools at affordable price
-- **Retention**: High value, low churn
+#### Phase 2: Future Monetization (Post-Educational Phase)
+- **Timeline**: After achieving user base and educational goals
+- **Potential Models**: 
+  - Premium educational content
+  - Advanced certification programs
+  - Institutional partnerships
+  - API access for developers
 
-#### Enterprise Plan (₹4,999/month)
-- **Target**: Institutions, financial advisors
-- **Features**: API access, custom features, priority support
-- **Value**: Complete solution for professional use
-- **Margin**: High-profit margin product
-
-### Revenue Streams
-1. **Subscription Fees**: Primary revenue source (80%)
+### 🎯 Current Focus
+- **User Education**: Financial literacy and market analysis education
+- **Community Building**: Creating a learning ecosystem
+- **Feature Enhancement**: Improving core analytical capabilities
+- **Market Validation**: Proving educational value first
 2. **API Usage**: Enterprise customers (15%)
 3. **Premium Features**: Add-on modules (5%)
 4. **Data Licensing**: Future opportunity
@@ -256,6 +341,17 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 - **Email**: SendGrid for communications
 - **Monitoring**: Application performance monitoring
 
+### API Routes (v3.0)
+- **GET /**: Main dashboard page
+- **GET /about**: About Us page
+- **GET /blogs**: Financial blogs page
+- **GET /contact**: Contact Us page
+- **GET /privacy**: Privacy policy page
+- **GET /terms**: Terms of service page
+- **GET /get_top_20_stocks**: Top 20 NIFTY stocks data
+- **GET /get_stock_data/<ticker>/<risk>**: Stock analysis with technical indicators
+- **GET /refresh_data**: Manual data refresh
+
 ---
 
 ## 📈 Go-to-Market Strategy
@@ -290,6 +386,11 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 - [x] Subscription system
 - [x] Legal compliance
 - [x] Onboarding flow
+- [x] Complete website structure (v3.0)
+- [x] About Us, Blogs, Contact pages
+- [x] Text rendering fixes and UI improvements
+- [x] Clean hyperlink styling
+- [x] Responsive design optimization
 
 ### Phase 2: Growth (Q1 2026)
 - [ ] Portfolio management
@@ -382,24 +483,24 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 
 ### Short-term (3 months)
 - [ ] 1,000+ registered users
-- [ ] 50+ paying customers
 - [ ] 4.5+ star rating
-- [ ] <5% churn rate
+- [ ] >80% user retention rate
 - [ ] Complete MVP functionality
+- [ ] Educational content library ready
 
 ### Medium-term (6 months)
 - [ ] 10,000+ active users
-- [ ] 500+ paying customers
-- [ ] ₹10 Lakh MRR
+- [ ] 70% user engagement rate
 - [ ] 50+ NPS score
 - [ ] Mobile app launch
+- [ ] Community features implemented
 
 ### Long-term (12 months)
 - [ ] 50,000+ active users
-- [ ] 2,000+ paying customers
-- [ ] ₹50 Lakh MRR
 - [ ] International expansion
-- [ ] Enterprise features
+- [ ] Advanced analytics features
+- [ ] Educational certification programs
+- [ ] Institutional partnerships
 
 ---
 
@@ -542,7 +643,7 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 
 ---
 
-## �📞 Contact Information
+## �� Contact Information
 
 **Product Owner:** Vasista Sandeep  
 **Email:** product@stockpredictor.com  
