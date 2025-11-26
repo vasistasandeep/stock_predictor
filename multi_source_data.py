@@ -1,3 +1,8 @@
+import os
+# Configure cache for Vercel (read-only filesystem fix)
+if os.environ.get('VERCEL'):
+    os.environ['XDG_CACHE_HOME'] = '/tmp/.cache'
+
 import yfinance as yf
 import requests
 import pandas as pd
