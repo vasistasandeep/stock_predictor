@@ -382,10 +382,7 @@ def get_stock_data(ticker, risk_appetite):
                 ma50 = tech_analysis['ma50']
                 ma200 = tech_analysis['ma200']
                 atr = tech_analysis['atr']
-                signal = "HOLD"
-                confidence = 50
-                signal_score = 0
-                ma20 = ma50 = ma200 = atr = macd = macd_signal = volume_ratio = None
+
                 reason = "Insufficient historical data"
                 
                 # Fallback risk calculation

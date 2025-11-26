@@ -567,10 +567,9 @@
             </div>
 
             <!-- Stock Input and Chart -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        📊 Quick Stock Analysis
+            <div class="card mb-4 enhanced-only">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-chart-bar"></i> Quick Stock Analysis
                         <i class="info-icon" data-bs-toggle="tooltip" data-bs-placement="bottom"
                             title="Get simple trading recommendations for any stock. Just enter the ticker and get Buy/Sell/Hold advice."></i>
                     </h5>
@@ -650,50 +649,50 @@
 
         <!-- Market Insights -->
         <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">📰 Market Insights & Analysis</h5>
+            <!-- Market Insights & Analysis (Enhanced Only) -->
+            <div class="card mb-4 enhanced-only">
+                <div class="card-header bg-secondary text-white">
+                    <h5><i class="fas fa-newspaper"></i> Market Insights & Analysis</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div id="marketNews">
+                            <h6>📰 Latest Market News</h6>
+                            <p class="text-muted">Analyze a stock to see market news...</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div id="marketNews">
-                                    <h6>📰 Latest Market News</h6>
-                                    <p class="text-muted">Analyze a stock to see market news...</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div id="analystRecommendations">
-                                    <h6>📊 Analyst Recommendations</h6>
-                                    <p class="text-muted">Analyze a stock to see analyst data...</p>
-                                </div>
-                                <hr>
-                                <div id="marketSentiment">
-                                    <h6>💭 Market Sentiment</h6>
-                                    <p class="text-muted">Analyze a stock to see sentiment...</p>
-                                </div>
-                            </div>
+                    <div class="col-md-6">
+                        <div id="analystRecommendations">
+                            <h6>📊 Analyst Recommendations</h6>
+                            <p class="text-muted">Analyze a stock to see analyst data...</p>
+                        </div>
+                        <hr>
+                        <div id="marketSentiment">
+                            <h6>💭 Market Sentiment</h6>
+                            <p class="text-muted">Analyze a stock to see sentiment...</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        </div>
+        </div>
 
         <!-- Analysis Summary -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">📋 Analysis Summary</h6>
-                    </div>
-                    <div class="card-body">
-                        <div id="analysisSummary">
-                            <p class="text-muted">Analyze a stock to see comprehensive analysis summary...</p>
-                        </div>
-                    </div>
+        <!-- Analysis Summary (Enhanced Only) -->
+        <div class="card mb-4 enhanced-only" id="analysisSummaryCard">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-clipboard-list"></i> Analysis Summary</h5>
+            </div>
+            <div class="card-body">
+                <div id="analysisSummary">
+                    <p class="text-muted">Analyze a stock to see comprehensive analysis summary...</p>
                 </div>
             </div>
+        </div>
+        </div>
         </div>
 
         <!-- Simple Guide -->
@@ -702,6 +701,21 @@
                 <div class="card bg-light">
                     <div class="card-body">
                         <h6 class="card-title">
+                            <!-- Login Placeholder for Basic Users -->
+                            <div id="loginPlaceholder" class="card mb-4 d-none text-center p-5 bg-light border-primary">
+                                <div class="card-body">
+                                    <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                                    <h3>Enhanced Features Locked</h3>
+                                    <p class="lead">Log in to access detailed Stock Analysis, Market Insights, and AI
+                                        Summaries.</p>
+                                    <button class="btn btn-primary btn-lg mt-3" data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                        <i class="fas fa-sign-in-alt"></i> Login to Unlock
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- How to Use This Tool -->
                             💡 How to Use This Tool
                         </h6>
                         <div class="row">

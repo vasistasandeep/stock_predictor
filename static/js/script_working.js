@@ -81,24 +81,41 @@ function switchMode(mode) {
     document.getElementById('basicTab')?.classList.toggle('active', mode === 'basic');
     document.getElementById('enhancedTab')?.classList.toggle('active', mode === 'enhanced');
 
-    if (mode === 'enhanced' && !isLoggedIn) {
-        // Show login modal
-        const loginModalEl = document.getElementById('loginModal');
-        if (loginModalEl) {
-            const loginModal = new bootstrap.Modal(loginModalEl);
-            loginModal.show();
-        }
-        return;
-    }
+    const enhancedElements = document.querySelectorAll('.enhanced-only');
+    const loginPlaceholder = document.getElementById('loginPlaceholder');
 
-    // If we have a selected stock, re-render or show/hide sections
-    const enhancedSection = document.getElementById('enhancedLogicSection');
-    if (enhancedSection) {
-        if (mode === 'enhanced' && isLoggedIn) {
-            enhancedSection.classList.remove('d-none');
-        } else {
-            enhancedSection.classList.add('d-none');
+    if (mode === 'enhanced') {
+        if (!isLoggedIn) {
+            // Show login modal if trying to access enhanced mode while logged out
+            const loginModalEl = document.getElementById('loginModal');
+            if (loginModalEl) {
+                const loginModal = new bootstrap.Modal(loginModalEl);
+                loginModal.show();
+            }
+            // Switch back to basic visually until logged in
+            switchMode('basic');
+            return;
         }
+
+        // Show enhanced content
+        enhancedElements.forEach(el => el.classList.remove('d-none'));
+        if (loginPlaceholder) loginPlaceholder.classList.add('d-none');
+
+        // Show enhanced logic section if applicable
+        const enhancedSection = document.getElementById('enhancedLogicSection');
+        if (enhancedSection) enhancedSection.classList.remove('d-none');
+
+    } else {
+        // Basic Mode
+        // Hide enhanced content
+        enhancedElements.forEach(el => el.classList.add('d-none'));
+
+        // Show login placeholder where the enhanced content was
+        if (loginPlaceholder) loginPlaceholder.classList.remove('d-none');
+
+        // Hide enhanced logic section
+        const enhancedSection = document.getElementById('enhancedLogicSection');
+        if (enhancedSection) enhancedSection.classList.add('d-none');
     }
 }
 
