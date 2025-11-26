@@ -29,8 +29,8 @@ Stock Predictor is a Flask-based web application that provides real-time stock a
 │                 │    │                 │    │                 │
 │ • Browser Cache │    │ • Session Mgmt  │    │ • REST APIs     │
 │ • Local Storage │    │ • Data Processing│    │ • Data Streams  │
-│ • Tooltips      │    │ • Background    │    │ • Rate Limits   │
-│ • Charts        │    │   Threads       │    │ • Authentication│
+│ • Tooltips      │    │ • Request-Scoped│    │ • Rate Limits   │
+│ • Charts        │    │   Caching       │    │ • Authentication│
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -64,13 +64,12 @@ stock_predictor/
 ## 🔧 Technology Stack
 
 ### Backend Technologies
-- **Python 3.8+**: Primary programming language
+- **Python 3.9+**: Primary programming language
 - **Flask**: Web framework for API and routing
-- **TA-Lib**: Technical analysis library
-- **Pandas**: Data manipulation and analysis
+- **Pandas**: Data manipulation and technical analysis (SMA, RSI, ATR)
 - **NumPy**: Numerical computations
 - **Requests**: HTTP client for API calls
-- **Threading**: Background data refresh
+- **Vercel**: Serverless deployment platform
 
 ### Frontend Technologies
 - **HTML5**: Semantic markup structure
@@ -81,9 +80,10 @@ stock_predictor/
 - **CSS3**: Styling and animations
 
 ### Data Sources
-- **NSE API**: Primary NIFTY 200 data source
-- **Yahoo Finance**: Historical price data
-- **Moneycontrol**: Web scraping fallback
+- **Yahoo Finance**: Primary data source (via yfinance)
+- **Google Finance**: Secondary data source
+- **Alpha Vantage**: Fallback data source
+- **Financial Modeling Prep**: Fallback data source
 - **Static Data**: Emergency fallback list
 
 ### Development Tools
@@ -221,19 +221,18 @@ stock_predictor/
 
 ## 🔄 Data Flow Architecture
 
-### Data Refresh Process
+### Data Refresh Process (Serverless)
 ```python
-1. Background Thread (Every 60 minutes)
+1. User Request (e.g., /get_top_20_stocks)
    ↓
-2. get_nifty_200_list() Function
+2. Check Request-Scoped Cache (Vercel)
    ↓
-3. Try NSE API → NSE CSV → Moneycontrol → Static Fallback
+3. If Cache Miss:
+   a. get_nifty_200_list()
+   b. Try Yahoo → Google → Alpha Vantage → FMP
+   c. Store in Cache (5 min duration)
    ↓
-4. Update global top_20_stocks list
-   ↓
-5. Update last_data_update timestamp
-   ↓
-6. Log success/failure
+4. Return Data
 ```
 
 ### Stock Analysis Process
@@ -308,7 +307,8 @@ def calculate_rsi(prices, period=14):
     return rsi
 
 # Usage
-hist['RSI'] = talib.RSI(hist['Close'], timeperiod=14)
+# Custom Pandas Implementation
+hist['RSI'] = calculate_rsi(hist['Close'], period=14)
 ```
 
 **Logic**: Momentum oscillator (0-100 scale)  
@@ -325,7 +325,8 @@ def calculate_atr(high, low, close, period=14):
     return atr
 
 # Usage
-hist['ATR'] = talib.ATR(hist['High'], hist['Low'], hist['Close'], timeperiod=14)
+# Custom Pandas Implementation
+hist['ATR'] = calculate_atr(hist['High'], hist['Low'], hist['Close'], period=14)
 ```
 
 **Logic**: Volatility measure based on price ranges  

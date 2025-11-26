@@ -335,7 +335,7 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 - **Audit Logs**: Complete activity tracking
 
 ### Integration Requirements
-- **Data Sources**: NSE, Yahoo Finance, financial APIs
+- **Data Sources**: Yahoo Finance, Google Finance, Alpha Vantage, FMP
 - **Payment Gateways**: Stripe, Razorpay
 - **Analytics**: Google Analytics, Mixpanel
 - **Email**: SendGrid for communications
@@ -534,7 +534,7 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 #### Technical Risks
 | Risk | Probability | Impact | Mitigation Strategy |
 |------|-------------|--------|-------------------|
-| **Data Source Failure** | Medium | High | Multiple fallback data sources (NSE → CSV → Web scraping → Static) |
+| **Data Source Failure** | Medium | High | Multiple fallback data sources (Yahoo → Google → Alpha Vantage → FMP) |
 | **API Rate Limiting** | High | Medium | Implement caching, rate limiting, and premium API subscriptions |
 | **Scalability Issues** | Medium | High | Cloud-native architecture, horizontal scaling, load testing |
 | **Security Breach** | Low | Critical | Regular security audits, encryption, penetration testing |
@@ -585,8 +585,8 @@ To democratize professional-grade stock analysis tools for retail investors, ena
 #### External Dependencies
 | Dependency | Criticality | Alternative | SLA Requirement |
 |-------------|-------------|-------------|-----------------|
-| **NSE API** | Critical | NSE CSV, Web scraping | 99.9% uptime |
-| **Yahoo Finance** | High | None (historical data) | 99.5% uptime |
+| **Yahoo Finance** | Critical | Google Finance, Alpha Vantage | 99.5% uptime |
+| **Google Finance** | High | Alpha Vantage, FMP | 99.5% uptime |
 | **Payment Gateways** | Critical | Multiple providers | 99.9% uptime |
 | **Cloud Infrastructure** | Critical | Multi-cloud setup | 99.99% uptime |
 | **Email Services** | Medium | Multiple providers | 99.5% uptime |
