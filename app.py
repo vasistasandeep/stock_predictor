@@ -1,17 +1,14 @@
-# Copy the current app.py content but with the trading prediction fields added
-# This is a temporary fix to add the missing trading prediction fields
-
-import os
-import signal
-from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
 import yfinance as yf
-import talib
-import numpy as np
 import pandas as pd
+import numpy as np
+import talib
+import time
 import requests
+from datetime import datetime, timedelta
 from market_data import get_market_news, get_analyst_recommendations, get_market_sentiment
-from multi_source_data import get_stock_data_multi_source, get_nifty_200_list
+from multi_source_data import get_stock_data_multi_source, get_multiple_stocks_multi_source, get_data_source_status
+import os
 
 app = Flask(__name__)
 
@@ -33,96 +30,212 @@ def get_nifty_200_constituents():
         nifty_200_ticker = yf.Ticker("^NSEI")
         
         # Try to get index components (this might not work directly)
-        try:
-            info = nifty_200_ticker.info
-            if 'components' in info:
-                constituents = info['components']
-                print(f"✅ Found {len(constituents)} NIFTY 200 constituents from index")
-                return [symbol + '.NS' for symbol in constituents.keys()]
-        except:
-            pass
+        # Alternative approach: Use known NIFTY 200 constituents from NSE
+        nifty_200_symbols = get_nse_nifty_200_stocks()
         
-        # Method 2: Try to get from NIFTY 200 ETF
-        nifty_200_etf = yf.Ticker("NIFTYBEES.NS")
-        try:
-            holdings = nifty_200_etf.holdings
-            if holdings is not None and not holdings.empty:
-                constituents = holdings['Symbol'].tolist()
-                print(f"✅ Found {len(constituents)} NIFTY 200 constituents from ETF")
-                return [symbol + '.NS' for symbol in constituents]
-        except:
-            pass
+        if nifty_200_symbols:
+            print(f"✅ Successfully fetched {len(nifty_200_symbols)} NIFTY 200 constituents")
+            return nifty_200_symbols
+        else:
+            print("⚠️ Could not fetch NIFTY 200 constituents, using fallback")
+            return []
+            
+    except Exception as e:
+        print(f"❌ Error fetching NIFTY 200 constituents: {e}")
+        return []
+
+def get_nse_nifty_200_stocks():
+    """Get NIFTY 200 stocks from NSE website (real-time)"""
+    try:
+        # Method 1: Try to fetch from NSE API
+        nse_url = "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200"
         
-        # Method 3: Use a comprehensive list of major NIFTY stocks
-        print("🔄 Using comprehensive NIFTY stocks list...")
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
+        
+        response = requests.get(nse_url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            stocks = []
+            
+            if 'data' in data and 'symbols' in data['data']:
+                for stock in data['data']['symbols']:
+                    symbol = stock.get('symbol', '')
+                    if symbol:
+                        # Convert NSE format to Yahoo Finance format
+                        yahoo_symbol = f"{symbol}.NS"
+                        stocks.append(yahoo_symbol)
+            
+            print(f"✅ Fetched {len(stocks)} stocks from NSE API")
+            return stocks[:200]  # Limit to 200 stocks
+        
+        # Method 2: Fallback to predefined list (but still real-time data)
         return get_major_nifty_stocks()
         
     except Exception as e:
-        print(f"❌ Error getting NIFTY 200 constituents: {e}")
+        print(f"❌ Error fetching NSE data: {e}")
         return get_major_nifty_stocks()
 
 def get_major_nifty_stocks():
-    """Comprehensive list of major NIFTY stocks"""
+    """Get COMPREHENSIVE list of major NIFTY stocks for real-time analysis"""
+    try:
+        # Much larger comprehensive list of NIFTY stocks (still real-time data fetching)
+        major_stocks = [
+            # TOP 20 LARGE CAP (always included)
+            'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
+            'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
+            'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
+            'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS',
+            
+            # LARGE CAP BANKS & FINANCIALS
+            'LT.NS', 'SUNPHARMA.NS', 'TITAN.NS', 'M&M.NS', 'POWERGRID.NS',
+            'NTPC.NS', 'COALINDIA.NS', 'BPCL.NS', 'GAIL.NS', 'ONGC.NS',
+            'HDFCLIFE.NS', 'SBILIFE.NS', 'GRASIM.NS', 'ADANIPORTS.NS', 'TECHM.NS',
+            
+            # LARGE CAP CONSUMER & RETAIL
+            'DIVISLAB.NS', 'BRITANNIA.NS', 'DLF.NS', 'BAJAJFINSV.NS', 'DABUR.NS',
+            'PIDILITEIND.NS', 'HEROMOTOCO.NS', 'TATASTEEL.NS', 'EICHERMOT.NS', 'BALKRISIND.NS',
+            'APOLLOHOSP.NS', 'SHREECEM.NS', 'TATACONSUM.NS', 'GODREJCP.NS', 'UBL.NS',
+            
+            # LARGE CAP SERVICES & TECHNOLOGY
+            'ICICIGI.NS', 'TATAMOTORS.NS', 'JIOFINANCIAL.NS', 'CHOLAHLDNG.NS', 'INDUSINDBK.NS',
+            'HDFCAMC.NS', 'SBICARD.NS', 'PNB.NS', 'BANKBARODA.NS', 'CANBK.NS',
+            'INDIGO.NS', 'MUTHOOTFIN.NS', 'NAUKRI.NS', 'PAGEIND.NS', 'AMBUJACEM.NS',
+            
+            # MID CAP & LARGE CAP MIX
+            'ACC.NS', 'GMRINFRA.NS', 'TATACOMM.NS', 'SIEMENS.NS', 'L&TFH.NS',
+            'COFORGE.NS', 'MRF.NS', 'CEATLTD.NS', 'AUBANK.NS', 'FEDERALBNK.NS',
+            'IDFC.NS', 'PFC.NS', 'REC.NS', 'IRCTC.NS', 'IRFC.NS',
+            
+            # INFRASTRUCTURE & INDUSTRIALS
+            'RVNL.NS', 'RVINFRA.NS', 'IRCON.NS', 'NBCC.NS', 'NCC.NS',
+            'TATAPOWER.NS', 'JSWSTEEL.NS', 'JINDALSTEL.NS', 'HINDALCO.NS', 'VEDL.NS',
+            'COALINDIA.NS', 'NMDC.NS', 'NALCO.NS', 'HINDZINC.NS', 'MOIL.NS',
+            
+            # PHARMA & HEALTHCARE
+            'LUPIN.NS', 'CADILAHC.NS', 'BIOCON.NS', 'AUROPHARMA.NS', 'GLAXO.NS',
+            'SANOFI.NS', 'PFIZER.NS', 'CROMPTON.NS', 'LAURUSLABS.NS', 'TORNTPHARM.NS',
+            
+            # CONSUMER DURABLES & FMCG
+            'WHIRLPOOL.NS', 'VOLTAS.NS', 'CUMMINSIND.NS', 'THERMAX.NS', 'ABB.NS',
+            'GODREJIND.NS', 'TITAN.NS', 'KAJARIACER.NS', 'CERA.NS', 'JYOTHYLAB.NS',
+            
+            # IT & SERVICES
+            'MINDTREE.NS', 'MPHASIS.NS', 'PERSISTENT.NS', 'LTI.NS', 'COGNIZANT.NS',
+            'WIPRO.NS', 'TECHM.NS', 'OFSS.NS', 'SONATSOFTW.NS', 'TRIGYN.NS',
+            
+            # AUTOMOBILE & ANCILLARIES
+            'M&M.NS', 'TATAMOTORS.NS', 'HEROMOTOCO.NS', 'BAJAJ-AUTO.NS', 'TVSMOTOR.NS',
+            'EICHERMOT.NS', 'ASHOKLEY.NS', 'MRF.NS', 'CEATLTD.NS', 'APOLLOTYRE.NS',
+            
+            # REAL ESTATE & CONSTRUCTION
+            'DLF.NS', 'GODREJPROP.NS', 'OBEROIREALTY.NS', 'BRIGADE.NS', 'PHOENIXLTD.NS',
+            'PRESTIGE.NS', 'ANANTRAJ.NS', 'ASHIANA.NS', 'MAHINDRALIFE.NS', 'PNCINFRA.NS',
+            
+            # TELECOM & MEDIA
+            'BHARTIARTL.NS', 'JIOFINANCIAL.NS', 'TATATELE.NS', 'DISHTV.NS', 'DEN.NS',
+            'ZEEL.NS', 'SUNTV.NS', 'BALAJITELE.NS', 'HATHWAY.NS', 'DISH.NS',
+            
+            # CHEMICALS & FERTILIZERS
+            'UPL.NS', 'PIIND.NS', 'SUMICHEM.NS', 'AARTIIND.NS', 'SOLARINDS.NS',
+            'COROMANDEL.NS', 'CHAMBLFERT.NS', 'URVARAK.NS', 'DEEPAKFERT.NS', 'GNFC.NS',
+            
+            # TEXTILES & APPAREL
+            'ARVIND.NS', 'PAGEIND.NS', 'KPRMILL.NS', 'TRIDENT.NS', 'WELSPUNLIV.NS',
+            'VARDHMAN.NS', 'RAYMOND.NS', 'BOMBAYDYEING.NS', 'SUTLEJTEX.NS', 'CENTURYTEX.NS'
+        ]
+        
+        print(f"📊 Using COMPREHENSIVE NIFTY stocks list ({len(major_stocks)} stocks)")
+        print("🔄 All stocks will fetch REAL-TIME data from Yahoo Finance")
+        return major_stocks
+        
+    except Exception as e:
+        print(f"Error getting major NIFTY stocks: {e}")
+        return []
+
+def get_nifty_200_list(source=None):
+    """Multi-source: Fetch REAL-TIME data with caching and fallback handling."""
+    global _vercel_cache, _cache_timestamps, CACHE_DURATION
+    
+    cache_key = f"top_20_stocks_{source or 'default'}"
+    current_time = datetime.now()
+    
+    # Check if we have fresh cached data
+    if (cache_key in _cache_timestamps and 
+        cache_key in _vercel_cache and
+        current_time - _cache_timestamps[cache_key] < CACHE_DURATION):
+        
+        print(f"✅ Multi-source: Using cached stock data from {source or 'default'}")
+        return _vercel_cache[cache_key]
+    
+    print(f"🔄 Multi-source: Fetching fresh stock data from {source or 'auto'}...")
+    
+    try:
+        # Get stock list
+        nifty_200_stocks = get_major_nifty_stocks()
+        
+        if not nifty_200_stocks:
+            print("⚠️ Multi-source: Using fallback stock list")
+            nifty_200_stocks = [
+                'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
+                'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
+                'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
+                'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS'
+            ]
+        
+        print(f"📊 Multi-source: Processing {len(nifty_200_stocks)} stocks...")
+        
+        # Use multi-source data fetching
+        stock_data = get_multiple_stocks_multi_source(
+            nifty_200_stocks[:50],  # Limit to 50 for performance
+            source=source,
+            timeout=5  # 5 second timeout per stock
+        )
+        
+        print(f"🔄 Multi-source: Successfully fetched {len(stock_data)} stocks")
+        
+        if stock_data:
+            # Convert market cap to INR crores
+            usd_to_inr = 83.5
+            for stock in stock_data:
+                if stock.get('market_cap', 0) > 0:
+                    stock['market_cap'] = (stock['market_cap'] * usd_to_inr) / 10000000
+                stock['data_source'] = f"multi-source-{stock.get('data_source', 'unknown')}"
+            
+            # Sort by market cap and get top 20
+            sorted_stocks = sorted(stock_data, key=lambda x: x['market_cap'], reverse=True)
+            top_20_stocks = sorted_stocks[:20]
+            
+            # Cache the results
+            _vercel_cache[cache_key] = top_20_stocks
+            _cache_timestamps[cache_key] = current_time
+            
+            print(f"✅ Multi-source: Successfully fetched {len(top_20_stocks)} stocks")
+            return top_20_stocks
+        else:
+            print("❌ Multi-source: No stock data fetched, using emergency fallback")
+            return get_vercel_emergency_fallback()
+            
+    except Exception as e:
+        print(f"❌ Multi-source: Error fetching stocks - {e}")
+        return get_vercel_emergency_fallback()
+
+def get_vercel_emergency_fallback():
+    """Emergency fallback for Vercel when everything else fails"""
     return [
-        # TOP 20 NIFTY STOCKS BY MARKET CAP
-        'RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS',
-        'INFY.NS', 'KOTAKBANK.NS', 'SBIN.NS', 'BHARTIARTL.NS', 'ITC.NS',
-        'AXISBANK.NS', 'DMART.NS', 'MARUTI.NS', 'ASIANPAINT.NS', 'HCLTECH.NS',
-        'ULTRACEMCO.NS', 'BAJFINANCE.NS', 'WIPRO.NS', 'NESTLEIND.NS', 'DRREDDY.NS',
-        
-        # ADDITIONAL MAJOR STOCKS
-        'LT.NS', 'SUNPHARMA.NS', 'TITAN.NS', 'M&M.NS', 'POWERGRID.NS',
-        'NTPC.NS', 'COALINDIA.NS', 'BPCL.NS', 'GAIL.NS', 'ONGC.NS',
-        'HDFCLIFE.NS', 'SBILIFE.NS', 'GRASIM.NS', 'ADANIPORTS.NS', 'TECHM.NS',
-        'DIVISLAB.NS', 'BRITANNIA.NS', 'DLF.NS', 'BAJAJFINSV.NS', 'DABUR.NS',
-        'PIDILITEIND.NS', 'HEROMOTOCO.NS', 'TATASTEEL.NS', 'EICHERMOT.NS', 'BALKRISIND.NS',
-        'APOLLOHOSP.NS', 'SHREECEM.NS', 'TATACONSUM.NS', 'GODREJCP.NS', 'UBL.NS',
-        
-        # MORE STOCKS TO REACH 175
-        'SIEMENS.NS', 'TATAMOTORS.NS', 'INDUSINDBK.NS', 'JSWSTEEL.NS', 'UPL.NS',
-        'MUTHOOTFIN.NS', 'CHOLAHLDNG.NS', 'CUB.NS', 'NAUKRI.NS', 'GICRE.NS',
-        'IBULHSGFIN.NS', 'BANDHANBNK.NS', 'RBLBANK.NS', 'FEDERALBNK.NS', 'IDFCFIRSTB.NS',
-        'PNB.NS', 'BANKBARODA.NS', 'CANBK.NS', 'INDIANB.NS', 'J&KBANK.NS',
-        'IOB.NS', 'UCOBANK.NS', 'CENTRALBK.NS', 'SOUTHBNK.NS', 'J&K.NS',
-        'PUNJABNAT.NS', 'VIJAYABANK.NS', 'DENABANK.NS', 'KARURVYSYA.NS', 'TAMILNADBNK.NS',
-        'ORIENTBANK.NS', 'ANDHRABANK.NS', 'CORPBANK.NS', 'ALLABADBNK.NS', 'VYSYABANK.NS',
-        'LAXMIVILAS.NS', 'SIB.NS', 'JHAGREFIN.NS', 'MANAPPURAM.NS', 'MUTHOOTFIN.NS',
-        'CHOLAHLDNG.NS', 'SRTRANSFIN.NS', 'BAJAJHLDNG.NS', 'TATAINVEST.NS', 'HDFCAMC.NS',
-        'ICICIPRULI.NS', 'SBILIFE.NS', 'KOTAKLIFE.NS', 'MAXLIFE.NS', 'PNBLIFE.NS',
-        'AVANTIFEED.NS', 'ANANTRAJ.NS', 'ARVIND.NS', 'ASHOKLEY.NS', 'BATAINDIA.NS',
-        'BERGEPAINT.NS', 'BLUESTARCO.NS', 'BOSCHLTD.NS', 'CADILAHC.NS', 'CASTROLIND.NS',
-        'CEATLTD.NS', 'CROMPTON.NS', 'CUMMINSIND.NS', 'DABUR.NS', 'DELTACORP.NS',
-        'DISHTV.NS', 'EICHERMOT.NS', 'ESCORTS.NS', 'EXIDEIND.NS', 'FEDERALBNK.NS',
-        'GAIL.NS', 'GESHIP.NS', 'GMRINFRA.NS', 'GODREJIND.NS', 'GODREJPROP.NS',
-        'GRASIM.NS', 'GUJALKALI.NS', 'HAVELLS.NS', 'HCC.NS', 'HDFC.NS',
-        'HEG.NS', 'HEROHONDA.NS', 'HINDALCO.NS', 'HINDPETRO.NS', 'HINDZINC.NS',
-        'IBREALEST.NS', 'ICICIBANK.NS', 'ICICIGI.NS', 'ICICIPRULI.NS', 'IDFC.NS',
-        'IDFCFIRSTB.NS', 'IFCI.NS', 'IGARASHI.NS', 'INDIACEM.NS', 'INDIGO.NS',
-        'INDUSINDBK.NS', 'INFRATEL.NS', 'INFY.NS', 'IOC.NS', 'IRCON.NS',
-        'ITC.NS', 'JETAIRWAYS.NS', 'JINDALSTEL.NS', 'JINDALSAW.NS', 'JKCEMENT.NS',
-        'JKPAPER.NS', 'JKTYRE.NS', 'JMFINANCIAL.NS', 'JPPOWER.NS', 'JSWENERGY.NS',
-        'JSWSTEEL.NS', 'JUBLFOOD.NS', 'JUBLPHARMA.NS', 'JUSTDIAL.NS', 'KARURVYSYA.NS',
-        'KEC.NS', 'KOTAKBANK.NS', 'L&TFH.NS', 'LAURUSLABS.NS', 'LICHSGFIN.NS',
-        'LINDEINDIA.NS', 'LUPIN.NS', 'M&MFIN.NS', 'MCDOWELL-N.NS', 'MFSL.NS',
-        'MGL.NS', 'MINDTREE.NS', 'MOTILALOFS.NS', 'MPHASIS.NS', 'MRPL.NS',
-        'MUTHOOTFIN.NS', 'NAM-INDIA.NS', 'NBCC.NS', 'NCC.NS', 'NHPC.NS',
-        'NIACL.NS', 'NLCINDIA.NS', 'NMDC.NS', 'NTPC.NS', 'OFSS.NS',
-        'OIL.NS', 'ONGC.NS', 'ORIENTBANK.NS', 'PAGEIND.NS', 'PCJEWELLER.NS',
-        'PFC.NS', 'PGHL.NS', 'PHOENIXLTD.NS', 'PIDILITEIND.NS', 'PNB.NS',
-        'POLYPLEX.NS', 'POWERGRID.NS', 'PRSMJOHNSN.NS', 'PVR.NS', 'RAIN.NS',
-        'RAYMOND.NS', 'RBLBANK.NS', 'RCF.NS', 'RECLTD.NS', 'RELAXO.NS',
-        'RELIANCE.NS', 'RITES.NS', 'RVNL.NS', 'SAIL.NS', 'SANOFI.NS',
-        'SBILIFE.NS', 'SBIN.NS', 'SCI.NS', 'SELAN.NS', 'SHOPERSTOP.NS',
-        'SIEMENS.NS', 'SOUTHBANK.NS', 'SRF.NS', 'SRTRANSFIN.NS', 'STARHEALTH.NS',
-        'STEEL.NS', 'SUNPHARMA.NS', 'SUNTV.NS', 'SUPRAJIT.NS', 'SUZLON.NS',
-        'SYNGENE.NS', 'TANLA.NS', 'TATACHEM.NS', 'TATACOFFEE.NS', 'TATACOMM.NS',
-        'TATACONSUM.NS', 'TATAMOTORS.NS', 'TATAMTRDVR.NS', 'TATASTEEL.NS', 'TCS.NS',
-        'TECHM.NS', 'TITAN.NS', 'TORNTPHARM.NS', 'TORNTPOWER.NS', 'TVSMOTOR.NS',
-        'UBL.NS', 'UCOBANK.NS', 'UJJIVAN.NS', 'ULTRACEMCO.NS', 'UNIONBANK.NS',
-        'UPL.NS', 'VAKRANGEE.NS', 'VARROC.NS', 'VEDL.NS', 'VOLTAS.NS',
-        'WELCORP.NS', 'WELSPUNLTD.NS', 'WHIRLPOOL.NS', 'WIPRO.NS', 'YESBANK.NS',
-        'ZEEL.NS', 'ZENSARTECH.NS', 'ZODIACLOTH.NS', 'ZYDUSWELL.NS'
+        {'symbol': 'RELIANCE.NS', 'market_cap': 177399, 'name': 'RELIANCE INDUSTRIES LTD', 'sector': 'Energy', 'current_price': 1569.90, 'price_change': 1.96, 'volume': 14052178, 'pe_ratio': 25.56, 'dividend_yield': 0.36, 'price_to_book': 2.42, 'data_source': 'vercel-emergency'},
+        {'symbol': 'TCS.NS', 'market_cap': 95554, 'name': 'TATA CONSULTANCY SERVICES', 'sector': 'Technology', 'current_price': 3162.90, 'price_change': 0.5, 'volume': 2000000, 'pe_ratio': 28.5, 'dividend_yield': 1.2, 'price_to_book': 12.3, 'data_source': 'vercel-emergency'},
+        {'symbol': 'HDFCBANK.NS', 'market_cap': 12892, 'name': 'HDFC BANK LTD', 'sector': 'Banking', 'current_price': 1003.90, 'price_change': -0.2, 'volume': 5000000, 'pe_ratio': 18.5, 'dividend_yield': 1.5, 'price_to_book': 2.1, 'data_source': 'vercel-emergency'},
+        {'symbol': 'ICICIBANK.NS', 'market_cap': 82067, 'name': 'ICICI BANK LTD', 'sector': 'Banking', 'current_price': 1375.00, 'price_change': 0.8, 'volume': 4500000, 'pe_ratio': 22.1, 'dividend_yield': 1.8, 'price_to_book': 2.8, 'data_source': 'vercel-emergency'},
+        {'symbol': 'HINDUNILVR.NS', 'market_cap': 47581, 'name': 'HINDUSTAN UNILEVER LTD', 'sector': 'FMCG', 'current_price': 2425.20, 'price_change': -0.3, 'volume': 1500000, 'pe_ratio': 55.2, 'dividend_yield': 1.9, 'price_to_book': 8.5, 'data_source': 'vercel-emergency'}
     ]
+
+# Vercel-compatible: No background threading
+# All data fetching is now request-scoped with caching
 
 @app.route('/get_top_20_stocks')
 def get_top_20_stocks():
@@ -186,15 +299,14 @@ def get_top_20_stocks():
 def get_data_sources():
     """Get available data sources and their status"""
     try:
-        from multi_source_data import MultiSourceDataFetcher
-        fetcher = MultiSourceDataFetcher()
-        status = fetcher.check_all_sources()
+        source_status = get_data_source_status()
         
         return jsonify({
             'status': 'success',
-            'sources': status,
+            'sources': source_status,
             'default_source': DEFAULT_DATA_SOURCE,
-            'available_sources': AVAILABLE_SOURCES
+            'available_sources': AVAILABLE_SOURCES,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
         
     except Exception as e:
@@ -207,15 +319,186 @@ def get_data_sources():
             'available_sources': AVAILABLE_SOURCES
         }), 500
 
-def get_vercel_emergency_fallback():
-    """Emergency fallback stock data for Vercel"""
-    return [
-        {'symbol': 'RELIANCE.NS', 'current_price': 1569.90, 'price_change': 1.2, 'name': 'RELIANCE INDUSTRIES LTD', 'sector': 'Energy', 'market_cap': 1569000},
-        {'symbol': 'TCS.NS', 'current_price': 3162.90, 'price_change': -0.8, 'name': 'TATA CONSULTANCY SERVICES', 'sector': 'Technology', 'market_cap': 1162900},
-        {'symbol': 'HDFCBANK.NS', 'current_price': 1003.90, 'price_change': 0.5, 'name': 'HDFC BANK LTD', 'sector': 'Banking', 'market_cap': 678900},
-        {'symbol': 'ICICIBANK.NS', 'current_price': 1375.00, 'price_change': 1.1, 'name': 'ICICI BANK LTD', 'sector': 'Banking', 'market_cap': 587600},
-        {'symbol': 'HINDUNILVR.NS', 'current_price': 2425.20, 'price_change': -0.3, 'name': 'HINDUSTAN UNILEVER LTD', 'sector': 'FMCG', 'market_cap': 456700}
-    ]
+def get_multi_source_fallback(ticker, risk_appetite, source):
+    """Multi-source fallback for stock analysis"""
+    try:
+        print(f"🔄 Multi-source: Using fallback analysis for {ticker} from {source}")
+        
+        # Emergency fallback data
+        fallback_data = {
+            'RELIANCE.NS': {'current_price': 1569.90, 'name': 'RELIANCE INDUSTRIES LTD'},
+            'TCS.NS': {'current_price': 3162.90, 'name': 'TATA CONSULTANCY SERVICES'},
+            'HDFCBANK.NS': {'current_price': 1003.90, 'name': 'HDFC BANK LTD'},
+            'ICICIBANK.NS': {'current_price': 1375.00, 'name': 'ICICI BANK LTD'},
+            'HINDUNILVR.NS': {'current_price': 2425.20, 'name': 'HINDUSTAN UNILEVER LTD'}
+        }
+        
+        data = fallback_data.get(ticker, {
+            'current_price': 1000.0,
+            'name': ticker
+        })
+        
+        current_price = data['current_price']
+        rsi = 50.0  # Default neutral
+        
+        # Generate analysis summary
+        if rsi > 70:
+            signal = "SELL"
+            reason = f"RSI ({rsi:.1f}) indicates overbought conditions"
+        elif rsi < 30:
+            signal = "BUY"
+            reason = f"RSI ({rsi:.1f}) indicates oversold conditions"
+        else:
+            signal = "HOLD"
+            reason = f"RSI ({rsi:.1f}) is in neutral zone"
+        
+        risk_multipliers = {'low': 0.02, 'moderate': 0.05, 'high': 0.10}
+        stop_loss = current_price * (1 - risk_multipliers.get(risk_appetite, 0.05))
+        
+        analysis_summary = f"All data sources failed for {source}. Using fallback analysis. {reason}. Consider stop-loss at ₹{stop_loss:.2f} for {risk_appetite} risk."
+        
+        response_data = {
+            'ticker': ticker,
+            'current_price': current_price,
+            'rsi': rsi,
+            'ma20': None,
+            'ma50': None,
+            'risk_level': risk_appetite,
+            'analysis_summary': analysis_summary,
+            'market_news': {'news': [{'title': 'All data sources unavailable', 'summary': 'Please try again later or contact support'}]},
+            'analyst_recommendations': {'recommendation': 'HOLD', 'total_analysts': 0},
+            'market_sentiment': {'score': 0.5, 'sentiment': 'NEUTRAL'},
+            'data_source': 'multi-source-emergency-fallback',
+            'requested_source': source,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'error': f'All data sources failed for {source}'
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"❌ Multi-source: Even fallback failed for {ticker} - {e}")
+        return jsonify({
+            'ticker': ticker,
+            'current_price': 1000.0,
+            'rsi': 50.0,
+            'ma20': None,
+            'ma50': None,
+            'risk_level': risk_appetite,
+            'analysis_summary': 'Analysis temporarily unavailable. Please try again later.',
+            'market_news': {'news': [{'title': 'Analysis unavailable', 'summary': 'Please try again later'}]},
+            'analyst_recommendations': {'recommendation': 'HOLD', 'total_analysts': 0},
+            'market_sentiment': {'score': 0.5, 'sentiment': 'NEUTRAL'},
+            'data_source': 'multi-source-emergency-fallback',
+            'requested_source': source,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'error': str(e)
+        })
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Vercel-specific static file handling
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files with proper headers for Vercel"""
+    try:
+        response = send_from_directory('static', filename)
+        # Add caching headers for better performance
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+        return response
+    except Exception as e:
+        print(f"Error serving static file {filename}: {e}")
+        return f"File not found: {filename}", 404
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/blogs')
+def blogs():
+    return render_template('blogs.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
+@app.route('/test_functionality')
+def test_functionality():
+    return render_template('test_functionality.html')
+
+@app.route('/test_quick_analysis')
+def test_quick_analysis():
+    return render_template('test_quick_analysis.html')
+
+@app.route('/enhanced_demo')
+def enhanced_demo():
+    return render_template('enhanced_demo.html')
+
+@app.route('/get_market_news/<string:symbol>')
+def get_market_news_endpoint(symbol):
+    """Get latest market news for a stock"""
+    try:
+        news = get_market_news(symbol, limit=5)
+        return jsonify({
+            'status': 'success',
+            'news': news,
+            'total': len(news)
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to fetch market news: {str(e)}'
+        }), 500
+
+@app.route('/get_analyst_recommendations/<string:symbol>')
+def get_analyst_recommendations_endpoint(symbol):
+    """Get analyst recommendations for a stock"""
+    try:
+        recommendations = get_analyst_recommendations(symbol)
+        sentiment = get_market_sentiment(symbol)
+        
+        return jsonify({
+            'status': 'success',
+            'recommendations': recommendations,
+            'sentiment': sentiment
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to fetch analyst recommendations: {str(e)}'
+        }), 500
+
+
+@app.route('/refresh_data')
+def refresh_data():
+    """Manual endpoint to trigger data refresh."""
+    try:
+        get_nifty_200_list()
+        return jsonify({
+            'status': 'success',
+            'message': 'Data refreshed successfully',
+            'last_updated': last_data_update.strftime('%Y-%m-%d %H:%M:%S') if last_data_update else None,
+            'stocks_count': len(get_nifty_200_list())
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to refresh data: {str(e)}'
+        }), 500
 
 @app.route('/get_all_signals')
 def get_all_signals():
@@ -306,23 +589,23 @@ def get_all_signals():
 
 @app.route('/get_stock_data/<string:ticker>/<string:risk_appetite>')
 def get_stock_data(ticker, risk_appetite):
-    """Multi-source: Get stock analysis with timeout handling"""
+    """Multi-source: Get stock analysis with source selection and fallback handling"""
     try:
-        print(f"🔄 Multi-source: Analyzing {ticker} with {risk_appetite} risk...")
+        # Get data source from query parameter
+        source = request.args.get('source', DEFAULT_DATA_SOURCE)
+        
+        print(f"🔄 Multi-source: Analyzing {ticker} with {risk_appetite} risk from {source}...")
         
         # Check cache first
-        cache_key = f"stock_{ticker}_{risk_appetite}"
+        cache_key = f"stock_{ticker}_{risk_appetite}_{source}"
         current_time = datetime.now()
         
         if (cache_key in _cache_timestamps and 
             cache_key in _vercel_cache and
-            current_time - _cache_timestamps[cache_key] < CACHE_DURATION):
+            current_time - _cache_timestamps[cache_key] < timedelta(minutes=1)):
             
-            print(f"✅ Multi-source: Using cached analysis for {ticker}")
+            print(f"✅ Multi-source: Using cached analysis for {ticker} from {source}")
             return jsonify(_vercel_cache[cache_key])
-        
-        # Get data source from query parameter
-        source = request.args.get('source', DEFAULT_DATA_SOURCE)
         
         # Add .NS suffix if not present for Indian stocks
         if not ticker.endswith('.NS'):
@@ -382,7 +665,7 @@ def get_stock_data(ticker, risk_appetite):
                 'data_source': f"multi-source-{actual_source}",
                 'requested_source': source,
                 'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                # Trading prediction fields - ADDED THESE
+                # Trading prediction fields
                 'signal': signal,
                 'entry_price': current_price,
                 'exit_price': current_price * (1 + risk_multipliers.get(risk_appetite, 0.05)),
@@ -410,25 +693,11 @@ def get_stock_data(ticker, risk_appetite):
             return get_multi_source_fallback(ticker, risk_appetite, source)
             
     except Exception as e:
-        print(f"❌ Multi-source get_stock_data error: {e}")
-        return jsonify({
-            'ticker': ticker,
-            'current_price': 1000.0,
-            'rsi': 50.0,
-            'ma20': None,
-            'ma50': None,
-            'risk_level': risk_appetite,
-            'analysis_summary': 'Analysis temporarily unavailable. Please try again later.',
-            'market_news': {'news': [{'title': 'Analysis unavailable', 'summary': 'Please try again later'}]},
-            'analyst_recommendations': {'recommendation': 'HOLD', 'total_analysts': 0},
-            'market_sentiment': {'score': 0.5, 'sentiment': 'NEUTRAL'},
-            'data_source': 'multi-source-error-fallback',
-            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'error': str(e)
-        }), 500
+        print(f"❌ Multi-source: Stock analysis error for {ticker}: {e}")
+        return get_multi_source_fallback(ticker, risk_appetite, source)
 
 def get_multi_source_fallback(ticker, risk_appetite, source):
-    """Multi-source fallback for stock analysis - WITH TRADING PREDICTION FIELDS"""
+    """Multi-source fallback for stock analysis"""
     try:
         print(f"🔄 Multi-source: Using fallback analysis for {ticker} from {source}")
         
@@ -479,21 +748,7 @@ def get_multi_source_fallback(ticker, risk_appetite, source):
             'data_source': 'multi-source-emergency-fallback',
             'requested_source': source,
             'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'error': f'All data sources failed for {source}',
-            # Trading prediction fields - ADDED THESE
-            'signal': signal,
-            'entry_price': current_price,
-            'exit_price': current_price * 1.05,
-            'stop_loss': stop_loss,
-            'confidence': 50,
-            'target_profit': current_price * 0.05,
-            'risk_reward_ratio': 1.0,
-            'time_horizon': '1-2 weeks',
-            'chart_data': {
-                'dates': [],
-                'prices': [],
-                'volumes': []
-            }
+            'error': f'All data sources failed for {source}'
         }
         
         return jsonify(response_data)
@@ -514,66 +769,326 @@ def get_multi_source_fallback(ticker, risk_appetite, source):
             'data_source': 'multi-source-emergency-fallback',
             'requested_source': source,
             'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'error': str(e),
-            # Trading prediction fields - ADDED THESE
-            'signal': 'HOLD',
-            'entry_price': 1000.0,
-            'exit_price': 1050.0,
-            'stop_loss': 950.0,
-            'confidence': 50,
-            'target_profit': 50.0,
-            'risk_reward_ratio': 1.0,
-            'time_horizon': '1-2 weeks',
-            'chart_data': {
-                'dates': [],
-                'prices': [],
-                'volumes': []
-            }
+            'error': str(e)
         })
+        
+        # RSI calculation (same as bulk analysis)
+        delta = hist['Close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        hist['RSI'] = 100 - (100 / (1 + rs))
+        
+        hist['ATR'] = talib.ATR(hist['High'], hist['Low'], hist['Close'], timeperiod=14)
+        
+        print(f"📈 Calculated indicators, data length after calculations: {len(hist)}")
+        
+        # Remove rows with NaN values (only after all calculations)
+        hist_clean = hist.dropna()
+        print(f"🧹 Data length after dropping NaN: {len(hist_clean)}")
+        
+        if hist_clean.empty:
+            print("❌ No valid data after dropping NaN values")
+            return create_fallback_response()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+        hist = hist_clean
 
-# Vercel-specific static file handling
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    """Serve static files with proper headers for Vercel"""
+        # Generate Signal based on multiple conditions
+        # Condition 1: SMA Crossover
+        sma_cross_signal = np.where(hist['SMA50'] > hist['SMA200'], 1, -1)
+        
+        # Condition 2: RSI levels (oversold/overbought)
+        rsi_signal = np.where(hist['RSI'] < 30, 1, np.where(hist['RSI'] > 70, -1, 0))
+        
+        # Combined signal (weighted approach)
+        hist['Signal'] = np.where(sma_cross_signal == 1, 1, 
+                                np.where(sma_cross_signal == -1, -1, rsi_signal))
+        
+        # Generate trading signals (buy/sell/hold)
+        hist['Position'] = hist['Signal'].diff()
+
+        # Get signal using UNIFIED function for 100% consistency
+        unified_signal = calculate_unified_signal(ticker, period=period, interval=interval)
+        
+        if not hist.empty and unified_signal['success']:
+            signal_text = unified_signal['signal']
+            current_price = unified_signal['current_price']
+            current_sma_50 = unified_signal['sma_50']
+            current_sma_200 = unified_signal['sma_200']
+            current_rsi = unified_signal['rsi']
+            
+            print(f"✅ UNIFIED signal for {ticker}: {signal_text}")
+
+            # Suggest Entry, Exit, and Stop-Loss
+            recent_low = hist['Low'][-14:].min()
+            recent_high = hist['High'][-14:].max()
+            entry_price = f'{recent_low:.2f}'
+            
+            # Adjust exit price and stop-loss based on risk appetite
+            if risk_appetite == 'Custom' and custom_stop_loss and custom_exit_target:
+                # Custom risk - use user-defined percentages
+                stop_loss = f'{(recent_low * (1 - custom_stop_loss/100)):.2f}'
+                exit_price = f'{(recent_low * (1 + custom_exit_target/100)):.2f}'
+            elif risk_appetite == 'Low':
+                stop_loss = f'{(recent_low * 0.98):.2f}' # 2% below the 14-day low
+                exit_price = f'{(recent_low * 1.06):.2f}'  # 6% above entry (3:1 risk-reward)
+            elif risk_appetite == 'Medium':
+                stop_loss = f'{(recent_low * 0.95):.2f}' # 5% below the 14-day low
+                exit_price = f'{(recent_low * 1.15):.2f}'  # 15% above entry (3:1 risk-reward)
+            else: # High
+                stop_loss = f'{(recent_low * 0.90):.2f}' # 10% below the 14-day low
+                exit_price = f'{(recent_low * 1.30):.2f}'  # 30% above entry (3:1 risk-reward)
+
+            attributes = {
+                'SMA50': f'{hist["SMA50"].iloc[-1]:.2f}',
+                'SMA200': f'{hist["SMA200"].iloc[-1]:.2f}',
+                'RSI': f'{hist["RSI"].iloc[-1]:.2f}',
+                'ATR': f'{hist["ATR"].iloc[-1]:.2f}'
+            }
+            data = hist.to_json()
+            
+            print(f"✅ Successfully analyzed {ticker}: {signal_text}")
+            
+            # Get additional market data
+            try:
+                print(f"📰 Fetching market news for {ticker}...")
+                market_news = get_market_news(ticker, limit=3)
+                print(f"📊 Getting analyst recommendations for {ticker}...")
+                analyst_data = get_analyst_recommendations(ticker)
+                market_sentiment = get_market_sentiment(ticker)
+            except Exception as e:
+                print(f"⚠️ Error fetching additional market data: {e}")
+                market_news = []
+                analyst_data = get_default_recommendations()
+                market_sentiment = {'sentiment': 'UNKNOWN', 'score': 0.5, 'summary': 'Unable to determine sentiment'}
+
+            response = {
+                'signal': signal_text,
+                'entry_price': entry_price,
+                'exit_price': exit_price,
+                'stop_loss': stop_loss,
+                'attributes': attributes,
+                'data': data,
+                # New fields
+                'market_news': market_news,
+                'analyst_recommendations': analyst_data,
+                'market_sentiment': market_sentiment,
+                'analysis_summary': generate_analysis_summary(signal_text, analyst_data, market_sentiment)
+            }
+
+            return jsonify(response)
+        else:
+            print("❌ Empty dataframe after processing")
+            return create_fallback_response()
+            
+    except Exception as e:
+        print(f"❌ Error in get_stock_data: {str(e)}")
+        return create_fallback_response()
+
+def calculate_unified_signal(symbol, period="2y", interval="1d"):
+    """
+    UNIFIED signal calculation function used by ALL endpoints
+    Ensures 100% consistency across the application
+    Returns: dict with all signal data
+    """
     try:
-        return send_from_directory('static', filename)
-    except:
-        return '', 404
+        print(f"🔍 UNIFIED analysis for {symbol} (period: {period}, interval: {interval})")
+        
+        # Get stock data
+        stock = yf.Ticker(symbol)
+        hist = stock.history(period=period, interval=interval)
+        
+        if hist.empty:
+            print(f"❌ No data for {symbol}")
+            return create_fallback_signal_dict(symbol)
+        
+        # Calculate ALL indicators using EXACT same method
+        close = hist['Close']
+        sma_50 = close.rolling(window=50).mean()
+        sma_200 = close.rolling(window=200).mean()
+        
+        # RSI calculation (manual method for consistency)
+        delta = close.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs))
+        
+        # Get latest values
+        current_price = close.iloc[-1]
+        current_sma_50 = sma_50.iloc[-1]
+        current_sma_200 = sma_200.iloc[-1] if not pd.isna(sma_200.iloc[-1]) else current_sma_50
+        current_rsi = rsi.iloc[-1]
+        
+        print(f"📊 {symbol} - Price: {current_price:.2f}, SMA50: {current_sma_50:.2f}, SMA200: {current_sma_200:.2f}, RSI: {current_rsi:.2f}")
+        
+        # Generate signal using unified logic
+        signal, signal_color = generate_unified_signal_logic(current_price, current_sma_50, current_sma_200, current_rsi)
+        
+        # Return unified signal data
+        return {
+            'symbol': symbol,
+            'signal': signal,
+            'signal_color': signal_color,
+            'current_price': round(current_price, 2),
+            'sma_50': round(current_sma_50, 2) if not pd.isna(current_sma_50) else None,
+            'sma_200': round(current_sma_200, 2) if not pd.isna(current_sma_200) else None,
+            'rsi': round(current_rsi, 2) if not pd.isna(current_rsi) else None,
+            'success': True
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in unified signal calculation for {symbol}: {e}")
+        return create_fallback_signal_dict(symbol)
 
-# Vercel health check endpoint
+def generate_unified_signal_logic(current_price, sma_50, sma_200, rsi):
+    """
+    UNIFIED signal logic - single source of truth
+    """
+    try:
+        # Handle NaN values
+        sma_200_valid = not pd.isna(sma_200)
+        rsi_valid = not pd.isna(rsi)
+        
+        # More balanced BUY conditions
+        buy_conditions = (
+            current_price > sma_50 and
+            (not sma_200_valid or current_price > sma_200) and
+            rsi_valid and 25 <= rsi <= 75
+        )
+        
+        # More balanced SELL conditions  
+        sell_conditions = (
+            current_price < sma_50 and
+            (not sma_200_valid or current_price < sma_200) and
+            rsi_valid and 25 <= rsi <= 75
+        )
+        
+        if buy_conditions:
+            return "BUY", "success"
+        elif sell_conditions:
+            return "SELL", "danger"
+        else:
+            return "HOLD", "warning"
+            
+    except Exception as e:
+        print(f"Error in signal logic: {e}")
+        return "HOLD", "warning"
+
+def create_fallback_signal_dict(symbol):
+    """Create fallback signal data"""
+    return {
+        'symbol': symbol,
+        'signal': 'HOLD',
+        'signal_color': 'warning',
+        'current_price': None,
+        'sma_50': None,
+        'sma_200': None,
+        'rsi': None,
+        'success': False
+    }
+
+def generate_analysis_summary(signal, analyst_data, sentiment):
+    """Generate a comprehensive analysis summary"""
+    try:
+        summary_parts = []
+        
+        # Signal-based summary
+        if signal == 'BUY':
+            summary_parts.append("Technical indicators suggest a BUY signal")
+        elif signal == 'SELL':
+            summary_parts.append("Technical indicators suggest a SELL signal")
+        else:
+            summary_parts.append("Technical indicators suggest HOLDING")
+        
+        # Analyst summary
+        if analyst_data.get('total_analysts', 0) > 0:
+            total = analyst_data['total_analysts']
+            strong_buy = analyst_data.get('strong_buy', 0)
+            buy = analyst_data.get('buy', 0)
+            hold = analyst_data.get('hold', 0)
+            
+            if strong_buy + buy > hold:
+                summary_parts.append(f"Analysts are generally bullish ({strong_buy + buy} out of {total} recommend buying)")
+            elif hold > strong_buy + buy:
+                summary_parts.append(f"Analysts recommend holding ({hold} out of {total} analysts)")
+            else:
+                summary_parts.append(f"Analyst opinions are mixed ({total} analysts covering)")
+        else:
+            summary_parts.append("Analyst recommendations not available")
+        
+        # Sentiment summary
+        sentiment_score = sentiment.get('score', 0.5)
+        if sentiment_score > 0.6:
+            summary_parts.append("Market sentiment appears positive")
+        elif sentiment_score < 0.4:
+            summary_parts.append("Market sentiment appears negative")
+        else:
+            summary_parts.append("Market sentiment appears neutral")
+        
+        return ". ".join(summary_parts) + "."
+        
+    except Exception as e:
+        print(f"Error generating analysis summary: {e}")
+        return "Analysis summary unavailable."
+
+def get_default_recommendations():
+    """Default recommendations when data is not available"""
+    return {
+        'strong_buy': 0,
+        'buy': 0,
+        'hold': 0,
+        'sell': 0,
+        'strong_sell': 0,
+        'total_analysts': 0,
+        'target_price': None,
+        'source': 'Not Available',
+        'summary': 'Analyst recommendations not available at this time.'
+    }
+
+def create_fallback_response():
+    """Create a fallback response when stock data is not available"""
+    return jsonify({
+        'signal': 'Not Available',
+        'entry_price': 'Not Available',
+        'exit_price': 'Not Available',
+        'stop_loss': 'Not Available',
+        'attributes': {
+            'SMA50': 'Not Available',
+            'SMA200': 'Not Available',
+            'RSI': 'Not Available',
+            'ATR': 'Not Available'
+        },
+        'data': pd.DataFrame().to_json(),
+        'market_news': [],
+        'analyst_recommendations': get_default_recommendations(),
+        'market_sentiment': {'sentiment': 'UNKNOWN', 'score': 0.5, 'summary': 'Unable to determine sentiment'},
+        'analysis_summary': 'Analysis unavailable due to data issues.'
+    })
+
 @app.route('/health')
 def health_check():
-    """Health check endpoint for Vercel"""
+    """Health check endpoint for monitoring"""
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'version': '4.0-multi-source'
+        'service': 'Stock Predictor API',
+        'version': '2.0',
+        'static_files': 'ok'
     })
 
-# Vercel-specific API versioning
-@app.route('/api/v1/health')
+@app.route('/api/health')
 def api_health():
-    """API health check with system status"""
-    try:
-        return jsonify({
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'version': '4.0-multi-source',
-            'data_sources': AVAILABLE_SOURCES,
-            'default_source': DEFAULT_DATA_SOURCE,
-            'cache_status': 'active',
-            'system': 'vercel-serverless'
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
+    """API health check for Vercel"""
+    return jsonify({
+        'status': 'ok',
+        'timestamp': datetime.now().isoformat(),
+        'endpoints': {
+            'static': '/static/*',
+            'api': '/api/*',
+            'main': '/'
+        }
+    })
 
 # Production deployment
 if __name__ == '__main__':
